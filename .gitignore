@@ -1,0 +1,7 @@
+/.gradle/
+/.idea/
+*.iml
+/Prototype/artifacts/
+/Prototype/out/
+/gradle/
+/out/
