@@ -1,7 +1,6 @@
 package me.danetnaverno.editoni.render;
 
 import com.jogamp.opengl.glu.GLU;
-import me.danetnaverno.editoni.InputHandler;
 import me.danetnaverno.editoni.MainProcess;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -11,7 +10,6 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 
-import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -132,15 +130,6 @@ public class LWJGLWindow
 
             MainProcess.displayLoop();
 
-            if (InputHandler.keyDown(org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE))
-            {
-                DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
-                DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
-                glfwGetCursorPos(LWJGLWindow.window, x, y);
-                System.out.println(x.get(0) + " " + y.get(0));
-                GetOGLPos((int)x.get(0),(int)y.get(0));
-            }
-
             glfwSwapBuffers(window);
         }
     }
@@ -161,8 +150,7 @@ public class LWJGLWindow
         GL11.glReadPixels(x, y, 1, 1, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, winZ);
         float z = winZ.get(0);
         new GLU().gluUnProject(x, y, z, mvmatrix, projmatrix, viewport, output);
-        System.out.println(z + ", " + (int) output.get(0) + " " + (int) output.get(1) + " " + (int) output.get(2));
-        int ass = 5;
-        return new Vector3f(output.get(0), output.get(0), output.get(0));
+        System.out.println(z + ", " + output.get(0) + " " + output.get(1) + " " + output.get(2));
+        return new Vector3f(output.get(0), output.get(1), output.get(2));
     }
 }

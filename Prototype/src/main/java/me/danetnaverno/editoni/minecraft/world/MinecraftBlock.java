@@ -5,15 +5,12 @@ import net.querz.nbt.CompoundTag;
 
 public class MinecraftBlock extends Block
 {
-    public MinecraftBlock(CompoundTag tag, int x, int y, int z)
+    public MinecraftBlock(MinecraftChunk chunk, int x, int y, int z, CompoundTag tag)
     {
-        super();
+        super(chunk, x, y, z);
         try
         {
-            id = tag.getString("Name");
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            setId(tag.getString("Name"));
         }
         catch (Throwable ex)
         {

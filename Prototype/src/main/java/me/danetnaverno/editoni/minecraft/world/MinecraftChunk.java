@@ -1,16 +1,17 @@
 package me.danetnaverno.editoni.minecraft.world;
 
+import kotlin.Triple;
 import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
 import net.querz.nbt.CompoundTag;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class MinecraftChunk extends Chunk
 {
-    public List<Block> blocks = new ArrayList<>();
+    public Map<Triple<Integer, Integer, Integer>, Block> blocks = new HashMap<>();
+
     private static Field dataField;
 
     static
@@ -30,10 +31,10 @@ public class MinecraftChunk extends Chunk
     {
         super();
         CompoundTag data = getData(mcaChunk);
-        x = chunkX;
-        z = chunkZ;
-        //x = data.getInt("xPos");
-        //z = data.getInt("zPos");
+        xRender = chunkX;
+        zRender = chunkZ;
+        xPos = data.getCompoundTag("Level").getInt("xPos");
+        zPos = data.getCompoundTag("Level").getInt("zPos");
         for (int x = 0; x < 16; x++)
             for (int y = 0; y < 255; y++)
                 for (int z = 0; z < 16; z++)
@@ -42,7 +43,7 @@ public class MinecraftChunk extends Chunk
                     {
                         CompoundTag tag = mcaChunk.getBlockStateAt(x, y, z);
                         if (tag != null)
-                            blocks.add(new MinecraftBlock(tag, x, y, z));
+                            blocks.put(new Triple<>(x, y, z), new MinecraftBlock(this, x, y, z, tag));
                     }
                     catch (Exception e)
                     {
@@ -64,14 +65,14 @@ public class MinecraftChunk extends Chunk
     }
 
     @Override
-    public List<Block> getBlocks()
+    public Collection<Block> getBlocks()
     {
-        return blocks;
+        return blocks.values();
     }
 
     @Override
     public Block getBlockAt(int x, int y, int z)
     {
-        return null;
+        return blocks.get(new Triple<>(x, y, z));
     }
 }
