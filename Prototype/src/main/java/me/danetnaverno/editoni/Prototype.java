@@ -4,9 +4,10 @@ import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.minecraft.world.MinecraftRegion;
 import me.danetnaverno.editoni.minecraft.world.MinecraftWorld;
+import me.danetnaverno.editoni.common.render.BlockRendererCube;
 import me.danetnaverno.editoni.render.Camera;
 import me.danetnaverno.editoni.render.LWJGLWindow;
-import me.danetnaverno.editoni.render.Texture;
+import me.danetnaverno.editoni.common.texture.Texture;
 import net.querz.nbt.mca.MCAUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,18 +31,12 @@ public class Prototype
 {
     public static Logger logger = LogManager.getLogger("Prototype");
 
-    private static Texture mario;
-    private static Texture brick;
     private static MinecraftWorld world;
 
     private static Pattern regex = Pattern.compile("r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca");
 
     public static void init() throws IOException
     {
-        //File file = new File("data/r.0.0.mca");
-        //byte[] data = Files.readAllBytes(file.toPath());
-        //MCAFile.readAll(file, new ByteArrayPointer(data));
-
         world = new MinecraftWorld();
 
         File worldFolder = new File("data/Test");
@@ -65,9 +60,6 @@ public class Prototype
             Camera.pitch = 36;
 
             InputHandler.init(LWJGLWindow.window);
-
-            mario = new Texture(Paths.get("data/sprites/actors/mario.png"));
-            brick = new Texture(Paths.get("data/sprites/tiles/brick.png"));
         }
         catch (Exception e)
         {
@@ -94,15 +86,11 @@ public class Prototype
                     GL11.glTranslatef(chunk.xRender << 4, 0, chunk.zRender << 4);
                     for (Block block : chunk.getBlocks())
                     {
-                        if (!block.getId().equalsIgnoreCase("minecraft:air"))
+                        if (!block.type.getId().equalsIgnoreCase("minecraft:air"))
                         {
                             GL11.glPushMatrix();
                             GL11.glTranslatef(block.getLocalX(), block.getLocalY(), block.getLocalZ());
-                            if (block.getId().equalsIgnoreCase("minecraft:stone"))
-                                brick.bind();
-                            else
-                                mario.bind();
-                            drawCube();
+                            block.type.getRenderer().draw();
                             GL11.glPopMatrix();
                         }
                     }
@@ -118,7 +106,6 @@ public class Prototype
                 DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
                 glfwGetCursorPos(LWJGLWindow.window, x, y);
                 Vector3f ass = GetOGLPos((int) x.get(0), (int) y.get(0));
-                //Vector3f ass = new Vector3f(-1,6,0);
                 Block block = findBlock(ass);
                 if (block != null)
                 {
@@ -127,7 +114,7 @@ public class Prototype
                     GL11.glDisable(GL11.GL_DEPTH_TEST);
                     GL11.glDisable(GL11.GL_TEXTURE_2D);
                     GL11.glColor3f(1f, 1f, 0f);
-                    drawCube();
+                    new BlockRendererCube(new Texture(Paths.get("data/textures/blocks/error.png"))).draw();
                     GL11.glColor3f(1f, 1f, 1f);
                     GL11.glPopMatrix();
                 }
@@ -155,7 +142,7 @@ public class Prototype
                     if (distance < min)
                     {
                         Block block = world.getBlockAt(x, y, z);
-                        if (block != null && !block.getId().equalsIgnoreCase("minecraft:air"))
+                        if (block != null && !block.type.getId().equalsIgnoreCase("minecraft:air"))
                         {
                             closest = block;
                             min = distance;
@@ -163,60 +150,6 @@ public class Prototype
                     }
                 }
         return closest;
-    }
-
-    private static void drawCube()
-    {
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glTexCoord2f(0.0f, 0.0f);
-        GL11.glVertex3f(0.0f, 1.0f, 0.0f);
-        GL11.glTexCoord2f(1.0f, 0.0f);
-        GL11.glVertex3f(0.0f, 1.0f, 1.0f);
-        GL11.glTexCoord2f(1.0f, 1.0f);
-        GL11.glVertex3f(1.0f, 1.0f, 1.0f);
-        GL11.glTexCoord2f(0.0f, 1.0f);
-        GL11.glVertex3f(1.0f, 1.0f, 0.0f);
-        GL11.glTexCoord2f(0.0f, 0.0f);
-        GL11.glVertex3f(0.0f, 0.0f, 0.0f);
-        GL11.glTexCoord2f(1.0f, 0.0f);
-        GL11.glVertex3f(1.0f, 0.0f, 0.0f);
-        GL11.glTexCoord2f(1.0f, 1.0f);
-        GL11.glVertex3f(1.0f, 0.0f, 1.0f);
-        GL11.glTexCoord2f(0.0f, 1.0f);
-        GL11.glVertex3f(0.0f, 0.0f, 1.0f);
-        GL11.glTexCoord2f(0.0f, 0.0f);
-        GL11.glVertex3f(1.0f, 1.0f, 1.0f);
-        GL11.glTexCoord2f(1.0f, 0.0f);
-        GL11.glVertex3f(0.0f, 1.0f, 1.0f);
-        GL11.glTexCoord2f(1.0f, 1.0f);
-        GL11.glVertex3f(0.0f, 0.0f, 1.0f);
-        GL11.glTexCoord2f(0.0f, 1.0f);
-        GL11.glVertex3f(1.0f, 0.0f, 1.0f);
-        GL11.glTexCoord2f(0.0f, 0.0f);
-        GL11.glVertex3f(1.0f, 0.0f, 0.0f);
-        GL11.glTexCoord2f(1.0f, 0.0f);
-        GL11.glVertex3f(0.0f, 0.0f, 0.0f);
-        GL11.glTexCoord2f(1.0f, 1.0f);
-        GL11.glVertex3f(0.0f, 1.0f, 0.0f);
-        GL11.glTexCoord2f(0.0f, 1.0f);
-        GL11.glVertex3f(1.0f, 1.0f, 0.0f);
-        GL11.glTexCoord2f(0.0f, 0.0f);
-        GL11.glVertex3f(0.0f, 1.0f, 1.0f);
-        GL11.glTexCoord2f(1.0f, 0.0f);
-        GL11.glVertex3f(0.0f, 1.0f, 0.0f);
-        GL11.glTexCoord2f(1.0f, 1.0f);
-        GL11.glVertex3f(0.0f, 0.0f, 0.0f);
-        GL11.glTexCoord2f(0.0f, 1.0f);
-        GL11.glVertex3f(0.0f, 0.0f, 1.0f);
-        GL11.glTexCoord2f(0.0f, 0.0f);
-        GL11.glVertex3f(1.0f, 1.0f, 0.0f);
-        GL11.glTexCoord2f(1.0f, 0.0f);
-        GL11.glVertex3f(1.0f, 1.0f, 1.0f);
-        GL11.glTexCoord2f(1.0f, 1.0f);
-        GL11.glVertex3f(1.0f, 0.0f, 1.0f);
-        GL11.glTexCoord2f(0.0f, 1.0f);
-        GL11.glVertex3f(1.0f, 0.0f, 0.0f);
-        GL11.glEnd();
     }
 
     public static void mainLoop()

@@ -2,6 +2,7 @@ package me.danetnaverno.editoni.render;
 
 import com.jogamp.opengl.glu.GLU;
 import me.danetnaverno.editoni.MainProcess;
+import me.danetnaverno.editoni.Prototype;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -150,7 +151,7 @@ public class LWJGLWindow
         GL11.glReadPixels(x, y, 1, 1, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, winZ);
         float z = winZ.get(0);
         new GLU().gluUnProject(x, y, z, mvmatrix, projmatrix, viewport, output);
-        System.out.println(z + ", " + output.get(0) + " " + output.get(1) + " " + output.get(2));
+        Prototype.logger.info(z + ", " + output.get(0) + " " + output.get(1) + " " + output.get(2));
         return new Vector3f(output.get(0), output.get(1), output.get(2));
     }
 }

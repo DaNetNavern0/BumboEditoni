@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.render;
+package me.danetnaverno.editoni.common.texture;
 
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.stb.STBImage;
