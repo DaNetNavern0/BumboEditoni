@@ -1,6 +1,6 @@
-package me.danetnaverno.editoni.common.render
+package me.danetnaverno.editoni.engine.render
 
-import me.danetnaverno.editoni.common.texture.Texture
+import me.danetnaverno.editoni.engine.texture.Texture
 import org.lwjgl.opengl.GL11
 
 class BlockRendererCube : BlockRenderer

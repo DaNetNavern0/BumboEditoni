@@ -1,13 +1,14 @@
 package me.danetnaverno.editoni;
 
+import me.danetnaverno.editoni.common.block.BlockType;
 import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
+import me.danetnaverno.editoni.engine.render.BlockRendererCube;
+import me.danetnaverno.editoni.engine.texture.TextureDictionary;
 import me.danetnaverno.editoni.minecraft.world.MinecraftRegion;
 import me.danetnaverno.editoni.minecraft.world.MinecraftWorld;
-import me.danetnaverno.editoni.common.render.BlockRendererCube;
 import me.danetnaverno.editoni.render.Camera;
 import me.danetnaverno.editoni.render.LWJGLWindow;
-import me.danetnaverno.editoni.common.texture.Texture;
 import net.querz.nbt.mca.MCAUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +21,6 @@ import org.lwjgl.opengl.GL11;
 import java.io.File;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
-import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,60 +69,53 @@ public class Prototype
 
     public static void displayLoop()
     {
-        try
-        {
-            InputHandler.update();
-            GL11.glTranslated(Camera.x, Camera.y, Camera.z);
-            GL11.glRotated(Camera.pitch, 1, 0, 0);
-            GL11.glRotated(Camera.yaw, 0, 1, 0);
+        InputHandler.update();
+        GL11.glTranslated(Camera.x, Camera.y, Camera.z);
+        GL11.glRotated(Camera.pitch, 1, 0, 0);
+        GL11.glRotated(Camera.yaw, 0, 1, 0);
 
-            for (MinecraftRegion region : world.regions.values())
+        for (MinecraftRegion region : world.regions.values())
+        {
+            GL11.glPushMatrix();
+            GL11.glTranslatef(region.x << 9, 0, region.z << 9);
+            for (Chunk chunk : region.chunks.values())
             {
                 GL11.glPushMatrix();
-                GL11.glTranslatef(region.x << 9, 0, region.z << 9);
-                for (Chunk chunk : region.chunks.values())
+                GL11.glTranslatef(chunk.xRender << 4, 0, chunk.zRender << 4);
+                for (Block block : chunk.getBlocks())
                 {
-                    GL11.glPushMatrix();
-                    GL11.glTranslatef(chunk.xRender << 4, 0, chunk.zRender << 4);
-                    for (Block block : chunk.getBlocks())
+                    if (!block.type.equals(BlockType.AIR))
                     {
-                        if (!block.type.getId().equalsIgnoreCase("minecraft:air"))
-                        {
-                            GL11.glPushMatrix();
-                            GL11.glTranslatef(block.getLocalX(), block.getLocalY(), block.getLocalZ());
-                            block.type.getRenderer().draw();
-                            GL11.glPopMatrix();
-                        }
+                        GL11.glPushMatrix();
+                        GL11.glTranslatef(block.getLocalX(), block.getLocalY(), block.getLocalZ());
+                        block.type.renderer.draw();
+                        GL11.glPopMatrix();
                     }
-                    GL11.glPopMatrix();
                 }
                 GL11.glPopMatrix();
             }
-
-            if (InputHandler.keyDown(org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE))
-            {
-                Block block1 = world.getBlockAt(-1, 6, 0);
-                DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
-                DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
-                glfwGetCursorPos(LWJGLWindow.window, x, y);
-                Vector3f ass = GetOGLPos((int) x.get(0), (int) y.get(0));
-                Block block = findBlock(ass);
-                if (block != null)
-                {
-                    GL11.glPushMatrix();
-                    GL11.glTranslatef(block.getGlobalX(), block.getGlobalY(), block.getGlobalZ());
-                    GL11.glDisable(GL11.GL_DEPTH_TEST);
-                    GL11.glDisable(GL11.GL_TEXTURE_2D);
-                    GL11.glColor3f(1f, 1f, 0f);
-                    new BlockRendererCube(new Texture(Paths.get("data/textures/blocks/error.png"))).draw();
-                    GL11.glColor3f(1f, 1f, 1f);
-                    GL11.glPopMatrix();
-                }
-            }
+            GL11.glPopMatrix();
         }
-        catch (Throwable e)
+
+        if (InputHandler.mouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_1))
         {
-            e.printStackTrace();
+            Block block1 = world.getBlockAt(-1, 6, 0);
+            DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
+            DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
+            glfwGetCursorPos(LWJGLWindow.window, x, y);
+            Vector3f ass = GetOGLPos((int) x.get(0), (int) y.get(0));
+            Block block = findBlock(ass);
+            if (block != null)
+            {
+                GL11.glPushMatrix();
+                GL11.glTranslatef(block.getGlobalX(), block.getGlobalY(), block.getGlobalZ());
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
+                GL11.glDisable(GL11.GL_TEXTURE_2D);
+                GL11.glColor3f(1f, 1f, 0f);
+                new BlockRendererCube(TextureDictionary.get("blocks/error.png")).draw();
+                GL11.glColor3f(1f, 1f, 1f);
+                GL11.glPopMatrix();
+            }
         }
     }
 
@@ -142,7 +135,7 @@ public class Prototype
                     if (distance < min)
                     {
                         Block block = world.getBlockAt(x, y, z);
-                        if (block != null && !block.type.getId().equalsIgnoreCase("minecraft:air"))
+                        if (block != null && block.type.equals(BlockType.AIR))
                         {
                             closest = block;
                             min = distance;

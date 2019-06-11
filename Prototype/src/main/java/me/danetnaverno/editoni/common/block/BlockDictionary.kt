@@ -4,6 +4,12 @@ object BlockDictionary
 {
     private val blockTypes = mutableMapOf<String, BlockType>()
 
+    init
+    {
+        blockTypes["minecraft:air"] = BlockType.AIR
+        blockTypes["minecraft:stone"] = BlockType.STONE
+    }
+
     fun getAllBlockTypes(): MutableMap<String, BlockType>
     {
         val map = mutableMapOf<String, BlockType>()

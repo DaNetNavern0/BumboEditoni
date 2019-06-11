@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.common.render;
+package me.danetnaverno.editoni.engine.render;
 
 public abstract class BlockRenderer
 {

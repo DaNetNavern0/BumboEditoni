@@ -23,7 +23,14 @@ object MainProcess
     @JvmStatic
     fun displayLoop()
     {
-        Prototype.displayLoop()
+        try
+        {
+            Prototype.displayLoop()
+        }
+        catch (e: Throwable)
+        {
+            e.printStackTrace()
+        }
     }
 
     @JvmStatic

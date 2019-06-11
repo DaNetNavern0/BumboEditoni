@@ -1,7 +1,6 @@
 package me.danetnaverno.editoni.common.world
 
 import me.danetnaverno.editoni.common.block.BlockType
-import me.danetnaverno.editoni.common.render.BlockRenderer
 
 abstract class Block(val chunk: Chunk, val localX: Int, val localY: Int, val localZ: Int)
 {
