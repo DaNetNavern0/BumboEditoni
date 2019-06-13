@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.minecraft.world
 
+import me.danetnaverno.editoni.common.ResourceLocation
 import me.danetnaverno.editoni.common.block.BlockDictionary
 import me.danetnaverno.editoni.common.world.Block
 import net.querz.nbt.CompoundTag
@@ -8,6 +9,6 @@ class MinecraftBlock(chunk: MinecraftChunk, x: Int, y: Int, z: Int, tag: Compoun
 {
     init
     {
-        type = BlockDictionary.getBlockType(tag.getString("Name"))
+        type = BlockDictionary.getBlockType(ResourceLocation(tag.getString("Name")))
     }
 }

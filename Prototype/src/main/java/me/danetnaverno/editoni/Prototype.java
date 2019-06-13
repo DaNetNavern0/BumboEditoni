@@ -3,8 +3,8 @@ package me.danetnaverno.editoni;
 import me.danetnaverno.editoni.common.block.BlockType;
 import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
-import me.danetnaverno.editoni.engine.render.BlockRendererCube;
-import me.danetnaverno.editoni.engine.texture.TextureDictionary;
+import me.danetnaverno.editoni.editor.Editor;
+import me.danetnaverno.editoni.engine.render.BlockRendererDictionary;
 import me.danetnaverno.editoni.minecraft.world.MinecraftRegion;
 import me.danetnaverno.editoni.minecraft.world.MinecraftWorld;
 import me.danetnaverno.editoni.render.Camera;
@@ -39,7 +39,7 @@ public class Prototype
     {
         world = new MinecraftWorld();
 
-        File worldFolder = new File("data/Test");
+        File worldFolder = new File("data/TestWorld");
         File regionFolder = new File(worldFolder,"region");
         for (File file : regionFolder.listFiles())
         {
@@ -54,10 +54,11 @@ public class Prototype
 
         try
         {
-            Camera.x = -4;
+            Camera.x = 0;
             Camera.y = 0;
-            Camera.z = -36;
-            Camera.pitch = 36;
+            Camera.z = -20;
+            Camera.pitch = 52;
+            Camera.yaw = 140;
 
             InputHandler.init(LWJGLWindow.window);
         }
@@ -97,25 +98,26 @@ public class Prototype
             GL11.glPopMatrix();
         }
 
+        Block block = Editor.selectedBlock;
+        if (block != null)
+        {
+            GL11.glPushMatrix();
+            GL11.glTranslatef(block.getGlobalX(), block.getGlobalY(), block.getGlobalZ());
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL11.glColor4f(1f, 1f, 0f, 0.7f);
+            BlockRendererDictionary.ERROR.draw();
+            GL11.glColor3f(1f, 1f, 1f);
+            GL11.glPopMatrix();
+        }
+
         if (InputHandler.mouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_1))
         {
-            Block block1 = world.getBlockAt(-1, 6, 0);
             DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
             DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
             glfwGetCursorPos(LWJGLWindow.window, x, y);
             Vector3f ass = GetOGLPos((int) x.get(0), (int) y.get(0));
-            Block block = findBlock(ass);
-            if (block != null)
-            {
-                GL11.glPushMatrix();
-                GL11.glTranslatef(block.getGlobalX(), block.getGlobalY(), block.getGlobalZ());
-                GL11.glDisable(GL11.GL_DEPTH_TEST);
-                GL11.glDisable(GL11.GL_TEXTURE_2D);
-                GL11.glColor3f(1f, 1f, 0f);
-                new BlockRendererCube(TextureDictionary.get("blocks/error.png")).draw();
-                GL11.glColor3f(1f, 1f, 1f);
-                GL11.glPopMatrix();
-            }
+            Editor.selectedBlock = findBlock(ass);
         }
     }
 
@@ -135,7 +137,7 @@ public class Prototype
                     if (distance < min)
                     {
                         Block block = world.getBlockAt(x, y, z);
-                        if (block != null && block.type.equals(BlockType.AIR))
+                        if (block != null && !block.type.equals(BlockType.AIR))
                         {
                             closest = block;
                             min = distance;
@@ -148,17 +150,17 @@ public class Prototype
     public static void mainLoop()
     {
         if (InputHandler.keyDown(GLFW.GLFW_KEY_A))
-            Camera.x+=4;
+            Camera.x+=1;
         if (InputHandler.keyDown(GLFW.GLFW_KEY_D))
-            Camera.x-=4;
+            Camera.x-=1;
         else if (InputHandler.keyDown(GLFW.GLFW_KEY_W))
-            Camera.z+=4;
+            Camera.z+=1;
         else if (InputHandler.keyDown(GLFW.GLFW_KEY_S))
-            Camera.z-=4;
+            Camera.z-=1;
         else if (InputHandler.keyDown(GLFW.GLFW_KEY_E))
-            Camera.y-=4;
+            Camera.y-=1;
         else if (InputHandler.keyDown(GLFW.GLFW_KEY_Q))
-            Camera.y+=4;
+            Camera.y+=1;
         else if (InputHandler.keyDown(GLFW.GLFW_KEY_1))
             Camera.yaw-=4;
         else if (InputHandler.keyDown(GLFW.GLFW_KEY_2))

@@ -1,6 +1,11 @@
 package me.danetnaverno.editoni.render;
 
 import com.jogamp.opengl.glu.GLU;
+import lwjgui.LWJGUI;
+import lwjgui.scene.Scene;
+import lwjgui.scene.Window;
+import lwjgui.scene.control.Label;
+import lwjgui.scene.layout.StackPane;
 import me.danetnaverno.editoni.MainProcess;
 import me.danetnaverno.editoni.Prototype;
 import org.joml.Vector3f;
@@ -97,6 +102,17 @@ public class LWJGLWindow
         // bindings available for use.
         GL.createCapabilities();
 
+        Window window2 = LWJGUI.initialize(window);
+        window2.setWindowAutoDraw(false); // Turn off automatic buffer swapping, we want to do it ourself!
+
+        // Add some components
+        StackPane pane = new StackPane();
+        pane.getChildren().add(new Label("Hello Worldaa!"));
+        window2.setScene(new Scene(pane, width, height));
+
+        // Show Window
+        window2.show();
+
         // Set the clear color
         glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
         MainProcess.initMainLoop();
@@ -109,11 +125,11 @@ public class LWJGLWindow
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL11.GL_TEXTURE_2D);
-            //GL11.glEnable(GL11.GL_BLEND);
+            GL11.glEnable(GL11.GL_BLEND);
             //GL11.glFrontFace(GL11.GL_CCW);
             GL11.glEnable(GL11.GL_CULL_FACE);
             GL11.glCullFace(GL11.GL_BACK);
-            //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
             GL11.glMatrixMode(GL11.GL_PROJECTION);
             GL11.glLoadIdentity();

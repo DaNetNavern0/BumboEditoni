@@ -1,0 +1,6 @@
+{
+	renderer: {
+		type: "cube",
+		texture: "minecraft/dirt"
+	}
+}
