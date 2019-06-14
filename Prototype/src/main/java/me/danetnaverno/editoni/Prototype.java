@@ -8,7 +8,7 @@ import me.danetnaverno.editoni.engine.render.BlockRendererDictionary;
 import me.danetnaverno.editoni.minecraft.world.MinecraftRegion;
 import me.danetnaverno.editoni.minecraft.world.MinecraftWorld;
 import me.danetnaverno.editoni.render.Camera;
-import me.danetnaverno.editoni.render.LWJGLWindow;
+import me.danetnaverno.editoni.render.EditorApplication;
 import net.querz.nbt.mca.MCAUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.nio.DoubleBuffer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static me.danetnaverno.editoni.render.LWJGLWindow.GetOGLPos;
-import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
 
 public class Prototype
 {
@@ -60,7 +57,7 @@ public class Prototype
             Camera.pitch = 52;
             Camera.yaw = 140;
 
-            InputHandler.init(LWJGLWindow.window);
+            InputHandler.init(EditorApplication.getWindowId());
         }
         catch (Exception e)
         {
@@ -111,13 +108,19 @@ public class Prototype
             GL11.glPopMatrix();
         }
 
-        if (InputHandler.mouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_1))
+        if (InputHandler.mouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_1) || InputHandler.keyPressed(GLFW.GLFW_KEY_SPACE))
         {
             DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
             DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
-            glfwGetCursorPos(LWJGLWindow.window, x, y);
-            Vector3f ass = GetOGLPos((int) x.get(0), (int) y.get(0));
+            GLFW.glfwGetCursorPos(EditorApplication.getWindowId(), x, y);
+            Vector3f ass = EditorApplication.GetOGLPos((int) x.get(0), (int) y.get(0));
             Editor.selectedBlock = findBlock(ass);
+            if (Editor.selectedBlock !=null)
+            {
+                EditorApplication.label1.setText("Type: "+Editor.selectedBlock.type);
+                EditorApplication.label2.setText("State: "+Editor.selectedBlock.state);
+                EditorApplication.label3.setText("TileEntity: "+Editor.selectedBlock.getTileEntity());
+            }
         }
     }
 

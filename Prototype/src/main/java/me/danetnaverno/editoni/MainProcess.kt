@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni
 
-import me.danetnaverno.editoni.render.LWJGLWindow
+import me.danetnaverno.editoni.render.EditorApplication
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -9,7 +9,7 @@ object MainProcess
     @JvmStatic
     fun main(args: Array<String>)
     {
-        LWJGLWindow().run()
+        EditorApplication.main(args)
     }
 
     @JvmStatic

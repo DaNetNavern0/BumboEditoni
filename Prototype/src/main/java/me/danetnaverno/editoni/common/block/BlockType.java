@@ -16,4 +16,10 @@ public class BlockType
         this.id = id;
         this.renderer = renderer;
     }
+
+    @Override
+    public String toString()
+    {
+        return id.toString();
+    }
 }

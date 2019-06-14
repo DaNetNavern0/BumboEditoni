@@ -5,7 +5,9 @@ import me.danetnaverno.editoni.common.block.BlockDictionary
 import me.danetnaverno.editoni.common.world.Block
 import net.querz.nbt.CompoundTag
 
-class MinecraftBlock(chunk: MinecraftChunk, x: Int, y: Int, z: Int, tag: CompoundTag) : Block(chunk, x, y, z)
+class MinecraftBlock
+(chunk: MinecraftChunk, x: Int, y: Int, z: Int, tag: CompoundTag, tileEntity: MinecraftTileEntity?)
+    : Block(chunk, x, y, z, tileEntity)
 {
     init
     {

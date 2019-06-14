@@ -1,16 +1,19 @@
 package me.danetnaverno.editoni.minecraft.world;
 
-import kotlin.Triple;
 import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
 import net.querz.nbt.CompoundTag;
+import org.joml.Vector3i;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MinecraftChunk extends Chunk
 {
-    public Map<Triple<Integer, Integer, Integer>, Block> blocks = new HashMap<>();
+    public Map<Vector3i, Block> blocks = new HashMap<>();
+    public Map<Vector3i, MinecraftTileEntity> tileEntities = new HashMap<>();
 
     private static Field dataField;
 
@@ -35,6 +38,18 @@ public class MinecraftChunk extends Chunk
         zRender = chunkZ;
         xPos = data.getCompoundTag("Level").getInt("xPos");
         zPos = data.getCompoundTag("Level").getInt("zPos");
+
+        for (CompoundTag tileEntity : mcaChunk.getTileEntities())
+        {
+            int globalX = tileEntity.getInt("x");
+            int y = tileEntity.getInt("y");
+            int globalZ = tileEntity.getInt("z");
+            int x = globalX - (xPos << 4);
+            int z = globalZ - (zPos << 4);
+            Vector3i pos = new Vector3i(x, y, z);
+            tileEntities.put(pos, new MinecraftTileEntity(this, x, y, z, tileEntity));
+        }
+
         for (int x = 0; x < 16; x++)
             for (int y = 0; y < 255; y++)
                 for (int z = 0; z < 16; z++)
@@ -43,7 +58,10 @@ public class MinecraftChunk extends Chunk
                     {
                         CompoundTag tag = mcaChunk.getBlockStateAt(x, y, z);
                         if (tag != null)
-                            blocks.put(new Triple<>(x, y, z), new MinecraftBlock(this, x, y, z, tag));
+                        {
+                            Block block = new MinecraftBlock(this, x, y, z, tag, tileEntities.get(new Vector3i(x, y, z)));
+                            blocks.put(new Vector3i(x, y, z), block);
+                        }
                     }
                     catch (Exception e)
                     {
@@ -73,6 +91,6 @@ public class MinecraftChunk extends Chunk
     @Override
     public Block getBlockAt(int x, int y, int z)
     {
-        return blocks.get(new Triple<>(x, y, z));
+        return blocks.get(new Vector3i(x, y, z));
     }
 }

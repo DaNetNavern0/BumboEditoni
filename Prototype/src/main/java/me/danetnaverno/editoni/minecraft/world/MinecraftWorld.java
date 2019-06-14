@@ -1,10 +1,10 @@
 package me.danetnaverno.editoni.minecraft.world;
 
 import kotlin.Pair;
-import kotlin.Triple;
 import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.common.world.World;
+import org.joml.Vector3i;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +45,7 @@ public class MinecraftWorld extends World
         regions.put(new Pair<>(region.x, region.z), region);
     }
 
-    public Triple<MinecraftRegion, Integer, Integer> convertChunkCoord(int chunkX, int chunkZ)
+    public Vector3i convertChunkCoord(int chunkX, int chunkZ)
     {
         int regionX = chunkX >> 8;
         int regionZ = chunkZ >> 8;
