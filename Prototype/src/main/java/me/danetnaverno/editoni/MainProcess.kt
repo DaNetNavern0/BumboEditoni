@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni
 
-import me.danetnaverno.editoni.render.EditorApplication
+import me.danetnaverno.editoni.editor.EditorApplication
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 

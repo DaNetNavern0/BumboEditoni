@@ -1,16 +1,10 @@
 package me.danetnaverno.editoni.minecraft.world
 
-import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.common.block.BlockDictionary
+import me.danetnaverno.editoni.common.block.BlockType
 import me.danetnaverno.editoni.common.world.Block
-import net.querz.nbt.CompoundTag
 
 class MinecraftBlock
-(chunk: MinecraftChunk, x: Int, y: Int, z: Int, tag: CompoundTag, tileEntity: MinecraftTileEntity?)
-    : Block(chunk, x, y, z, tileEntity)
+(chunk: MinecraftChunk, chunkX: Int, chunkY: Int, chunkz: Int, blockType: BlockType, blockState: MinecraftBlockState?, tileEntity: MinecraftTileEntity?)
+    : Block(chunk, chunkX, chunkY, chunkz, blockType, blockState, tileEntity)
 {
-    init
-    {
-        type = BlockDictionary.getBlockType(ResourceLocation(tag.getString("Name")))
-    }
 }

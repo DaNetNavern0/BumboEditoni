@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.render;
+package me.danetnaverno.editoni.editor;
 
 public class Camera
 {

@@ -1,7 +1,9 @@
 package me.danetnaverno.editoni.minecraft.world;
 
-import me.danetnaverno.editoni.common.world.Block;
-import me.danetnaverno.editoni.common.world.Chunk;
+import me.danetnaverno.editoni.common.ResourceLocation;
+import me.danetnaverno.editoni.common.block.BlockDictionary;
+import me.danetnaverno.editoni.common.block.BlockType;
+import me.danetnaverno.editoni.common.world.*;
 import net.querz.nbt.CompoundTag;
 import org.joml.Vector3i;
 
@@ -59,7 +61,10 @@ public class MinecraftChunk extends Chunk
                         CompoundTag tag = mcaChunk.getBlockStateAt(x, y, z);
                         if (tag != null)
                         {
-                            Block block = new MinecraftBlock(this, x, y, z, tag, tileEntities.get(new Vector3i(x, y, z)));
+                            BlockType blockType = BlockDictionary.getBlockType(new ResourceLocation(tag.getString("Name")));
+                            MinecraftBlockState blockState = (MinecraftBlockState) BlockStateDictionary.createBlockState(blockType,tag.getCompoundTag("Properties"));
+                            MinecraftTileEntity tileEntity = tileEntities.get(new Vector3i(x, y, z));
+                            Block block = new MinecraftBlock(this, x, y, z, blockType, blockState, tileEntity);
                             blocks.put(new Vector3i(x, y, z), block);
                         }
                     }

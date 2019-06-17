@@ -1,6 +1,6 @@
 {
 	renderer: {
-		type: "chest",
+		type: "minecraft:chest",
 		top: "minecraft/tr_chest_top",
 		bottom: "minecraft/tr_chest_top",
 		west: "minecraft/tr_chest_side",

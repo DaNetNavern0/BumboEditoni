@@ -1,17 +1,13 @@
-package me.danetnaverno.editoni.render;
+package me.danetnaverno.editoni.editor;
 
 import com.jogamp.opengl.glu.GLU;
 import lwjgui.LWJGUIApplication;
 import lwjgui.geometry.Pos;
 import lwjgui.gl.Renderer;
-import lwjgui.paint.Color;
 import lwjgui.scene.Context;
 import lwjgui.scene.Scene;
 import lwjgui.scene.Window;
-import lwjgui.scene.control.Label;
-import lwjgui.scene.control.Menu;
-import lwjgui.scene.control.MenuBar;
-import lwjgui.scene.control.MenuItem;
+import lwjgui.scene.control.*;
 import lwjgui.scene.layout.BorderPane;
 import lwjgui.scene.layout.VBox;
 import me.danetnaverno.editoni.MainProcess;
@@ -29,9 +25,7 @@ public class EditorApplication extends LWJGUIApplication
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
     private static long handleId;
-    public static Label label1;
-    public static Label label2;
-    public static Label label3;
+    public static TextArea blockInfo;
 
     public static void main(String[] args)
     {
@@ -72,15 +66,8 @@ public class EditorApplication extends LWJGUIApplication
         vbox.setSpacing(8);
         vbox.setAlignment(Pos.TOP_LEFT);
         // Add some text
-        label1 = new Label("Hello World!");
-        label1.setTextFill(Color.BLACK);
-        vbox.getChildren().add(label1);
-        label2 = new Label("Hello World!");
-        label2.setTextFill(Color.BLACK);
-        vbox.getChildren().add(label2);
-        label3 = new Label("Hello World!");
-        label3.setTextFill(Color.BLACK);
-        vbox.getChildren().add(label3);
+        blockInfo = new TextArea("Hello World!");
+        vbox.getChildren().add(blockInfo);
         root.setLeft(vbox);
 
         // Set the scene

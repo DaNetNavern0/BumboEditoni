@@ -5,10 +5,11 @@ import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.editor.Editor;
 import me.danetnaverno.editoni.engine.render.BlockRendererDictionary;
+import me.danetnaverno.editoni.minecraft.DictionaryFiller;
 import me.danetnaverno.editoni.minecraft.world.MinecraftRegion;
 import me.danetnaverno.editoni.minecraft.world.MinecraftWorld;
-import me.danetnaverno.editoni.render.Camera;
-import me.danetnaverno.editoni.render.EditorApplication;
+import me.danetnaverno.editoni.editor.Camera;
+import me.danetnaverno.editoni.editor.EditorApplication;
 import net.querz.nbt.mca.MCAUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,6 +35,7 @@ public class Prototype
 
     public static void init() throws IOException
     {
+        DictionaryFiller.init();
         world = new MinecraftWorld();
 
         File worldFolder = new File("data/TestWorld");
@@ -82,11 +84,11 @@ public class Prototype
                 GL11.glTranslatef(chunk.xRender << 4, 0, chunk.zRender << 4);
                 for (Block block : chunk.getBlocks())
                 {
-                    if (!block.type.equals(BlockType.AIR))
+                    if (!block.getType().equals(BlockType.AIR))
                     {
                         GL11.glPushMatrix();
-                        GL11.glTranslatef(block.getLocalX(), block.getLocalY(), block.getLocalZ());
-                        block.type.renderer.draw();
+                        GL11.glTranslatef(block.getChunkX(), block.getChunkY(), block.getChunkZ());
+                        block.getType().renderer.draw();
                         GL11.glPopMatrix();
                     }
                 }
@@ -117,9 +119,9 @@ public class Prototype
             Editor.selectedBlock = findBlock(ass);
             if (Editor.selectedBlock !=null)
             {
-                EditorApplication.label1.setText("Type: "+Editor.selectedBlock.type);
-                EditorApplication.label2.setText("State: "+Editor.selectedBlock.state);
-                EditorApplication.label3.setText("TileEntity: "+Editor.selectedBlock.getTileEntity());
+                EditorApplication.blockInfo.setText("Type: "+Editor.selectedBlock.getType());
+                EditorApplication.blockInfo.appendText("\nState: "+Editor.selectedBlock.getState());
+                EditorApplication.blockInfo.appendText("\nTileEntity: "+Editor.selectedBlock.getTileEntity());
             }
         }
     }
@@ -140,7 +142,7 @@ public class Prototype
                     if (distance < min)
                     {
                         Block block = world.getBlockAt(x, y, z);
-                        if (block != null && !block.type.equals(BlockType.AIR))
+                        if (block != null && !block.getType().equals(BlockType.AIR))
                         {
                             closest = block;
                             min = distance;

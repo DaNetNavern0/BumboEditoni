@@ -2,17 +2,15 @@ package me.danetnaverno.editoni.common.world
 
 import me.danetnaverno.editoni.common.block.BlockType
 
-abstract class Block(val chunk: Chunk, val localX: Int, val localY: Int, val localZ: Int, val tileEntity: TileEntity?)
+abstract class Block(val chunk: Chunk, val chunkX: Int, val chunkY: Int, val chunkZ: Int,
+                     val type: BlockType, val state: BlockState?, val tileEntity: TileEntity?)
 {
-    lateinit var type: BlockType
-    lateinit var state: BlockState
-
     val globalX: Int
-        get() = chunk.xPos shl 4 or (localX and 15)
+        get() = chunk.xPos shl 4 or (chunkX and 15)
 
     val globalY: Int
-        get() = localY
+        get() = chunkY
 
     val globalZ: Int
-        get() = chunk.zPos shl 4 or (localZ and 15)
+        get() = chunk.zPos shl 4 or (chunkZ and 15)
 }

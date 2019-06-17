@@ -1,5 +1,5 @@
 {
 	renderer: {
-		type: "air"
+		type: "minecraft:air"
 	}
 }
