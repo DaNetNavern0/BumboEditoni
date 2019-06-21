@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.engine.render
+package me.danetnaverno.editoni.common.render
 
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.common.ResourceLocation
@@ -10,6 +10,12 @@ object BlockRendererDictionary
     val ERROR = BlockRendererCube(TextureDictionary["error"])
 
     private val renderers = mutableMapOf<ResourceLocation, Class<out BlockRenderer>>()
+
+    init
+    {
+        register(ResourceLocation("common", "air"), BlockRendererAir::class.java)
+        register(ResourceLocation("common", "cube"), BlockRendererCube::class.java)
+    }
 
     @JvmStatic
     fun register(id: ResourceLocation, type: Class<out BlockRenderer>)

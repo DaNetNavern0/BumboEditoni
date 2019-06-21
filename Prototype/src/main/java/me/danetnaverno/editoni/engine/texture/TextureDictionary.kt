@@ -9,7 +9,7 @@ object TextureDictionary
     private val textures = mutableMapOf<String, Texture>()
 
     @JvmStatic
-    operator fun get(name: String) : Texture
+    operator fun get(name: String): Texture
     {
         var texture = textures[name]
         if (texture == null)

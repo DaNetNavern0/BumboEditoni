@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.common.block
 
 import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.engine.render.BlockRendererDictionary
+import me.danetnaverno.editoni.common.render.BlockRendererDictionary
 import me.danetnaverno.editoni.util.JsonUtil
 import org.apache.logging.log4j.LogManager
 import java.io.File
@@ -26,8 +26,6 @@ object BlockDictionary
                 }
             }
         }
-        //Yes it's kinda hacky, but it's more convenient to have BlockType.AIR rather than BlockDictionary.AIR
-        blockTypes[ResourceLocation("minecraft","air")] = BlockType.AIR
     }
 
     fun getAllBlockTypes(): MutableMap<ResourceLocation, BlockType>
@@ -48,5 +46,11 @@ object BlockDictionary
             logger.warn("Unregistered block type found: $id")
         }
         return type
+    }
+
+    @JvmStatic
+    fun register(id: ResourceLocation, blockType: BlockType)
+    {
+        blockTypes[id] = blockType
     }
 }

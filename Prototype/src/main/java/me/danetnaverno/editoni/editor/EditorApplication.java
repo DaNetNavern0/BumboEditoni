@@ -1,31 +1,21 @@
 package me.danetnaverno.editoni.editor;
 
-import com.jogamp.opengl.glu.GLU;
 import lwjgui.LWJGUIApplication;
-import lwjgui.geometry.Pos;
-import lwjgui.gl.Renderer;
 import lwjgui.scene.Context;
 import lwjgui.scene.Scene;
 import lwjgui.scene.Window;
-import lwjgui.scene.control.*;
-import lwjgui.scene.layout.BorderPane;
-import lwjgui.scene.layout.VBox;
-import me.danetnaverno.editoni.MainProcess;
-import org.joml.Vector3f;
-import org.lwjgl.BufferUtils;
+import lwjgui.scene.layout.Pane;
+import me.danetnaverno.editoni.Main;
+import me.danetnaverno.editoni.Prototype;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL11;
-
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
 public class EditorApplication extends LWJGUIApplication
 {
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
     private static long handleId;
-    public static TextArea blockInfo;
 
     public static void main(String[] args)
     {
@@ -38,39 +28,8 @@ public class EditorApplication extends LWJGUIApplication
     {
         handleId = window.getContext().getWindowHandle();
 
-        // Create a simple pane
-        BorderPane root = new BorderPane();
-        root.setBackground(null);
+        Pane root = EditorGUI.init(window);
 
-        // Top part of borderpane
-        {
-            // Create Menu Bar
-            MenuBar bar = new MenuBar();
-            root.setTop(bar);
-
-            // Create File Menu
-            Menu file = new Menu("File");
-            file.getItems().add(new MenuItem("New"));
-            file.getItems().add(new MenuItem("Open"));
-            file.getItems().add(new MenuItem("Save"));
-            bar.getItems().add(file);
-
-            // Create Edit Menu
-            Menu edit = new Menu("Edit");
-            edit.getItems().add(new MenuItem("Undo"));
-            edit.getItems().add(new MenuItem("Redo"));
-            bar.getItems().add(edit);
-        }
-
-        VBox vbox = new VBox();
-        vbox.setSpacing(8);
-        vbox.setAlignment(Pos.TOP_LEFT);
-        // Add some text
-        blockInfo = new TextArea("Hello World!");
-        vbox.getChildren().add(blockInfo);
-        root.setLeft(vbox);
-
-        // Set the scene
         window.setScene(new Scene(root, WIDTH, HEIGHT));
         window.show();
 
@@ -78,10 +37,9 @@ public class EditorApplication extends LWJGUIApplication
 
         GLFW.glfwSetWindowPos(handleId, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
 
-        MainProcess.initMainLoop();
+        Prototype.init();
 
-        // Start the gears application
-        window.setRenderingCallback(new GearsApplication());
+        window.setRenderingCallback(new Renderer());
     }
 
     public static long getWindowId()
@@ -89,26 +47,7 @@ public class EditorApplication extends LWJGUIApplication
         return handleId;
     }
 
-    public static Vector3f GetOGLPos(int x, int y)
-    {
-        IntBuffer viewport = BufferUtils.createIntBuffer(4);
-        FloatBuffer mvmatrix = BufferUtils.createFloatBuffer(16);
-        FloatBuffer projmatrix = BufferUtils.createFloatBuffer(16);
-        FloatBuffer output = BufferUtils.createFloatBuffer(4);
-
-        GL11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, mvmatrix);
-        GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, projmatrix);
-        GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
-
-        y = viewport.get(3) - y;
-        FloatBuffer winZ = BufferUtils.createFloatBuffer(1);
-        GL11.glReadPixels(x, y, 1, 1, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, winZ);
-        float z = winZ.get(0);
-        new GLU().gluUnProject(x, y, z, mvmatrix, projmatrix, viewport, output);
-        return new Vector3f(output.get(0), output.get(1), output.get(2));
-    }
-
-    static class GearsApplication implements Renderer
+    static class Renderer implements lwjgui.gl.Renderer
     {
         @Override
         public void render(Context context)
@@ -137,7 +76,7 @@ public class EditorApplication extends LWJGUIApplication
             GL11.glMatrixMode(GL11.GL_MODELVIEW);
             GL11.glLoadIdentity();
 
-            MainProcess.displayLoop();
+            Main.displayLoop();
         }
     }
 }

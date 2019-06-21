@@ -1,12 +1,12 @@
 package me.danetnaverno.editoni.common.block;
 
 import me.danetnaverno.editoni.common.ResourceLocation;
-import me.danetnaverno.editoni.engine.render.BlockRenderer;
-import me.danetnaverno.editoni.engine.render.BlockRendererAir;
+import me.danetnaverno.editoni.common.render.BlockRenderer;
+import me.danetnaverno.editoni.common.render.BlockRendererAir;
 
 public class BlockType
 {
-    public static BlockType AIR = new BlockType(new ResourceLocation("minecraft","air"), new BlockRendererAir());
+    public static BlockType AIR = new BlockType(new ResourceLocation("common", "air"), new BlockRendererAir());
 
     public final ResourceLocation id;
     public final BlockRenderer renderer;

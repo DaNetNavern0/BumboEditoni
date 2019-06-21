@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.engine.render
+package me.danetnaverno.editoni.common.render
 
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.engine.texture.Texture
@@ -6,12 +6,12 @@ import org.lwjgl.opengl.GL11
 
 open class BlockRendererCube : BlockRenderer
 {
-    private lateinit var top : Texture
-    private lateinit var bottom : Texture
-    private lateinit var north : Texture
-    private lateinit var west : Texture
-    private lateinit var south : Texture
-    private lateinit var east : Texture
+    private lateinit var top: Texture
+    private lateinit var bottom: Texture
+    private lateinit var north: Texture
+    private lateinit var west: Texture
+    private lateinit var south: Texture
+    private lateinit var east: Texture
 
     constructor()
 
@@ -20,36 +20,36 @@ open class BlockRendererCube : BlockRenderer
         plainTexture(texture)
     }
 
-    constructor(top: Texture, bottom: Texture, side : Texture)
+    constructor(top: Texture, bottom: Texture, side: Texture)
     {
         withSideTexture(top, bottom, side)
     }
 
-    constructor(top: Texture, bottom: Texture, north : Texture, west : Texture, south : Texture, east : Texture)
+    constructor(top: Texture, bottom: Texture, north: Texture, west: Texture, south: Texture, east: Texture)
     {
         sixTextures(top, bottom, north, west, south, east)
     }
 
     override fun fromJson(data: JSONObject)
     {
-        if (data.containsKey("texture"))
-            plainTexture(Texture[data.getString("texture")])
-        else if (data.containsKey("side"))
-            withSideTexture(
+        when
+        {
+            data.containsKey("texture") -> plainTexture(Texture[data.getString("texture")])
+            data.containsKey("side") -> withSideTexture(
                     Texture[data.getString("top")],
                     Texture[data.getString("bottom")],
                     Texture[data.getString("side")])
-        else if (data.containsKey("west"))
-            sixTextures(
+            data.containsKey("west") -> sixTextures(
                     Texture[data.getString("top")],
                     Texture[data.getString("bottom")],
                     Texture[data.getString("north")],
                     Texture[data.getString("west")],
                     Texture[data.getString("south")],
                     Texture[data.getString("east")])
+        }
     }
 
-    open fun getSize() : Float
+    open fun getSize(): Float
     {
         return 1.0f
     }
@@ -136,7 +136,7 @@ open class BlockRendererCube : BlockRenderer
         this.east = texture
     }
 
-    protected fun withSideTexture(top: Texture, bottom: Texture, side : Texture)
+    protected fun withSideTexture(top: Texture, bottom: Texture, side: Texture)
     {
         this.top = top
         this.bottom = bottom
@@ -146,7 +146,7 @@ open class BlockRendererCube : BlockRenderer
         this.east = side
     }
 
-    protected fun sixTextures(top: Texture, bottom: Texture, north : Texture, west : Texture, south : Texture, east : Texture)
+    protected fun sixTextures(top: Texture, bottom: Texture, north: Texture, west: Texture, south: Texture, east: Texture)
     {
         this.top = top
         this.bottom = bottom

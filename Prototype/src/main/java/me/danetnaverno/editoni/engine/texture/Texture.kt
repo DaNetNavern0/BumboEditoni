@@ -64,7 +64,7 @@ class Texture @Throws(IOException::class) internal constructor(path: Path)
     companion object
     {
         @JvmStatic
-        operator fun get(name: String) : Texture
+        operator fun get(name: String): Texture
         {
             return TextureDictionary[name]
         }

@@ -19,7 +19,8 @@ object BlockStateDictionary
     @JvmStatic
     fun createBlockState(blockType: BlockType, parameters: CompoundTag?): BlockState?
     {
-        val typeClass = stateTypes[blockType] ?: return if (parameters!=null) UnknownMinecraftBlockState(parameters) else null
+        val typeClass = stateTypes[blockType]
+                ?: return if (parameters != null) UnknownMinecraftBlockState(parameters) else null
         val constr = typeClass.getConstructor(CompoundTag::class.java)
         return constr.newInstance(parameters) as BlockState
     }

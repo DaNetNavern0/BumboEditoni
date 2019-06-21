@@ -1,6 +1,6 @@
 {
 	renderer: {
-		type: "minecraft:cube",
+		type: "common:cube",
 		texture: "minecraft/polished_diorite"
 	}
 }

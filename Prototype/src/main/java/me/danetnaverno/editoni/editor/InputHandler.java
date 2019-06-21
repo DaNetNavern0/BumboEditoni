@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni;
+package me.danetnaverno.editoni.editor;
 
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
@@ -7,7 +7,6 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public final class InputHandler
 {
-    private static long window;
     private static final int KEYBOARD_SIZE = 512;
     private static final int MOUSE_SIZE = 16;
 
@@ -41,17 +40,15 @@ public final class InputHandler
         }
     };
 
-    protected static void init(long window)
+    public static void init(long window)
     {
-        InputHandler.window = window;
-
         resetKeyboard();
         resetMouse();
         glfwSetKeyCallback(window, keyboard);
         glfwSetMouseButtonCallback(window, mouse);
     }
 
-    protected static void update()
+    public static void update()
     {
         resetKeyboard();
         resetMouse();
@@ -126,7 +123,6 @@ public final class InputHandler
             lastMouseNS = 0;
             return true;
         }
-
         return false;
     }
 }

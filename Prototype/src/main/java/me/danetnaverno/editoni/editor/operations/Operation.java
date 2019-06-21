@@ -1,5 +1,8 @@
 package me.danetnaverno.editoni.editor.operations;
 
-public class Operation
+public abstract class Operation
 {
+    public abstract void apply();
+
+    public abstract void rollback();
 }

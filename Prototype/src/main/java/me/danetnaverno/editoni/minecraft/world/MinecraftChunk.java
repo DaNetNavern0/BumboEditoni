@@ -14,8 +14,7 @@ import java.util.Map;
 
 public class MinecraftChunk extends Chunk
 {
-    public Map<Vector3i, Block> blocks = new HashMap<>();
-    public Map<Vector3i, MinecraftTileEntity> tileEntities = new HashMap<>();
+    private Map<Vector3i, Block> blocks = new HashMap<>();
 
     private static Field dataField;
 
@@ -34,22 +33,22 @@ public class MinecraftChunk extends Chunk
 
     public MinecraftChunk(net.querz.nbt.mca.Chunk mcaChunk, int chunkX, int chunkZ)
     {
-        super();
         CompoundTag data = getData(mcaChunk);
         xRender = chunkX;
         zRender = chunkZ;
         xPos = data.getCompoundTag("Level").getInt("xPos");
         zPos = data.getCompoundTag("Level").getInt("zPos");
 
+        Map<Vector3i, MinecraftTileEntity> tileEntities = new HashMap<>();
         for (CompoundTag tileEntity : mcaChunk.getTileEntities())
         {
             int globalX = tileEntity.getInt("x");
             int y = tileEntity.getInt("y");
             int globalZ = tileEntity.getInt("z");
-            int x = globalX - (xPos << 4);
-            int z = globalZ - (zPos << 4);
+            int x = globalX - (getPosX() << 4);
+            int z = globalZ - (getPosZ() << 4);
             Vector3i pos = new Vector3i(x, y, z);
-            tileEntities.put(pos, new MinecraftTileEntity(this, x, y, z, tileEntity));
+            tileEntities.put(pos, new MinecraftTileEntity(tileEntity));
         }
 
         for (int x = 0; x < 16; x++)
@@ -62,9 +61,9 @@ public class MinecraftChunk extends Chunk
                         if (tag != null)
                         {
                             BlockType blockType = BlockDictionary.getBlockType(new ResourceLocation(tag.getString("Name")));
-                            MinecraftBlockState blockState = (MinecraftBlockState) BlockStateDictionary.createBlockState(blockType,tag.getCompoundTag("Properties"));
-                            MinecraftTileEntity tileEntity = tileEntities.get(new Vector3i(x, y, z));
-                            Block block = new MinecraftBlock(this, x, y, z, blockType, blockState, tileEntity);
+                            BlockState blockState = BlockStateDictionary.createBlockState(blockType,tag.getCompoundTag("Properties"));
+                            TileEntity tileEntity = tileEntities.get(new Vector3i(x, y, z));
+                            Block block = new MinecraftBlock(this, new Vector3i(x, y, z), blockType, blockState, tileEntity);
                             blocks.put(new Vector3i(x, y, z), block);
                         }
                     }
@@ -73,6 +72,24 @@ public class MinecraftChunk extends Chunk
                         e.printStackTrace();
                     }
                 }
+    }
+
+    @Override
+    public Collection<Block> getBlocks()
+    {
+        return blocks.values();
+    }
+
+    @Override
+    public Block getBlockAt(Vector3i pos)
+    {
+        return blocks.get(pos);
+    }
+
+    @Override
+    public void setBlock(Block block)
+    {
+        blocks.put(block.getLocalPos(), block);
     }
 
     private CompoundTag getData(net.querz.nbt.mca.Chunk mcaChunk)
@@ -85,17 +102,5 @@ public class MinecraftChunk extends Chunk
         {
         }
         return null;
-    }
-
-    @Override
-    public Collection<Block> getBlocks()
-    {
-        return blocks.values();
-    }
-
-    @Override
-    public Block getBlockAt(int x, int y, int z)
-    {
-        return blocks.get(new Vector3i(x, y, z));
     }
 }

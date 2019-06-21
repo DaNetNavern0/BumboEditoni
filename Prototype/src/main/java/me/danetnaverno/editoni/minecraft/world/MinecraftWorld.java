@@ -14,18 +14,21 @@ public class MinecraftWorld extends World
     public Map<Pair<Integer, Integer>, MinecraftRegion> regions = new HashMap<>();
 
     @Override
-    public Block getBlockAt(int x, int y, int z)
+    public Block getBlockAt(Vector3i pos)
     {
-        Chunk chunk = getChunkByBlockCoord(x, z);
+        Chunk chunk = getChunkByBlockCoord(pos.x, pos.z);
         if (chunk==null)
             return null;
-        return chunk.getBlockAt(x & 15, y, z & 15);
+        return chunk.getBlockAt(pos.x & 15, pos.y, pos.z & 15);
     }
 
     @Override
     public Chunk getChunkByChunkCoord(int chunkX, int chunkZ)
     {
-        return getRegion(chunkX >> 6, chunkZ >> 6).getChunkByChunkCoord(chunkX, chunkZ);
+        MinecraftRegion region = getRegion(chunkX >> 6, chunkZ >> 6);
+        if (region == null)
+            return null;
+        return region.getChunkByChunkCoord(chunkX, chunkZ);
     }
 
     @Override
@@ -34,11 +37,17 @@ public class MinecraftWorld extends World
         return getChunkByChunkCoord(blockX >> 4, blockZ >> 4);
     }
 
+    @Override
+    public void setBlock(Block block)
+    {
+        Chunk chunk = getChunkByBlockCoord(block.getGlobalX(), block.getGlobalZ());
+        chunk.setBlock(block);
+    }
+
     public MinecraftRegion getRegion(int regionX, int regionZ)
     {
         return regions.get(new Pair<>(regionX, regionZ));
     }
-
 
     public void addRegion(MinecraftRegion region)
     {

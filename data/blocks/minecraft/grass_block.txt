@@ -1,6 +1,6 @@
 {
 	renderer: {
-		type: "minecraft:cube",
+		type: "common:cube",
 		"top": "minecraft/grass_block_top",
 		"side": "minecraft/grass_block_side",
         "bottom": "minecraft/dirt"
