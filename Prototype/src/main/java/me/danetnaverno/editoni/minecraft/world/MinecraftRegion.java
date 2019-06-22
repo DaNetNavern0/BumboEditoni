@@ -14,7 +14,7 @@ public class MinecraftRegion
     public final int x;
     public final int z;
 
-    private Map<Pair<Integer,Integer>,Chunk> chunks = new HashMap<>();
+    private final Map<Pair<Integer,Integer>,Chunk> chunks = new HashMap<>();
 
     public MinecraftRegion(MCAFile mcaFile, int regionX, int regionZ)
     {

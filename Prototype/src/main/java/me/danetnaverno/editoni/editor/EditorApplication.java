@@ -16,6 +16,7 @@ public class EditorApplication extends LWJGUIApplication
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
     private static long handleId;
+    public static Context context;
 
     public static void main(String[] args)
     {
@@ -28,9 +29,10 @@ public class EditorApplication extends LWJGUIApplication
     {
         handleId = window.getContext().getWindowHandle();
 
-        Pane root = EditorGUI.init(window);
+        Pane root = EditorGUI.INSTANCE.init(window);
 
         window.setScene(new Scene(root, WIDTH, HEIGHT));
+        context = window.getContext();
         window.show();
 
         GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());

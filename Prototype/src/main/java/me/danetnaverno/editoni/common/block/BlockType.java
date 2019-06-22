@@ -6,7 +6,7 @@ import me.danetnaverno.editoni.common.render.BlockRendererAir;
 
 public class BlockType
 {
-    public static BlockType AIR = new BlockType(new ResourceLocation("common", "air"), new BlockRendererAir());
+    public static final BlockType AIR = new BlockType(new ResourceLocation("common", "air"), new BlockRendererAir());
 
     public final ResourceLocation id;
     public final BlockRenderer renderer;

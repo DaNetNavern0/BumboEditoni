@@ -47,7 +47,7 @@ public class Prototype
         GL11.glRotated(Camera.pitch, 1, 0, 0);
         GL11.glRotated(Camera.yaw, 0, 1, 0);
 
-        for (MinecraftRegion region : Editor.INSTANCE.getWorld().regions.values())
+        for (MinecraftRegion region : Editor.INSTANCE.getWorld().getRegions())
         {
             GL11.glPushMatrix();
             GL11.glTranslatef(region.x << 9, 0, region.z << 9);
@@ -57,7 +57,7 @@ public class Prototype
                 GL11.glTranslatef(chunk.getRenderX() << 4, 0, chunk.getRenderZ() << 4);
                 for (Block block : chunk.getBlocks())
                 {
-                    if (!block.getType().equals(BlockType.AIR))
+                    if (!block.getType().equals(BlockType.AIR) && !Editor.INSTANCE.getHiddenBlocks().contains(block))
                     {
                         GL11.glPushMatrix();
                         GL11.glTranslatef(block.getLocalPos().x, block.getLocalPos().y, block.getLocalPos().z);

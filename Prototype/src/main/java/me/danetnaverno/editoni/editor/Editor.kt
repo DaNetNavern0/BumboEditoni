@@ -17,15 +17,17 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 import java.io.File
-import java.util.*
 import java.util.regex.Pattern
 
 object Editor
 {
     var selectedBlock: Block? = null
+        private set
 
     lateinit var world: MinecraftWorld
         private set
+
+    private val hiddenBlocks = mutableSetOf<Block>()
 
     private val mcaRegex = Pattern.compile("r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca")
 
@@ -48,14 +50,6 @@ object Editor
 
     fun displayLoop()
     {
-        if (Editor.selectedBlock != null)
-        {
-            EditorGUI.blockInfo.text = "Type: " + Editor.selectedBlock!!.type
-            //EditorGUI.blockInfo.appendText("\nState: " + Editor.selectedBlock!!.state)
-            //EditorGUI.blockInfo.appendText("\nTileEntity: " + Editor.selectedBlock!!.tileEntity)
-            //EditorGUI.blockInfo.appendText("\nState: ")
-            //EditorGUI.blockInfo.appendText("\nTileEntity: ")
-        }
     }
 
     fun controls()
@@ -69,9 +63,9 @@ object Editor
         if (InputHandler.keyDown(GLFW.GLFW_KEY_S))
             Camera.z -= 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_SHIFT))
-            Camera.y -= 0.2f
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_SPACE))
             Camera.y += 0.2f
+        if (InputHandler.keyDown(GLFW.GLFW_KEY_SPACE))
+            Camera.y -= 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_1))
             Camera.yaw -= 4f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_2))
@@ -80,7 +74,7 @@ object Editor
             Camera.pitch -= 4f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_4))
             Camera.pitch += 4f
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_R))
+        if (InputHandler.keyPressed(GLFW.GLFW_KEY_R))
         {
             val blocks = ArrayList<Block>()
             val type = BlockDictionary.getBlockType(ResourceLocation("minecraft", "chest"))
@@ -88,7 +82,7 @@ object Editor
             val operation = SetBlocksOperation(blocks)
             OperationStack.add(operation)
         }
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_T))
+        if (InputHandler.keyPressed(GLFW.GLFW_KEY_T))
         {
             val blocks = ArrayList<Block>()
             val type1 = BlockDictionary.getBlockType(ResourceLocation("minecraft", "stone"))
@@ -98,23 +92,29 @@ object Editor
             val operation = SetBlocksOperation(blocks)
             OperationStack.add(operation)
         }
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_F))
+        if (InputHandler.keyPressed(GLFW.GLFW_KEY_F))
         {
             OperationStack.moveBack()
         }
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_G))
+        if (InputHandler.keyPressed(GLFW.GLFW_KEY_G))
         {
             OperationStack.moveForward()
         }
-        if (InputHandler.mouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_1))
+        if (InputHandler.keyPressed(GLFW.GLFW_KEY_H))
         {
-            val x = BufferUtils.createDoubleBuffer(1)
-            val y = BufferUtils.createDoubleBuffer(1)
-            GLFW.glfwGetCursorPos(EditorApplication.getWindowId(), x, y)
-            val ass = raycast(x.get(0).toInt(), y.get(0).toInt())
-            Editor.selectedBlock = findBlock(ass)
+            val block = selectedBlock
+            if (block!=null)
+                hiddenBlocks.add(block)
         }
+        if (InputHandler.keyPressed(GLFW.GLFW_KEY_Y))
+            hiddenBlocks.clear()
         InputHandler.update()
+    }
+
+    fun onMouseClick(x: Int, y: Int)
+    {
+        val ass = raycast(x, y)
+        selectBlock(findBlock(ass))
     }
 
     fun raycast(screenX: Int, screenY: Int): Vector3f
@@ -136,6 +136,11 @@ object Editor
         return Vector3f(output.get(0), output.get(1), output.get(2))
     }
 
+    fun getHiddenBlocks() : List<Block>
+    {
+        return ArrayList<Block>(hiddenBlocks)
+    }
+
     private fun findBlock(point: Vector3f): Block?
     {
         val floor = Vector3i(Math.floor(point.x.toDouble()).toInt() - 1, Math.floor(point.y.toDouble()).toInt() - 1, Math.floor(point.z.toDouble()).toInt() - 1)
@@ -152,7 +157,7 @@ object Editor
                     if (distance < min)
                     {
                         val block = world.getBlockAt(x, y, z)
-                        if (block != null && block.type != BlockType.AIR)
+                        if (block != null && block.type != BlockType.AIR && !getHiddenBlocks().contains(block))
                         {
                             closest = block
                             min = distance
@@ -160,5 +165,13 @@ object Editor
                     }
                 }
         return closest
+    }
+
+    private fun selectBlock(block: Block?)
+    {
+        selectedBlock = block
+        EditorGUI.blockInfoLabel.text = "Type: " + (block?.type ?: "-")
+        EditorGUI.setStateButton(block?.state != null)
+        EditorGUI.setTileEntityButton(block?.tileEntity != null)
     }
 }

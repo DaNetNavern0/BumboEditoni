@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class MinecraftChunk extends Chunk
 {
-    private Map<Vector3i, Block> blocks = new HashMap<>();
+    private final Map<Vector3i, Block> blocks = new HashMap<>();
 
     private static Field dataField;
 

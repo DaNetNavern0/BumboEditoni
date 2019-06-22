@@ -2,7 +2,7 @@ package me.danetnaverno.editoni.common.render
 
 import com.alibaba.fastjson.JSONObject
 
-class BlockRendererAir() : BlockRenderer()
+class BlockRendererAir : BlockRenderer()
 {
     override fun fromJson(data: JSONObject)
     {

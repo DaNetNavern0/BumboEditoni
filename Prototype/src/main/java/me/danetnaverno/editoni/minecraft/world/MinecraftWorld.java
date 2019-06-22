@@ -6,12 +6,14 @@ import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.common.world.World;
 import org.joml.Vector3i;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MinecraftWorld extends World
 {
-    public Map<Pair<Integer, Integer>, MinecraftRegion> regions = new HashMap<>();
+    private final Map<Pair<Integer, Integer>, MinecraftRegion> regions = new HashMap<>();
 
     @Override
     public Block getBlockAt(Vector3i pos)
@@ -44,6 +46,11 @@ public class MinecraftWorld extends World
         chunk.setBlock(block);
     }
 
+    public Collection<MinecraftRegion> getRegions()
+    {
+        return new ArrayList<>(regions.values());
+    }
+
     public MinecraftRegion getRegion(int regionX, int regionZ)
     {
         return regions.get(new Pair<>(regionX, regionZ));
@@ -52,12 +59,5 @@ public class MinecraftWorld extends World
     public void addRegion(MinecraftRegion region)
     {
         regions.put(new Pair<>(region.x, region.z), region);
-    }
-
-    public Vector3i convertChunkCoord(int chunkX, int chunkZ)
-    {
-        int regionX = chunkX >> 8;
-        int regionZ = chunkZ >> 8;
-        return null;
     }
 }

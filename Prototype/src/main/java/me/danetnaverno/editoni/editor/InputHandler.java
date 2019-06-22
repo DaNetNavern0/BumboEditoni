@@ -45,7 +45,7 @@ public final class InputHandler
         resetKeyboard();
         resetMouse();
         glfwSetKeyCallback(window, keyboard);
-        glfwSetMouseButtonCallback(window, mouse);
+        //glfwSetMouseButtonCallback(window, mouse);
     }
 
     public static void update()
