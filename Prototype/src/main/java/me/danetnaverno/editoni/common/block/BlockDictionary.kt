@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.common.block
 
 import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.common.render.BlockRendererDictionary
+import me.danetnaverno.editoni.common.blockrender.BlockRendererDictionary
 import me.danetnaverno.editoni.util.JsonUtil
 import org.apache.logging.log4j.LogManager
 import java.io.File

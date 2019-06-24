@@ -1,6 +1,6 @@
 {
 	renderer: {
-		type: "common:cube",
+		type: "minecraft:cube",
 		texture: "minecraft/stone"
 	}
 }

@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.common.render
+package me.danetnaverno.editoni.common.blockrender
 
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.engine.texture.Texture

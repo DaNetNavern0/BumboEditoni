@@ -14,7 +14,7 @@ public class SetBlocksOperation extends Operation
     public SetBlocksOperation(Collection<Block> blocks)
     {
         this.blocks = blocks;
-        rollback = blocks.stream().map( it-> Editor.INSTANCE.getWorld().getBlockAt(it.getGlobalX(), it.getGlobalY(), it.getGlobalZ())).collect(Collectors.toList());
+        rollback = blocks.stream().map( it-> it.getChunk().getBlockAt(it.getLocalPos())).collect(Collectors.toList());
     }
 
     public void apply()
@@ -30,6 +30,6 @@ public class SetBlocksOperation extends Operation
     public void innerApply(Collection<Block> blocks)
     {
         for (Block block : blocks)
-            Editor.INSTANCE.getWorld().setBlock(block);
+            Editor.INSTANCE.getCurrentWorld().setBlock(block);
     }
 }

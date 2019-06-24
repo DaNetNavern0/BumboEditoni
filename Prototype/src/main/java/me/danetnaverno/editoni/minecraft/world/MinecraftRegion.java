@@ -1,8 +1,7 @@
 package me.danetnaverno.editoni.minecraft.world;
 
-import javafx.util.Pair;
 import me.danetnaverno.editoni.common.world.Chunk;
-import net.querz.nbt.mca.MCAFile;
+import org.joml.Vector2i;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,32 +13,27 @@ public class MinecraftRegion
     public final int x;
     public final int z;
 
-    private final Map<Pair<Integer,Integer>,Chunk> chunks = new HashMap<>();
+    protected final Map<Vector2i, MinecraftChunk> chunks = new HashMap<>();
 
-    public MinecraftRegion(MCAFile mcaFile, int regionX, int regionZ)
+    public MinecraftRegion(int x, int z)
     {
-        x = regionX;
-        z = regionZ;
-        for (int renderX = 0; renderX < 32; renderX++)
-            for (int renderZ = 0; renderZ < 32; renderZ++)
-            {
-                net.querz.nbt.mca.Chunk mcaChunk = mcaFile.getChunk(renderX, renderZ);
-                if (mcaChunk != null)
-                {
-                    Chunk chunk = new MinecraftChunk(mcaChunk, renderX, renderZ);
-                    chunks.put(new Pair<>(chunk.getPosX(), chunk.getPosZ()), chunk);
-                }
-            }
+        this.x = x;
+        this.z = z;
     }
 
-    public Collection<Chunk> getChunks()
+    public Collection<MinecraftChunk> getChunks()
     {
         return new ArrayList<>(chunks.values());
     }
 
+    public void setChunk(MinecraftChunk chunk)
+    {
+        chunks.put(new Vector2i(chunk.getPosX(), chunk.getPosZ()), chunk);
+    }
+
     public Chunk getChunkByChunkCoord(int chunkX, int chunkZ)
     {
-        return chunks.get(new Pair<>(chunkX,chunkZ));
+        return chunks.get(new Vector2i(chunkX,chunkZ));
     }
 
     public Chunk getChunkByBlockCoord(int blockX, int blockZ)

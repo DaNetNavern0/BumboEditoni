@@ -1,5 +1,0 @@
-{
-	renderer: {
-		type: "common:air"
-	}
-}

@@ -1,6 +1,6 @@
-package me.danetnaverno.editoni.minecraft.render
+package me.danetnaverno.editoni.minecraft.blockrender
 
-import me.danetnaverno.editoni.common.render.BlockRendererCube
+import me.danetnaverno.editoni.common.blockrender.BlockRendererCube
 import me.danetnaverno.editoni.engine.texture.Texture
 
 class BlockRendererMinecraftChest : BlockRendererCube
