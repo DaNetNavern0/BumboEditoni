@@ -85,8 +85,8 @@ object Editor
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_R))
         {
             val blocks = ArrayList<Block>()
-            val type = BlockDictionary.getBlockType(ResourceLocation("minecraft", "chest"))
-            blocks.add(MinecraftBlock(currentWorld.getChunkByBlockCoord(10, 10), Vector3i(7, 12, 7), type, null, null))
+            val type = BlockDictionary.getBlockType(ResourceLocation("minecraft", "torch"))
+            blocks.add(MinecraftBlock(currentWorld, Vector3i(-6, 4, 0), type, null, null))
             val operation = SetBlocksOperation(blocks)
             Operations.apply(operation)
         }
@@ -137,8 +137,7 @@ object Editor
 
     fun onMouseClick(x: Int, y: Int)
     {
-        val ass = raycast(x, y)
-        selectBlock(findBlock(ass))
+        selectBlock(findBlock(raycast(x, y)))
     }
 
     fun raycast(screenX: Int, screenY: Int): Vector3f
@@ -194,8 +193,6 @@ object Editor
     fun selectBlock(block: Block?)
     {
         selectedBlock = block
-        EditorGUI.blockInfoLabel.text = "Type: " + (block?.type ?: "-")
-        EditorGUI.setStateButton(block?.state != null)
-        EditorGUI.setTileEntityButton(block?.tileEntity != null)
+        EditorGUI.refreshBlockInfoLabel()
     }
 }

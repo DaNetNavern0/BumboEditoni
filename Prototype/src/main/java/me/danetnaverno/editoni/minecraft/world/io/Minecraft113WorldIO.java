@@ -11,6 +11,7 @@ import net.querz.nbt.NBTUtil;
 import net.querz.nbt.mca.Chunk;
 import net.querz.nbt.mca.MCAFile;
 import net.querz.nbt.mca.MCAUtil;
+import net.querz.nbt.mca.Section;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3i;
 
@@ -154,18 +155,30 @@ public class Minecraft113WorldIO
         ListTag<CompoundTag> tileEntities = new ListTag<>(CompoundTag.class);
         for (Block block : chunk.getBlocks())
         {
-            CompoundTag properties = block.getState() != null ? block.getState().getProperties() : null;
+            CompoundTag properties = block.getState() != null ? block.getState().getTag() : null;
             CompoundTag blockState = new CompoundTag();
-            blockState.putString("Name",block.getType().toString());
-            if (properties!=null)
-                blockState.put("Properties",properties);
+            blockState.putString("Name", block.getType().toString());
+            if (properties != null)
+                blockState.put("Properties", properties);
             chunk.mcaChunk.setBlockStateAt(block.getGlobalX(), block.getGlobalY(), block.getGlobalZ(), blockState, false);
 
             CompoundTag tileEntity = block.getTileEntity() != null ? block.getTileEntity().getTag() : null;
-            if (tileEntity!=null)
+            if (tileEntity != null)
                 tileEntities.add(tileEntity);
         }
         chunk.mcaChunk.setTileEntities(tileEntities);
+
+        for (int i = 0; i < 16; i++)
+        {
+            Section section = chunk.mcaChunk.getSection(i);
+            if (section != null)
+            {
+                section.blockLight = null;
+                section.skyLight = null;
+            }
+        }
+        chunk.mcaChunk.updateHandle(chunk.getRenderX(), chunk.getRenderZ());
+        chunk.mcaChunk.data.getCompoundTag("Level").putByte("isLightOn", (byte) 0);
         return chunk.mcaChunk;
     }
 

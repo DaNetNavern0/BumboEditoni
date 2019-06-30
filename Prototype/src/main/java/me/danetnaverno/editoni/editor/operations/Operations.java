@@ -1,14 +1,17 @@
 package me.danetnaverno.editoni.editor.operations;
 
 import me.danetnaverno.editoni.editor.Editor;
+import me.danetnaverno.editoni.editor.EditorGUI;
+import me.danetnaverno.editoni.util.Translation;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Operations
 {
-    public static List<Operation> operations = new ArrayList<>();
-    public static int position = 0;
+    private static List<Operation> operations = new ArrayList<>();
+    private static int position = 0;
 
     static
     {
@@ -21,12 +24,18 @@ public class Operations
         {
             operations.add(operation);
             position = operations.size() - 1;
+            operation.apply();
             Editor.INSTANCE.selectBlock(null);
         }
         else
         {
-            //todo confirmation window
+            int dialogButton = JOptionPane.YES_NO_OPTION;
+            dialogButton = JOptionPane.showConfirmDialog(null, Translation.INSTANCE.translate("operations.confirm_force"), "", dialogButton);
+
+            if (dialogButton == JOptionPane.YES_OPTION)
+                applyForced(operation);
         }
+        EditorGUI.INSTANCE.refreshOperationHistory();
     }
 
     /**
@@ -39,22 +48,44 @@ public class Operations
         position = operations.size() - 1;
     }
 
+    public static List<Operation> getOperations()
+    {
+        return new ArrayList<>(operations);
+    }
+
+    public static Operation getOperation(int i)
+    {
+        return operations.get(i);
+    }
+
     public static void moveBack()
     {
-        if (position > 0)
-        {
-            operations.get(position).rollback();
-            position--;
-            operations.get(position).apply();
-        }
+        setPosition(position--);
     }
 
     public static void moveForward()
     {
-        if (position < operations.size() - 1)
+        setPosition(position++);
+    }
+
+    public static int getPosition()
+    {
+        return position;
+    }
+
+    public static void setPosition(int newPosition)
+    {
+        newPosition = Math.max(0, Math.min(newPosition, operations.size() - 1));
+        if (newPosition < position)
         {
-            position++;
-            operations.get(position).apply();
+            for (int i = position; i > newPosition; i--)
+                operations.get(i).rollback();
         }
+        else
+        {
+            for (int i = newPosition + 1; i <= position; i++)
+                operations.get(i).apply();
+        }
+        position = newPosition;
     }
 }

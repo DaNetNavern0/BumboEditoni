@@ -2,9 +2,9 @@ package me.danetnaverno.editoni.editor;
 
 import lwjgui.LWJGUIApplication;
 import lwjgui.scene.Context;
+import lwjgui.scene.Node;
 import lwjgui.scene.Scene;
 import lwjgui.scene.Window;
-import lwjgui.scene.layout.Pane;
 import me.danetnaverno.editoni.Main;
 import me.danetnaverno.editoni.Prototype;
 import org.lwjgl.glfw.GLFW;
@@ -13,8 +13,11 @@ import org.lwjgl.opengl.GL11;
 
 public class EditorApplication extends LWJGUIApplication
 {
+    public static final int PANELS_WIDTH = 600;
+
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
+
     private static long handleId;
     public static Context context;
 
@@ -29,7 +32,7 @@ public class EditorApplication extends LWJGUIApplication
     {
         handleId = window.getContext().getWindowHandle();
 
-        Pane root = EditorGUI.INSTANCE.init(window);
+        Node root = EditorGUI.INSTANCE.init(window);
 
         window.setScene(new Scene(root, WIDTH, HEIGHT));
         context = window.getContext();
@@ -54,7 +57,7 @@ public class EditorApplication extends LWJGUIApplication
         @Override
         public void render(Context context)
         {
-            GL11.glViewport(0, 0, context.getWidth(), context.getHeight());
+            GL11.glViewport(300, 0, context.getWidth() - PANELS_WIDTH, context.getHeight());
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -67,10 +70,10 @@ public class EditorApplication extends LWJGUIApplication
             GL11.glMatrixMode(GL11.GL_PROJECTION);
             GL11.glLoadIdentity();
 
-            double fovY  = 90.0;
+            double fovY = 90.0;
             double zNear = 0.01;
-            double zFar  = 1000.0;
-            double aspect = (double)context.getWidth() / (double)context.getHeight();
+            double zFar = 1000.0;
+            double aspect = (context.getWidth() - PANELS_WIDTH) / (double) context.getHeight();
             double fH = Math.tan(fovY / 360 * Math.PI) * zNear;
             double fW = fH * aspect;
             GL11.glFrustum(-fW, fW, -fH, fH, zNear, zFar);

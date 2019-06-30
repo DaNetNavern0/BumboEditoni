@@ -4,41 +4,41 @@ import lwjgui.geometry.Insets
 import lwjgui.geometry.Pos
 import lwjgui.scene.Window
 import lwjgui.scene.control.*
-import lwjgui.scene.layout.GridPane
+import lwjgui.scene.layout.BorderPane
+import lwjgui.scene.layout.HBox
 import lwjgui.scene.layout.Pane
-import lwjgui.scene.layout.StackPane
-import java.awt.Toolkit
-import javax.swing.JButton
-import javax.swing.JFrame
-import javax.swing.JTextArea
-
+import lwjgui.scene.layout.VBox
+import me.danetnaverno.editoni.editor.operations.Operations
+import me.danetnaverno.editoni.util.Translation
+import net.querz.nbt.CompoundTag
+import javax.swing.JFileChooser
 
 object EditorGUI
 {
-    lateinit var blockInfoLabel: Label
-        private set
-
-    private lateinit var blockStateButton: Button
-
-    private lateinit var tileEntityButton: Button
-
-    private lateinit var grid : GridPane
+    private lateinit var root : BorderPane
+    private lateinit var blockInfoBox : VBox
+    private lateinit var operationHistory : ScrollPane
 
     fun init(window: Window): Pane
     {
-        val root = StackPane()
-        root.alignment = Pos.TOP_LEFT
-        root.padding = Insets(0.0)
+        root = BorderPane()
+        root.alignment = Pos.TOP_CENTER
         root.background = null
-        root.setOnMouseClicked { Editor.onMouseClick(it.mouseX.toInt(),it.mouseY.toInt()) }
+
+        val workArea = Pane()
+        root.setCenter(workArea)
+        workArea.isFillToParentHeight = true
+        workArea.isFillToParentWidth = true
+        workArea.background = null
+        workArea.setOnMouseClicked { Editor.onMouseClick(it.mouseX.toInt(), it.mouseY.toInt()); }
 
         val bar = MenuBar()
         bar.minWidth = EditorApplication.WIDTH.toDouble()
-        root.children.add(bar)
 
         val file = Menu("File")
-        file.items.add(MenuItem("New"))
-        file.items.add(MenuItem("Open"))
+        val open = MenuItem("Open")
+        open.setOnAction { JFileChooser().showOpenDialog(null) }
+        file.items.add(open)
         file.items.add(MenuItem("Save"))
         bar.items.add(file)
 
@@ -47,85 +47,108 @@ object EditorGUI
         edit.items.add(MenuItem("Redo"))
         bar.items.add(edit)
 
-        grid = GridPane()
-        grid.padding = Insets(10.0, 5.0, 5.0, 5.0)
-        grid.background = null
-        grid.hgap = 1
-        grid.vgap = 1
+        root.setTop(bar)
 
-        blockInfoLabel = Label("Type: -")
-        blockInfoLabel.alignment = Pos.TOP_LEFT
-        blockInfoLabel.fontSize = 20f
-        blockInfoLabel.minWidth = 300.0
-        grid.add(blockInfoLabel, 5, 20)
+        val leftPanel = VBox()
+        leftPanel.spacing = 4.0
+        leftPanel.padding = Insets(0.0)
+        leftPanel.background = null
 
-        blockStateButton = Button("State")
-        blockStateButton.alignment = Pos.TOP_LEFT
-        blockStateButton.fontSize = 20f
-        blockStateButton.setOnAction { popup("ass") }
-        grid.add(blockStateButton, 5, 22)
+        blockInfoBox = VBox()
+        blockInfoBox.spacing = 4.0
+        blockInfoBox.padding = Insets(5.0)
+        blockInfoBox.prefWidth = 300.0
+        blockInfoBox.setOnMouseClicked { Editor.onMouseClick(it.mouseX.toInt(),it.mouseY.toInt()) }
+        leftPanel.children.add(blockInfoBox)
 
-        tileEntityButton = Button("TileEntity")
-        tileEntityButton.alignment = Pos.TOP_LEFT
-        tileEntityButton.fontSize = 20f
-        grid.add(tileEntityButton, 5, 24)
+        refreshBlockInfoLabel()
 
-        root.children.add(grid)
+        operationHistory = ScrollPane()
+        operationHistory.isFillToParentWidth = true
+        leftPanel.children.add(operationHistory)
+        root.setLeft(leftPanel)
 
         return root
     }
 
-    //There is a bug with setDisabled and buttons that makes once disabled buttons never draw like they're enabled again.
-    fun setStateButton(enabled: Boolean)
+    //Buttons don't update for some reason, had to re-create the entire UI section
+    fun refreshBlockInfoLabel()
     {
-        grid.children.remove(blockStateButton)
-        blockStateButton = Button("State")
-        blockStateButton.alignment = Pos.TOP_LEFT
-        blockStateButton.fontSize = 20f
-        blockStateButton.isDisabled = !enabled
-        blockStateButton.setOnAction { popup(Editor.selectedBlock?.state?.toString() ?: "") }
-        grid.add(blockStateButton, 5, 22)
+        val selectedBlock = Editor.selectedBlock
+
+        blockInfoBox.children.clear()
+
+        val blockInfoLabel = Label(Translation.translate("gui.block_info.type", selectedBlock?.type ?: "-"))
+        blockInfoLabel.alignment = Pos.TOP_LEFT
+        blockInfoLabel.isFillToParentWidth = true
+
+        val blockStatePane = buildPane(selectedBlock?.state?.tag)
+        val tileEntityPane = buildPane(selectedBlock?.tileEntity?.tag)
+
+        blockInfoBox.children.add(blockInfoLabel)
+        blockInfoBox.children.add(blockStatePane)
+        blockInfoBox.children.add(tileEntityPane)
     }
 
-    fun setTileEntityButton(enabled: Boolean)
+    fun refreshOperationHistory()
     {
-        grid.children.remove(tileEntityButton)
-        tileEntityButton = Button("TileEntity")
-        tileEntityButton.alignment = Pos.TOP_LEFT
-        tileEntityButton.fontSize = 20f
-        tileEntityButton.isDisabled = !enabled
-        tileEntityButton.setOnAction { popup(Editor.selectedBlock?.tileEntity?.toString() ?: "") }
-        grid.add(tileEntityButton, 5, 24)
+        val ohContainer = VBox()
+        for (i in 1 until Operations.getOperations().size)
+        {
+            val text = Label(Operations.getOperation(i).toString())
+            text.setOnMouseClicked { Operations.setPosition(i) }
+            ohContainer.children.add(text)
+        }
+        operationHistory.content = ohContainer
     }
 
-    //todo tmp
-    val popWidth = 400
-    val popHeight = 400
-
-    fun popup(popup: String)
+    fun buildPane(compoundTag: CompoundTag?) : ScrollPane
     {
-        val frame = JFrame()
-        frame.layout = null
-        val text = JTextArea()
-        text.lineWrap = true
-        val cancelButton = JButton()
-        val applyButton = JButton()
+        val mainPane = ScrollPane()
+        val hBox = HBox()
+        mainPane.isFillToParentWidth = true
+        if (compoundTag == null)
+            return mainPane
 
-        text.text = popup
-        cancelButton.text = "Cancel"
-        applyButton.text = "Apply"
-        frame.add(text)
-        frame.add(cancelButton)
-        frame.add(applyButton)
-        frame.pack()
-        val dim = Toolkit.getDefaultToolkit().screenSize
-        frame.setBounds(dim.width / 2 - popWidth / 2, dim.height / 2 - popHeight / 2, popWidth + 20, popHeight + 50)
-        text.setBounds(10, 10, popWidth - 20, popHeight - 60)
-        cancelButton.setBounds(20, popHeight - 40, 64, 32)
-        applyButton.setBounds(popWidth - 64 - 20, popHeight - 40, 64, 32)
-        frame.isVisible = true
+        mainPane.content = hBox
 
-        cancelButton.addActionListener { frame.dispose() }
-        applyButton.addActionListener { /* todo */ }
+        val leftVBox = VBox()
+        leftVBox.padding = Insets(5.0)
+        hBox.children.add(leftVBox)
+        val rightVBox = VBox()
+        rightVBox.padding = Insets(5.0)
+        hBox.children.add(rightVBox)
+
+        for (entry in compoundTag.entrySet())
+        {
+            val leftHbox = HBox()
+            val rightHbox = HBox()
+
+            val keyBox = Label(entry.key)
+            leftHbox.children.add(keyBox)
+            val valueBox = Label(entry.value.toTagString())
+            rightHbox.children.add(valueBox)
+
+            leftVBox.children.add(leftHbox)
+            rightVBox.children.add(rightHbox)
+        }
+
+        return mainPane
+    }
+
+    fun buildTree(base: TreeBase<String>, compoundTag: CompoundTag?)
+    {
+        if (compoundTag != null)
+        {
+            for (entry in compoundTag.entrySet())
+            {
+                val node = TreeItem(entry.key)
+                base.items.add(node)
+                if (entry.value.id == 10.toByte()) //todo magic value: compound
+                    buildTree(node, entry.value as CompoundTag)
+                else
+                    node.items.add(TreeItem(entry.value.toTagString()))
+            }
+        }
     }
 }

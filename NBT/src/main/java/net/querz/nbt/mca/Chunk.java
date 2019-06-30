@@ -18,7 +18,7 @@ public class Chunk {
 
 	private int lastMCAUpdate;
 
-	private CompoundTag data;
+	public CompoundTag data;
 
 	private int dataVersion;
 	private long lastUpdate;

@@ -12,9 +12,9 @@ public class Section {
 	private CompoundTag data;
 	private Map<String, List<PaletteIndex>> valueIndexedPalette = new HashMap<>();
 	private ListTag<CompoundTag> palette;
-	private byte[] blockLight;
+	public byte[] blockLight;
 	private long[] blockStates;
-	private byte[] skyLight;
+	public byte[] skyLight;
 
 	public Section(CompoundTag sectionRoot) {
 		data = sectionRoot;
@@ -76,6 +76,22 @@ public class Section {
 		int index = getBlockIndex(blockX, blockY, blockZ);
 		int paletteIndex = getPaletteIndex(index);
 		return palette.get(paletteIndex);
+	}
+
+	public Integer getBlockLightAt(int blockX, int blockY, int blockZ)
+	{
+		int index = getBlockIndex(blockX, blockY, blockZ);
+		return blockLight.length != 0 ? Nibble4(blockLight, index) : null;
+	}
+
+	public Integer getSkyLightAt(int blockX, int blockY, int blockZ)
+	{
+		int index = getBlockIndex(blockX, blockY, blockZ);
+		return skyLight.length != 0 ? Nibble4(skyLight, index) : null;
+	}
+
+	public int Nibble4(byte[] arr, int index) {
+		return index % 2 == 0 ? arr[index / 2] & 0x0F : (arr[index / 2] >> 4) & 0x0F;
 	}
 
 	public void setBlockStateAt(int blockX, int blockY, int blockZ, CompoundTag state, boolean cleanup) {
@@ -215,10 +231,6 @@ public class Section {
 		this.blockStates = newBlockStates;
 	}
 
-	public byte[] getBlockLight() {
-		return blockLight;
-	}
-
 	public void setBlockLight(byte[] blockLight) {
 		if (blockLight != null && blockLight.length != 2048) {
 			throw new IllegalArgumentException("BlockLight array must have a length of 2048");
@@ -237,10 +249,6 @@ public class Section {
 			throw new IllegalArgumentException("BlockStates must have a length > 255 and < 4097 and must be divisible by 64");
 		}
 		this.blockStates = blockStates;
-	}
-
-	public byte[] getSkyLight() {
-		return skyLight;
 	}
 
 	public void setSkyLight(byte[] skyLight) {
@@ -264,9 +272,15 @@ public class Section {
 	public CompoundTag updateHandle(int y) {
 		data.putByte("Y", (byte) y);
 		data.put("Palette", palette);
-		if (blockLight != null) data.putByteArray("BlockLight", blockLight);
+		if (blockLight != null)
+			data.putByteArray("BlockLight", blockLight);
+		else if (data.containsKey("BlockLight"))
+			data.remove("BlockLight");
 		data.putLongArray("BlockStates", blockStates);
-		if (skyLight != null) data.putByteArray("SkyLight", skyLight);
+		if (skyLight != null)
+			data.putByteArray("SkyLight", skyLight);
+		else if (data.containsKey("SkyLight"))
+			data.remove("SkyLight");
 		return data;
 	}
 }
