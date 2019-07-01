@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.common.world;
 
-import me.danetnaverno.editoni.common.block.BlockType;
+import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.editor.Editor;
 import org.joml.Vector3i;
 

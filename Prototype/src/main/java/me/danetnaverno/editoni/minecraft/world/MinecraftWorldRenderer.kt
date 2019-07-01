@@ -24,7 +24,7 @@ class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
                     {
                         GL11.glPushMatrix()
                         GL11.glTranslatef(block.localPos.x.toFloat(), block.localPos.y.toFloat(), block.localPos.z.toFloat())
-                        block.type.renderer.draw()
+                        block.type.renderer.draw(block)
                         GL11.glPopMatrix()
                     }
                 }

@@ -3,9 +3,9 @@ package me.danetnaverno.editoni.editor
 import com.jogamp.opengl.glu.GLU
 import me.danetnaverno.editoni.Prototype
 import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.common.block.BlockDictionary
-import me.danetnaverno.editoni.common.block.BlockType
 import me.danetnaverno.editoni.common.blockrender.BlockRendererDictionary
+import me.danetnaverno.editoni.common.blocktype.BlockDictionary
+import me.danetnaverno.editoni.common.blocktype.BlockType
 import me.danetnaverno.editoni.common.world.Block
 import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO
@@ -54,7 +54,7 @@ object Editor
             GL11.glDisable(GL11.GL_DEPTH_TEST)
             GL11.glDisable(GL11.GL_TEXTURE_2D)
             GL11.glColor4f(1f, 1f, 0f, 0.7f)
-            BlockRendererDictionary.ERROR.draw()
+            BlockRendererDictionary.ERROR.draw(block)
             GL11.glColor3f(1f, 1f, 1f)
             GL11.glPopMatrix()
         }

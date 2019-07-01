@@ -3,11 +3,12 @@ package me.danetnaverno.editoni.common.world.io
 import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO.WorldIOException.Problem.NOT_A_FILE
 import me.danetnaverno.editoni.common.world.io.WorldIO.WorldIOException.Problem.NOT_RECOGNIZED
-import me.danetnaverno.editoni.minecraft.world.io.Minecraft113WorldIO
+import me.danetnaverno.editoni.minecraft.world.io.Minecraft114WorldIO
 import net.querz.nbt.CompoundTag
 import net.querz.nbt.NBTUtil
 import java.io.File
 
+//todo fancy interface-based system, rather than having direct minecraft package references in common package
 object WorldIO
 {
     fun readWorld(worldFolder: File): World
@@ -20,7 +21,9 @@ object WorldIO
             val versionName = levelDat.getCompoundTag("Data").getCompoundTag("Version").getString("Name")
 
             if (versionName.split(".")[1].toInt() >= 13)
-                return Minecraft113WorldIO.readWorld(worldFolder)
+                return Minecraft114WorldIO.readWorld(worldFolder) //todo 1.13
+            if (versionName.split(".")[1].toInt() >= 14)
+                return Minecraft114WorldIO.readWorld(worldFolder)
 
             throw WorldIOException("Game version of the world '$worldFolder' is too old ($versionName). Update it to version 1.13 or newer", NOT_RECOGNIZED)
         }
@@ -30,9 +33,9 @@ object WorldIO
     fun writeWorld(world: World, worldFolder: File, savingMethod: SavingMethod)
     {
         if (savingMethod==SavingMethod.MC113)
-            Minecraft113WorldIO.writeWorld(world, worldFolder)
+            Minecraft114WorldIO.writeWorld(world, worldFolder) //todo 1.13
         else if (savingMethod==SavingMethod.MC114)
-            Minecraft113WorldIO.writeWorld114(world, worldFolder)
+            Minecraft114WorldIO.writeWorld(world, worldFolder)
     }
 
     class WorldIOException(message: String, problem: Problem) : Exception(message)

@@ -1,8 +1,8 @@
 package me.danetnaverno.editoni.minecraft.world;
 
 import me.danetnaverno.editoni.common.ResourceLocation;
-import me.danetnaverno.editoni.common.block.BlockDictionary;
-import me.danetnaverno.editoni.common.block.BlockType;
+import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
+import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.common.world.World;

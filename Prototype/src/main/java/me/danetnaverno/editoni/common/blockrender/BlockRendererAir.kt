@@ -1,6 +1,7 @@
 package me.danetnaverno.editoni.common.blockrender
 
 import com.alibaba.fastjson.JSONObject
+import me.danetnaverno.editoni.common.world.Block
 
 class BlockRendererAir : BlockRenderer()
 {
@@ -8,7 +9,7 @@ class BlockRendererAir : BlockRenderer()
     {
     }
 
-    override fun draw()
+    override fun draw(block: Block)
     {
     }
 }

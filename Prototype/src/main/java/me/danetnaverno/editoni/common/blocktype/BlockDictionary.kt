@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.common.block
+package me.danetnaverno.editoni.common.blocktype
 
 import me.danetnaverno.editoni.common.ResourceLocation
 import me.danetnaverno.editoni.common.blockrender.BlockRendererDictionary

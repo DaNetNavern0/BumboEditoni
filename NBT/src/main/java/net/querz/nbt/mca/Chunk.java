@@ -77,8 +77,9 @@ public class Chunk {
 				{
 					this.sections[section.getByte("Y")] = new Section(section);
 				}
-				catch (Exception e)
+				catch (Exception ignored)
 				{
+					//Some sections can be without a Palette, which means they're empty, and we can treat them as such
 				}
 			}
 		}

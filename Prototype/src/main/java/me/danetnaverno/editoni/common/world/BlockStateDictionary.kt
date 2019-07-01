@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.common.world
 
-import me.danetnaverno.editoni.common.block.BlockType
+import me.danetnaverno.editoni.common.blocktype.BlockType
 import me.danetnaverno.editoni.minecraft.world.UnknownMinecraftBlockState
 import net.querz.nbt.CompoundTag
 import org.apache.logging.log4j.LogManager

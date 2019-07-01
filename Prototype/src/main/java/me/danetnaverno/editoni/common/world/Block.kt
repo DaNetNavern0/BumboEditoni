@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.common.world
 
-import me.danetnaverno.editoni.common.block.BlockType
+import me.danetnaverno.editoni.common.blocktype.BlockType
 import me.danetnaverno.editoni.editor.operations.Operation
 import me.danetnaverno.editoni.util.globalToLocalPos
 import org.joml.Vector3i

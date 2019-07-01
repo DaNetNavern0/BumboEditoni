@@ -2,6 +2,7 @@ package me.danetnaverno.editoni.minecraft.world;
 
 import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
+import me.danetnaverno.editoni.minecraft.world.io.MCAExtraInfo;
 import org.joml.Vector3i;
 
 import java.util.Collection;
@@ -10,11 +11,11 @@ import java.util.Map;
 public class MinecraftChunk extends Chunk
 {
     private final Map<Vector3i, Block> blocks;
-    public final net.querz.nbt.mca.Chunk mcaChunk; //todo protection level
+    public final MCAExtraInfo extras;
 
-    public MinecraftChunk(net.querz.nbt.mca.Chunk mcaChunk, int xRender, int zRender, int xPos, int zPos, Map<Vector3i, Block> blocks)
+    public MinecraftChunk(MCAExtraInfo extras, int xRender, int zRender, int xPos, int zPos, Map<Vector3i, Block> blocks)
     {
-        this.mcaChunk = mcaChunk;
+        this.extras = extras;
         this.xRender = xRender;
         this.zRender = zRender;
         this.xPos = xPos;

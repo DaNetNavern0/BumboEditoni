@@ -1,6 +1,7 @@
 package me.danetnaverno.editoni.common.blockrender
 
 import com.alibaba.fastjson.JSONObject
+import me.danetnaverno.editoni.common.world.Block
 import me.danetnaverno.editoni.engine.texture.Texture
 import org.lwjgl.opengl.GL11
 
@@ -54,7 +55,7 @@ open class BlockRendererCube : BlockRenderer
         return 1.0f
     }
 
-    override fun draw()
+    override fun draw(block: Block)
     {
         val size = getSize()
 
