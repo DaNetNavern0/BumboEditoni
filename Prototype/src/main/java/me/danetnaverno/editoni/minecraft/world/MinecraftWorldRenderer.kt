@@ -18,6 +18,7 @@ class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
             {
                 GL11.glPushMatrix()
                 GL11.glTranslatef((chunk.renderX shl 4).toFloat(), 0f, (chunk.renderZ shl 4).toFloat())
+
                 for (block in chunk.blocks)
                 {
                     if (!block.isInvisible())
@@ -31,6 +32,17 @@ class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
                 GL11.glPopMatrix()
             }
             GL11.glPopMatrix()
+
+            for (chunk in region.getChunks())
+            {
+                for (entity in chunk.entities)
+                {
+                    GL11.glPushMatrix()
+                    GL11.glTranslated(entity.globalPos.x - 0.5, entity.globalPos.y, entity.globalPos.z - 0.5)
+                    entity.type.renderer.draw(entity)
+                    GL11.glPopMatrix()
+                }
+            }
         }
     }
 }

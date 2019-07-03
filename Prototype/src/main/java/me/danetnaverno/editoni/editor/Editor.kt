@@ -84,7 +84,7 @@ object Editor
             Camera.pitch += 4f
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_R))
         {
-            val blocks = ArrayList<Block>()
+            val blocks = mutableListOf<Block>()
             val type = BlockDictionary.getBlockType(ResourceLocation("minecraft", "torch"))
             blocks.add(MinecraftBlock(currentWorld, Vector3i(-6, 4, 0), type, null, null))
             val operation = SetBlocksOperation(blocks)
@@ -92,7 +92,7 @@ object Editor
         }
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_T))
         {
-            val blocks = ArrayList<Block>()
+            val blocks = mutableListOf<Block>()
             val type1 = BlockDictionary.getBlockType(ResourceLocation("minecraft", "stone"))
             val type2 = BlockDictionary.getBlockType(ResourceLocation("minecraft", "diorite"))
             blocks.add(MinecraftBlock(currentWorld.getChunkByBlockCoord(10, 10), Vector3i(7, 12, 7), type1, null, null))
@@ -161,7 +161,7 @@ object Editor
 
     fun getHiddenBlocks(): List<Block>
     {
-        return ArrayList<Block>(hiddenBlocks)
+        return hiddenBlocks.toList()
     }
 
     private fun findBlock(point: Vector3f): Block?

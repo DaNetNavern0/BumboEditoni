@@ -28,11 +28,9 @@ object BlockDictionary
         }
     }
 
-    fun getAllBlockTypes(): MutableMap<ResourceLocation, BlockType>
+    fun getAllBlockTypes(): Map<ResourceLocation, BlockType>
     {
-        val map = mutableMapOf<ResourceLocation, BlockType>()
-        map.putAll(blockTypes)
-        return map
+        return blockTypes.toMutableMap()
     }
 
     @JvmStatic

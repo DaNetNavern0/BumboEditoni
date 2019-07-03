@@ -1,0 +1,6 @@
+{
+	"langauge": "English",
+	"test1": "Test1",
+	"gui.block_info.type": "Type: {0}",
+	"gui.block_info.light": "Block Light: {0}. Sky Light: {1}",
+}

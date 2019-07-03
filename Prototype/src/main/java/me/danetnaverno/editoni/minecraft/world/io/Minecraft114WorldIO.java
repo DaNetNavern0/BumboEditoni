@@ -3,21 +3,27 @@ package me.danetnaverno.editoni.minecraft.world.io;
 import me.danetnaverno.editoni.common.ResourceLocation;
 import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
 import me.danetnaverno.editoni.common.blocktype.BlockType;
+import me.danetnaverno.editoni.common.entitytype.EntityDictionary;
+import me.danetnaverno.editoni.common.entitytype.EntityType;
 import me.danetnaverno.editoni.common.world.*;
 import me.danetnaverno.editoni.minecraft.world.*;
 import net.querz.nbt.CompoundTag;
+import net.querz.nbt.DoubleTag;
 import net.querz.nbt.ListTag;
 import net.querz.nbt.mca.Chunk;
 import net.querz.nbt.mca.MCAFile;
 import net.querz.nbt.mca.MCAUtil;
 import net.querz.nbt.mca.Section;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,8 +73,19 @@ public class Minecraft114WorldIO
         int posX = data.getCompoundTag("Level").getInt("xPos");
         int posZ = data.getCompoundTag("Level").getInt("zPos");
         Map<Vector3i, Block> blocks = new HashMap<>();
-        MinecraftChunk chunk = new MinecraftChunk(new MCAExtraInfo114(data), renderX, renderZ, posX, posZ, blocks);
+        List<Entity> entities = new ArrayList<>();
+        MinecraftChunk chunk = new MinecraftChunk(new MCAExtraInfo114(data), renderX, renderZ, posX, posZ, blocks, entities);
 
+        //Entities
+        for (CompoundTag tag : mcaChunk.getEntities())
+        {
+            EntityType type = EntityDictionary.getEntityType(new ResourceLocation(tag.getString("id")));
+            ListTag<DoubleTag> posTag = (ListTag<DoubleTag>) tag.getListTag("Pos");
+            Vector3d pos = new Vector3d(posTag.get(0).asDouble(), posTag.get(1).asDouble(), posTag.get(2).asDouble());
+            entities.add(new MinecraftEntity(chunk, pos, type, tag));
+        }
+
+        //Tile Entities
         Map<Vector3i, MinecraftTileEntity> tileEntities = new HashMap<>();
         for (CompoundTag tileEntity : mcaChunk.getTileEntities())
         {
@@ -81,6 +98,7 @@ public class Minecraft114WorldIO
             tileEntities.put(pos, new MinecraftTileEntity(tileEntity));
         }
 
+        //Block States
         for (int x = 0; x < 16; x++)
             for (int y = 0; y < 255; y++)
                 for (int z = 0; z < 16; z++)
@@ -125,7 +143,11 @@ public class Minecraft114WorldIO
     public static Chunk writeChunk(@NotNull MinecraftChunk chunk)
     {
         ListTag<CompoundTag> tileEntities = new ListTag<>(CompoundTag.class);
+        ListTag<CompoundTag> entities = new ListTag<>(CompoundTag.class);
         Chunk mcaChunk = new Chunk(chunk.extras.getData());
+
+        for (Entity entity : chunk.getEntities())
+            entities.add(entity.getTag());
 
         for (Block block : chunk.getBlocks())
         {
@@ -135,6 +157,7 @@ public class Minecraft114WorldIO
             if (properties != null)
                 blockState.put("Properties", properties);
             mcaChunk.setBlockStateAt(block.getGlobalX(), block.getGlobalY(), block.getGlobalZ(), blockState, false);
+            mcaChunk.setEntities(entities);
 
             CompoundTag tileEntity = block.getTileEntity() != null ? block.getTileEntity().getTag() : null;
             if (tileEntity != null)

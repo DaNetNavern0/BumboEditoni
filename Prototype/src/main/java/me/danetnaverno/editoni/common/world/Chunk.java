@@ -22,6 +22,10 @@ public abstract class Chunk
 
     public abstract void setBlock(Block block);
 
+
+    public abstract Collection<Entity> getEntities();
+
+
     public int getRenderX()
     {
         return xRender;
