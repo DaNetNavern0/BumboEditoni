@@ -1,6 +1,6 @@
 {
 	renderer: {
 		type: "minecraft:cube",
-		texture: "minecraft/furnace_top"
+		texture: "minecraft:furnace_top"
 	}
 }

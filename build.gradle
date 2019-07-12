@@ -30,7 +30,6 @@ subprojects {
         maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "http://repo.maven.apache.org/maven2" }
-        maven { url "https://jitpack.io" }
         mavenCentral()
         jcenter()
     }
@@ -39,8 +38,22 @@ subprojects {
     apply plugin: 'application'
 
     dependencies {
-        compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.9.1'
-        compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.9.1'
+        compile group: 'com.alibaba', name: 'fastjson', version: '1.2.58'
+
+        compile group: 'org.joml', name: 'joml-camera', version:'1.2.0-SNAPSHOT'
+        compile group: 'org.lwjgl', name: 'lwjgl', version:'3.2.2'
+        compile group: 'org.lwjgl', name: 'lwjgl-glfw', version:'3.2.2'
+        compile group: 'org.lwjgl', name: 'lwjgl-opengl', version:'3.2.2'
+        compile group: 'org.lwjgl', name: 'lwjgl-stb', version:'3.2.2'
+        compile group: 'org.lwjgl', name: 'lwjgl-nanovg', version:'3.2.2'
+        compile group: 'org.lwjgl', name: 'lwjgl', version:'3.2.2', classifier:'natives-windows'
+        compile group: 'org.lwjgl', name: 'lwjgl-opengl', version:'3.2.2', classifier:'natives-windows'
+        compile group: 'org.lwjgl', name: 'lwjgl-glfw', version:'3.2.2', classifier:'natives-windows'
+        compile group: 'org.lwjgl', name: 'lwjgl-stb', version:'3.2.2', classifier:'natives-windows'
+        compile group: 'org.lwjgl', name: 'lwjgl-nanovg', version:'3.2.2', classifier:'natives-windows'
+
+        compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.12.0'
+        compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.12.0'
 
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"

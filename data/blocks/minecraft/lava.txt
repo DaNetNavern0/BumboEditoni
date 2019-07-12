@@ -1,6 +1,6 @@
 {
 	renderer: {
 		type: "minecraft:liquid",
-		texture: "minecraft/lava",
+		texture: "minecraft:lava",
 	}
 }

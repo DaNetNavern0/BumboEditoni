@@ -1,11 +1,11 @@
 {
 	renderer: {
 		type: "minecraft:chest",
-		top: "minecraft/chest_top",
-		bottom: "minecraft/chest_top",
-		west: "minecraft/chest_side",
-		east: "minecraft/chest_side",
-		south: "minecraft/chest_side",
-		north: "minecraft/chest_side"
+		top: "minecraft:chest_top",
+		bottom: "minecraft:chest_top",
+		west: "minecraft:chest_side",
+		east: "minecraft:chest_side",
+		south: "minecraft:chest_side",
+		north: "minecraft:chest_side"
 	}
 }

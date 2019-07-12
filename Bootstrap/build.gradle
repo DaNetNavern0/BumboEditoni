@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':Common')
+    compile project(':Editor')
+    compile project(':Minecraft')
+}
