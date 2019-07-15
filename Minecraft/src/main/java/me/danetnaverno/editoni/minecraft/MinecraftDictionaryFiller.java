@@ -43,6 +43,6 @@ public class MinecraftDictionaryFiller
                 BlockDictionary.getBlockType(new ResourceLocation("minecraft:lava")),
                 MinecraftLiquidState.class);
 
-        BlockDictionary.register(new ResourceLocation("minecraft", "air"), new BlockType(new ResourceLocation("minecraft", "air"), new BlockRendererAir()));
+        BlockDictionary.register(new ResourceLocation("minecraft", "air"), new BlockType(new ResourceLocation("minecraft", "air"), new BlockRendererAir(), true));
     }
 }

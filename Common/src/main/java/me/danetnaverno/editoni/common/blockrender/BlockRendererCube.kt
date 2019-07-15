@@ -32,102 +32,6 @@ open class BlockRendererCube : BlockRenderer
         sixTextures(top, bottom, north, west, south, east)
     }
 
-    override fun fromJson(data: JSONObject)
-    {
-        when
-        {
-            data.containsKey("texture") -> plainTexture(Texture[ResourceLocation(data.getString("texture"))])
-            data.containsKey("side") -> withSideTexture(
-                    Texture[ResourceLocation(data.getString("top"))],
-                    Texture[ResourceLocation(data.getString("bottom"))],
-                    Texture[ResourceLocation(data.getString("side"))])
-            data.containsKey("west") -> sixTextures(
-                    Texture[ResourceLocation(data.getString("top"))],
-                    Texture[ResourceLocation(data.getString("bottom"))],
-                    Texture[ResourceLocation(data.getString("north"))],
-                    Texture[ResourceLocation(data.getString("west"))],
-                    Texture[ResourceLocation(data.getString("south"))],
-                    Texture[ResourceLocation(data.getString("east"))])
-        }
-    }
-
-    open fun getSize(): Float
-    {
-        return 1.0f
-    }
-
-    override fun draw(block: Block)
-    {
-        val size = getSize()
-
-        top.bind()
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, 0.0f)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, size)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, size, size)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(size, size, 0.0f)
-        GL11.glEnd()
-        bottom.bind()
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, 0.0f, 0.0f)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(size, 0.0f, 0.0f)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, size)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, size)
-        GL11.glEnd()
-        south.bind()
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(size, size, size)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, size)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, size)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, size)
-        GL11.glEnd()
-        north.bind()
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, 0.0f)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, 0.0f)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, 0.0f)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(size, size, 0.0f)
-        GL11.glEnd()
-        west.bind()
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, size)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, 0.0f)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, 0.0f)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, size)
-        GL11.glEnd()
-        east.bind()
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(size, size, 0.0f)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(size, size, size)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, size)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, 0.0f)
-        GL11.glEnd()
-    }
-
     protected fun plainTexture(texture: Texture)
     {
         this.top = texture
@@ -156,5 +60,135 @@ open class BlockRendererCube : BlockRenderer
         this.west = west
         this.south = south
         this.east = east
+    }
+
+    override fun fromJson(data: JSONObject)
+    {
+        when
+        {
+            data.containsKey("texture") -> plainTexture(Texture[ResourceLocation(data.getString("texture"))])
+            data.containsKey("side") -> withSideTexture(
+                    Texture[ResourceLocation(data.getString("top"))],
+                    Texture[ResourceLocation(data.getString("bottom"))],
+                    Texture[ResourceLocation(data.getString("side"))])
+            data.containsKey("west") -> sixTextures(
+                    Texture[ResourceLocation(data.getString("top"))],
+                    Texture[ResourceLocation(data.getString("bottom"))],
+                    Texture[ResourceLocation(data.getString("north"))],
+                    Texture[ResourceLocation(data.getString("west"))],
+                    Texture[ResourceLocation(data.getString("south"))],
+                    Texture[ResourceLocation(data.getString("east"))])
+        }
+    }
+
+    open fun getSize(): Float
+    {
+        return 1.0f
+    }
+
+    override fun draw(block: Block)
+    {
+        val size = getSize()
+
+        GL11.glPushMatrix()
+        GL11.glTranslatef(block.location.globalX.toFloat(), block.location.globalY.toFloat(), block.location.globalZ.toFloat())
+
+        if (block.location.localY == 255 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, 1, 0))))
+        {
+            top.bind()
+            GL11.glBegin(GL11.GL_QUADS)
+            GL11.glTexCoord2f(0.0f, 0.0f)
+            GL11.glVertex3f(0.0f, size, 0.0f)
+            GL11.glTexCoord2f(1.0f, 0.0f)
+            GL11.glVertex3f(0.0f, size, size)
+            GL11.glTexCoord2f(1.0f, 1.0f)
+            GL11.glVertex3f(size, size, size)
+            GL11.glTexCoord2f(0.0f, 1.0f)
+            GL11.glVertex3f(size, size, 0.0f)
+            GL11.glEnd()
+        }
+        GL11.glPopMatrix()
+        if (true)
+            return
+        if (block.location.localY == 0 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, -1, 0))))
+        {
+            bottom.bind()
+            GL11.glBegin(GL11.GL_QUADS)
+            GL11.glTexCoord2f(0.0f, 0.0f)
+            GL11.glVertex3f(0.0f, 0.0f, 0.0f)
+            GL11.glTexCoord2f(1.0f, 0.0f)
+            GL11.glVertex3f(size, 0.0f, 0.0f)
+            GL11.glTexCoord2f(1.0f, 1.0f)
+            GL11.glVertex3f(size, 0.0f, size)
+            GL11.glTexCoord2f(0.0f, 1.0f)
+            GL11.glVertex3f(0.0f, 0.0f, size)
+            GL11.glEnd()
+        }
+
+        var nextCoords = block.location.add(0, 0, 1)
+        var nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
+        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        {
+            south.bind()
+            GL11.glBegin(GL11.GL_QUADS)
+            GL11.glTexCoord2f(1.0f, 0.0f)
+            GL11.glVertex3f(size, size, size)
+            GL11.glTexCoord2f(0.0f, 0.0f)
+            GL11.glVertex3f(0.0f, size, size)
+            GL11.glTexCoord2f(0.0f, 1.0f)
+            GL11.glVertex3f(0.0f, 0.0f, size)
+            GL11.glTexCoord2f(1.0f, 1.0f)
+            GL11.glVertex3f(size, 0.0f, size)
+            GL11.glEnd()
+        }
+        nextCoords = block.location.add(0, 0, -1)
+        nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
+        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        {
+            north.bind()
+            GL11.glBegin(GL11.GL_QUADS)
+            GL11.glTexCoord2f(1.0f, 1.0f)
+            GL11.glVertex3f(size, 0.0f, 0.0f)
+            GL11.glTexCoord2f(0.0f, 1.0f)
+            GL11.glVertex3f(0.0f, 0.0f, 0.0f)
+            GL11.glTexCoord2f(0.0f, 0.0f)
+            GL11.glVertex3f(0.0f, size, 0.0f)
+            GL11.glTexCoord2f(1.0f, 0.0f)
+            GL11.glVertex3f(size, size, 0.0f)
+            GL11.glEnd()
+        }
+        nextCoords = block.location.add(-1, 0, 0)
+        nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
+        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        {
+            west.bind()
+            GL11.glBegin(GL11.GL_QUADS)
+            GL11.glTexCoord2f(0.0f, 0.0f)
+            GL11.glVertex3f(0.0f, size, size)
+            GL11.glTexCoord2f(1.0f, 0.0f)
+            GL11.glVertex3f(0.0f, size, 0.0f)
+            GL11.glTexCoord2f(1.0f, 1.0f)
+            GL11.glVertex3f(0.0f, 0.0f, 0.0f)
+            GL11.glTexCoord2f(0.0f, 1.0f)
+            GL11.glVertex3f(0.0f, 0.0f, size)
+            GL11.glEnd()
+        }
+        nextCoords = block.location.add(1, 0, 0)
+        nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
+        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        {
+            east.bind()
+            GL11.glBegin(GL11.GL_QUADS)
+            GL11.glTexCoord2f(0.0f, 0.0f)
+            GL11.glVertex3f(size, size, 0.0f)
+            GL11.glTexCoord2f(1.0f, 0.0f)
+            GL11.glVertex3f(size, size, size)
+            GL11.glTexCoord2f(1.0f, 1.0f)
+            GL11.glVertex3f(size, 0.0f, size)
+            GL11.glTexCoord2f(0.0f, 1.0f)
+            GL11.glVertex3f(size, 0.0f, 0.0f)
+            GL11.glEnd()
+        }
+        GL11.glPopMatrix()
     }
 }

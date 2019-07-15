@@ -12,4 +12,9 @@ class BlockRendererAir : BlockRenderer()
     override fun draw(block: Block)
     {
     }
+
+    override fun shouldRenderSideAgainst(block: Block): Boolean
+    {
+        return false
+    }
 }

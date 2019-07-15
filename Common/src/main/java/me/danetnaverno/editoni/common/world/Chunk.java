@@ -1,7 +1,8 @@
 package me.danetnaverno.editoni.common.world;
 
-import org.joml.Vector3d;
-import org.joml.Vector3i;
+import me.danetnaverno.editoni.util.location.BlockLocation;
+import me.danetnaverno.editoni.util.location.ChunkLocation;
+import me.danetnaverno.editoni.util.location.EntityLocation;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,27 +10,26 @@ import java.util.stream.Collectors;
 
 public abstract class Chunk
 {
-    protected int xRender;
-    protected int zRender;
-    protected int xPos;
-    protected int zPos;
-    protected boolean isLoaded = true;
+    public final World world;
+    public final ChunkLocation location;
+    public final int renderX;
+    public final int renderZ;
 
-    public Chunk(int xRender, int zRender, int xPos, int zPos)
+    public Chunk(World world, ChunkLocation location, int renderX, int renderZ)
     {
-        this.xRender = xRender;
-        this.zRender = zRender;
-        this.xPos = xPos;
-        this.zPos = zPos;
+        this.world = world;
+        this.location = location;
+        this.renderX = renderX;
+        this.renderZ = renderZ;
     }
 
     public abstract Collection<Block> getBlocks();
 
-    public abstract Block getBlockAt(Vector3i pos);
+    public abstract Block getBlockAt(BlockLocation pos);
 
     public Block getBlockAt(int x, int y, int z)
     {
-        return getBlockAt(new Vector3i(x, y, z));
+        return getBlockAt(new BlockLocation(this, x, y, z));
     }
 
     public abstract void setBlock(Block block);
@@ -37,35 +37,10 @@ public abstract class Chunk
 
     public abstract Collection<Entity> getEntities();
 
-    public List<Entity> getEntitiesAt(Vector3d pos, float radius)
+    public List<Entity> getEntitiesAt(EntityLocation location, float radius)
     {
-        return getEntities().stream().filter( it-> it.getGlobalPos().distance(pos) < radius).collect(Collectors.toList());
+        return getEntities().stream().filter( it-> it.getGlobalPos().distance(location) < radius).collect(Collectors.toList());
     }
 
-
-    public int getRenderX()
-    {
-        return xRender;
-    }
-
-    public int getRenderZ()
-    {
-        return zRender;
-    }
-
-    public int getPosX()
-    {
-        return xPos;
-    }
-
-    public int getPosZ()
-    {
-        return zPos;
-    }
-
-    public boolean isLoaded()
-    {
-        return isLoaded;
-    }
-
+    public abstract boolean isLoaded();
 }

@@ -1,4 +1,5 @@
 {
+	is_opaque: true,
 	renderer: {
 		type: "minecraft:chest",
 		top: "minecraft:chest_top",

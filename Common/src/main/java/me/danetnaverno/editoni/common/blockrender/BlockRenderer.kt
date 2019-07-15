@@ -8,4 +8,9 @@ abstract class BlockRenderer
     abstract fun fromJson(data: JSONObject)
 
     abstract fun draw(block: Block)
+
+    open fun shouldRenderSideAgainst(block: Block): Boolean
+    {
+        return block.type.isOpaque
+    }
 }

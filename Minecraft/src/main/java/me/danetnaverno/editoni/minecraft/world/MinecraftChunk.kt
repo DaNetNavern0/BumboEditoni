@@ -4,13 +4,19 @@ import me.danetnaverno.editoni.common.world.Block
 import me.danetnaverno.editoni.common.world.Chunk
 import me.danetnaverno.editoni.common.world.Entity
 import me.danetnaverno.editoni.minecraft.world.io.MCAExtraInfo
-import org.joml.Vector3i
+import me.danetnaverno.editoni.util.location.BlockLocation
+import me.danetnaverno.editoni.util.location.ChunkLocation
 import java.util.*
 
-class MinecraftChunk(val extras: MCAExtraInfo, xRender: Int, zRender: Int, xPos: Int, zPos: Int,
-                     private val blocks: MutableMap<Vector3i, Block>, private val entities: Collection<Entity>)
-    : Chunk(xRender, zRender, xPos, zPos)
+class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: Int, renderZ: Int, val extras: MCAExtraInfo,
+                     private val blocks: MutableMap<BlockLocation, Block>, private val entities: Collection<Entity>)
+    : Chunk(world, location, renderX, renderZ)
 {
+    override fun getEntities(): Collection<Entity>
+    {
+        check(isLoaded) { "Chunk is still loading: $this" }
+        return ArrayList(entities)
+    }
 
     override fun getBlocks(): Collection<Block>
     {
@@ -18,24 +24,23 @@ class MinecraftChunk(val extras: MCAExtraInfo, xRender: Int, zRender: Int, xPos:
         return ArrayList(blocks.values)
     }
 
-    override fun getBlockAt(pos: Vector3i): Block
+    override fun getBlockAt(blockPos: BlockLocation): Block
     {
         check(isLoaded) { "Chunk is still loading: $this" }
-        require(pos.x in 0..15 && pos.z in 0..15) {
-            "Position is out of chunk boundaries: chunk=$this; pos=$pos"
+        require(location.isBlockLocationBelongs(blockPos)) {
+            "Position is out of chunk boundaries: chunkLocation=$location blockPos=$blockPos"
         }
-        return blocks[pos]!!
+        return blocks[blockPos]!!
     }
 
     override fun setBlock(block: Block)
     {
         check(isLoaded) { "Chunk is still loading: $this" }
-        blocks[block.localPos] = block
+        blocks[block.location] = block
     }
 
-    override fun getEntities(): Collection<Entity>
+    override fun isLoaded(): Boolean
     {
-        check(isLoaded) { "Chunk is still loading: $this" }
-        return ArrayList(entities)
+        return !blocks.isEmpty()
     }
 }

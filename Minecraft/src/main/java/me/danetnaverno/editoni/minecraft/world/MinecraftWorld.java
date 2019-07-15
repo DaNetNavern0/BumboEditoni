@@ -7,9 +7,10 @@ import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.common.world.Entity;
 import me.danetnaverno.editoni.common.world.World;
+import me.danetnaverno.editoni.util.location.BlockLocation;
+import me.danetnaverno.editoni.util.location.ChunkLocation;
+import me.danetnaverno.editoni.util.location.EntityLocation;
 import org.joml.Vector2i;
-import org.joml.Vector3d;
-import org.joml.Vector3i;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,50 +27,53 @@ public class MinecraftWorld extends World
     }
 
     @Override
-    public List<Entity> getEntitiesAt(Vector3d pos, float radius)
+    public List<Entity> getEntitiesAt(EntityLocation location, float radius)
     {
-        Chunk chunk = getChunkByBlockCoord((int) pos.x, (int) pos.z); //todo radius can touch multiple chunks
+        Chunk chunk = getChunk(location.toChunkLocation()); //todo radius can touch multiple chunks
         if (chunk == null)
             return null;
-        List<Entity> ass = chunk.getEntitiesAt(pos, radius).stream()
-                .sorted(Comparator.comparingDouble(it -> it.getGlobalPos().distanceSquared(pos)))
+        return chunk.getEntitiesAt(location, radius).stream()
+                .sorted(Comparator.comparingDouble(it -> it.getGlobalPos().distanceSquared(location)))
                 .collect(Collectors.toList());
-        return ass;
     }
 
     @Override
-    public Block getBlockAt(Vector3i pos)
+    public Block getBlockAt(BlockLocation location)
     {
-        Chunk chunk = getChunkByBlockCoord(pos.x, pos.z);
+        Chunk chunk = getChunk(location);
         if (chunk==null)
             return null;
-        return chunk.getBlockAt(pos.x & 15, pos.y, pos.z & 15);
-    }
-
-    public Chunk getRegionByBlockCoord(int blockX, int blockZ)
-    {
-        return getChunkByChunkCoord(blockX >> 10, blockZ >> 10);
+        return chunk.getBlockAt(location);
     }
 
     @Override
-    public Chunk getChunkByChunkCoord(int chunkX, int chunkZ)
+    public Chunk getChunkIfLoaded(ChunkLocation location)
     {
-        MinecraftRegion region = getRegion(chunkX >> 6, chunkZ >> 6);
+        MinecraftRegion region = getRegion(location.x >> 6, location.z >> 6);
+        if (region == null || !region.isLoaded())
+            return null;
+        return region.getChunk(location);
+    }
+
+    @Override
+    public Chunk getChunk(ChunkLocation location)
+    {
+        MinecraftRegion region = getRegion(location.x >> 6, location.z >> 6);
         if (region == null)
             return null;
-        return region.getChunkByChunkCoord(chunkX, chunkZ);
+        return region.getChunk(location);
     }
 
     @Override
-    public Chunk getChunkByBlockCoord(int blockX, int blockZ)
+    public Chunk getChunk(BlockLocation location)
     {
-        return getChunkByChunkCoord(blockX >> 4, blockZ >> 4);
+        return getChunk(location.toChunkLocation());
     }
 
     @Override
     public void setBlock(Block block)
     {
-        Chunk chunk = getChunkByBlockCoord(block.getGlobalX(), block.getGlobalZ());
+        Chunk chunk = getChunk(block.location.toChunkLocation());
         chunk.setBlock(block);
     }
 
@@ -89,8 +93,13 @@ public class MinecraftWorld extends World
         return regions.get(new Vector2i(regionX, regionZ));
     }
 
+    public MinecraftRegion getRegion(BlockLocation location)
+    {
+        return getRegion(location.globalX >> 10, location.globalZ >> 10);
+    }
+
     public void addRegion(MinecraftRegion region)
     {
-        regions.put(new Vector2i(region.x, region.z), region);
+        regions.put(new Vector2i(region.getX(), region.getZ()), region);
     }
 }

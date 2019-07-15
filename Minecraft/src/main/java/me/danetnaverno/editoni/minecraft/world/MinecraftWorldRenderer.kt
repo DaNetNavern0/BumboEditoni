@@ -1,48 +1,49 @@
 package me.danetnaverno.editoni.minecraft.world
 
-import me.danetnaverno.editoni.common.blockrender.BlockRendererAir
 import me.danetnaverno.editoni.common.world.WorldRenderer
-import org.lwjgl.opengl.GL11
+import me.danetnaverno.editoni.util.Camera
+import me.danetnaverno.editoni.util.RobertoGarbagio
+import me.danetnaverno.editoni.util.location.BlockLocation
 
 class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
 {
-    val mcWorld :MinecraftWorld get() = super.world as MinecraftWorld
+    val mcWorld :MinecraftWorld get() = world as MinecraftWorld
+
+    fun ass(x: Int, z: Int, x1: Int, z1: Int) : Boolean
+    {
+        val dx = x - (x1 shr 10)
+        val dz = z - (z1 shr 10)
+        return dx * dx + dz * dz < 1
+    }
 
     override fun render()
     {
-        for (region in mcWorld.regions)
+        val now = System.currentTimeMillis()
+        val cam = BlockLocation(Camera.x.toInt(), 200, Camera.z.toInt())
+        val aa = mcWorld.regions.filter { ass(it.x, it.z, cam.globalX, cam.globalZ) }
+        for (region in aa)
         {
-            GL11.glPushMatrix()
-            GL11.glTranslatef((region.x shl 9).toFloat(), 0f, (region.z shl 9).toFloat())
-            for (chunk in region.getChunks())
+            val chunks = region.getChunks()
+            val bb = chunks.filter { it.location.distance(cam.toChunkLocation()) <= 5 }
+            for (chunk in bb)
             {
-                GL11.glPushMatrix()
-                GL11.glTranslatef((chunk.renderX shl 4).toFloat(), 0f, (chunk.renderZ shl 4).toFloat())
+                if (!chunk.isLoaded)
+                    continue
 
                 for (block in chunk.blocks)
-                {
-                    if (block.type.renderer !is BlockRendererAir) //todo hidden blocks are not hidden
-                    {
-                        GL11.glPushMatrix()
-                        GL11.glTranslatef(block.localPos.x.toFloat(), block.localPos.y.toFloat(), block.localPos.z.toFloat())
-                        block.type.renderer.draw(block)
-                        GL11.glPopMatrix()
-                    }
-                }
-                GL11.glPopMatrix()
+                    block.type.renderer.draw(block)
             }
-            GL11.glPopMatrix()
 
             for (chunk in region.getChunks())
             {
+                if (!chunk.isLoaded)
+                    continue
                 for (entity in chunk.entities)
                 {
-                    GL11.glPushMatrix()
-                    GL11.glTranslated(entity.globalPos.x - 0.5, entity.globalPos.y, entity.globalPos.z - 0.5)
                     entity.type.renderer.draw(entity)
-                    GL11.glPopMatrix()
                 }
             }
         }
+        RobertoGarbagio.logger.info("tick: ${(System.currentTimeMillis() - now)}\n---------------")
     }
 }

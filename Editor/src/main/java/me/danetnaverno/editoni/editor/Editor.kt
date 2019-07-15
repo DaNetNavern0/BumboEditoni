@@ -8,6 +8,8 @@ import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO
 import me.danetnaverno.editoni.editor.operations.Operations
 import me.danetnaverno.editoni.util.Camera
+import me.danetnaverno.editoni.util.RobertoGarbagio
+import me.danetnaverno.editoni.util.location.EntityLocation
 import org.apache.logging.log4j.LogManager
 import org.joml.Vector3d
 import org.joml.Vector3i
@@ -35,10 +37,10 @@ object Editor
         try
         {
             Camera.x = 0f
-            Camera.y = 0f
-            Camera.z = -20f
-            Camera.pitch = 52f
-            Camera.yaw = 140f
+            Camera.y = 80f
+            Camera.z = 0f
+            Camera.yaw = 0f
+            Camera.pitch = -90f
         }
         catch (e: Exception)
         {
@@ -62,23 +64,20 @@ object Editor
 
     fun displayLoop()
     {
-        GL11.glTranslated(Camera.x.toDouble(), Camera.y.toDouble(), Camera.z.toDouble())
-        GL11.glRotated(Camera.pitch.toDouble(), 1.0, 0.0, 0.0)
-        GL11.glRotated(Camera.yaw.toDouble(), 0.0, 1.0, 0.0)
+        GL11.glRotated(Camera.pitch.toDouble(), -1.0, 0.0, 0.0)
+        GL11.glRotated(Camera.yaw.toDouble(), 0.0, -1.0, 0.0)
+        GL11.glTranslated(-Camera.x.toDouble(), -Camera.y.toDouble(), -Camera.z.toDouble())
 
         Editor.currentWorld.worldRenderer.render()
 
         val block = Editor.selectedBlock
         if (block != null)
         {
-            GL11.glPushMatrix()
-            GL11.glTranslatef(block.globalX.toFloat(), block.globalY.toFloat(), block.globalZ.toFloat())
             GL11.glDisable(GL11.GL_DEPTH_TEST)
             GL11.glDisable(GL11.GL_TEXTURE_2D)
             GL11.glColor4f(1f, 1f, 0f, 0.7f)
             BlockRendererDictionary.ERROR.draw(block)
             GL11.glColor3f(1f, 1f, 1f)
-            GL11.glPopMatrix()
         }
 
         controls()
@@ -87,25 +86,25 @@ object Editor
     fun controls()
     {
         if (InputHandler.keyDown(GLFW.GLFW_KEY_A))
-            Camera.x += 0.2f
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_D))
             Camera.x -= 0.2f
+        if (InputHandler.keyDown(GLFW.GLFW_KEY_D))
+            Camera.x += 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_W))
-            Camera.z += 0.2f
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_S))
             Camera.z -= 0.2f
+        if (InputHandler.keyDown(GLFW.GLFW_KEY_S))
+            Camera.z += 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_SHIFT))
-            Camera.y += 0.2f
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_SPACE))
             Camera.y -= 0.2f
+        if (InputHandler.keyDown(GLFW.GLFW_KEY_SPACE))
+            Camera.y += 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_1))
-            Camera.yaw -= 4f
+            Camera.yaw += 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_2))
-            Camera.yaw += 4f
+            Camera.yaw -= 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_3))
-            Camera.pitch -= 4f
+            Camera.pitch += 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_4))
-            Camera.pitch += 4f
+            Camera.pitch -= 0.2f
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_Z)
                 && (InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_CONTROL) || InputHandler.keyDown(GLFW.GLFW_KEY_RIGHT_CONTROL)))
         {
@@ -142,12 +141,14 @@ object Editor
             logger.info("Saved!")
         }
 
+        RobertoGarbagio.logger.info("${Camera.x} ${Camera.y} ${Camera.z}")
         InputHandler.update()
     }
 
     fun onMouseClick(x: Int, y: Int)
     {
-        val entity = findEntity(raycast(x, y))
+        val raycast = raycast(x, y)
+        val entity = findEntity(EntityLocation(raycast.x, raycast.y, raycast.z))
         if (entity!=null)
         {
             //todo wip
@@ -180,9 +181,9 @@ object Editor
         return hiddenBlocks.toList()
     }
 
-    private fun findEntity(point: Vector3d): Entity?
+    private fun findEntity(location: EntityLocation): Entity?
     {
-        return currentWorld.getEntitiesAt(point, 2f).firstOrNull()
+        return currentWorld.getEntitiesAt(location, 2f).firstOrNull()
     }
 
     private fun findBlock(point: Vector3d): Block?
@@ -221,5 +222,4 @@ object Editor
     {
         return block.type.id.path.contains("air") || hiddenBlocks.contains(block) //todo magic value
     }
-
 }

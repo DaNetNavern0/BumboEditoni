@@ -5,6 +5,7 @@ import lwjgui.scene.Context;
 import lwjgui.scene.Node;
 import lwjgui.scene.Scene;
 import lwjgui.scene.Window;
+import me.danetnaverno.editoni.util.RobertoGarbagio;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL11;
@@ -57,31 +58,43 @@ public class EditorApplication extends LWJGUIApplication
         @Override
         public void render(Context context)
         {
-            GL11.glViewport(300, 0, context.getWidth() - PANELS_WIDTH, context.getHeight());
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-            GL11.glEnable(GL11.GL_BLEND);
-            //GL11.glFrontFace(GL11.GL_CCW);
-            GL11.glEnable(GL11.GL_CULL_FACE);
-            GL11.glCullFace(GL11.GL_BACK);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            try
+            {
+                GL11.glViewport(300, 0, context.getWidth() - PANELS_WIDTH, context.getHeight());
+                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
+                GL11.glEnable(GL11.GL_TEXTURE_2D);
+                GL11.glEnable(GL11.GL_BLEND);
+                //GL11.glFrontFace(GL11.GL_CCW);
+                GL11.glEnable(GL11.GL_CULL_FACE);
+                GL11.glCullFace(GL11.GL_BACK);
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-            GL11.glMatrixMode(GL11.GL_PROJECTION);
-            GL11.glLoadIdentity();
+                GL11.glMatrixMode(GL11.GL_PROJECTION);
+                GL11.glLoadIdentity();
 
-            double fovY = 90.0;
-            double zNear = 0.01;
-            double zFar = 1000.0;
-            double aspect = (context.getWidth() - PANELS_WIDTH) / (double) context.getHeight();
-            double fH = Math.tan(fovY / 360 * Math.PI) * zNear;
-            double fW = fH * aspect;
-            GL11.glFrustum(-fW, fW, -fH, fH, zNear, zFar);
+                double fovY = 90.0;
+                double zNear = 0.01;
+                double zFar = 1000.0;
+                double aspect = (context.getWidth() - PANELS_WIDTH) / (double) context.getHeight();
+                double fH = Math.tan(fovY / 360 * Math.PI) * zNear;
+                double fW = fH * aspect;
+                GL11.glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 
-            GL11.glMatrixMode(GL11.GL_MODELVIEW);
-            GL11.glLoadIdentity();
+                GL11.glMatrixMode(GL11.GL_MODELVIEW);
+                GL11.glLoadIdentity();
 
-            Editor.INSTANCE.displayLoop();
+                long now = System.currentTimeMillis();
+                Editor.INSTANCE.displayLoop();
+                long assL = (System.currentTimeMillis() - now);
+                RobertoGarbagio.logger.info("assL "+assL);
+                if (assL > 10)
+                    assL = assL;
+            }
+            catch (Throwable e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 }

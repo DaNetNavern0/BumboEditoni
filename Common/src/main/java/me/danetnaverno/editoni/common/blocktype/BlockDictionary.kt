@@ -24,7 +24,7 @@ object BlockDictionary
                             file.fileName.toString().substringBeforeLast("."))
                     val json = JsonUtil.fromFile(file)
                     val renderer = BlockRendererDictionary.create(json.getJSONObject("renderer"))
-                    blockTypes[resource] = BlockType(resource, renderer)
+                    blockTypes[resource] = BlockType(resource, renderer, json.getBooleanValue("is_opaque"))
                 }
             }
         }
