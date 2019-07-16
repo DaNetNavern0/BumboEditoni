@@ -5,7 +5,6 @@ import lwjgui.scene.Context;
 import lwjgui.scene.Node;
 import lwjgui.scene.Scene;
 import lwjgui.scene.Window;
-import me.danetnaverno.editoni.util.RobertoGarbagio;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL11;
@@ -84,12 +83,7 @@ public class EditorApplication extends LWJGUIApplication
                 GL11.glMatrixMode(GL11.GL_MODELVIEW);
                 GL11.glLoadIdentity();
 
-                long now = System.currentTimeMillis();
                 Editor.INSTANCE.displayLoop();
-                long assL = (System.currentTimeMillis() - now);
-                RobertoGarbagio.logger.info("assL "+assL);
-                if (assL > 10)
-                    assL = assL;
             }
             catch (Throwable e)
             {

@@ -3,6 +3,7 @@ package me.danetnaverno.editoni.common.world;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 import me.danetnaverno.editoni.util.location.EntityLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,9 +24,9 @@ public abstract class Chunk
         this.renderZ = renderZ;
     }
 
-    public abstract Collection<Block> getBlocks();
+    public abstract Iterable<Block> getBlocks();
 
-    public abstract Block getBlockAt(BlockLocation pos);
+    public abstract @Nullable Block getBlockAt(BlockLocation pos);
 
     public Block getBlockAt(int x, int y, int z)
     {

@@ -73,7 +73,7 @@ public class MinecraftWorld extends World
     @Override
     public void setBlock(Block block)
     {
-        Chunk chunk = getChunk(block.location.toChunkLocation());
+        Chunk chunk = getChunk(block.getLocation().toChunkLocation());
         chunk.setBlock(block);
     }
 

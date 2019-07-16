@@ -13,17 +13,17 @@ class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
     {
         val dx = x - (x1 shr 10)
         val dz = z - (z1 shr 10)
-        return dx * dx + dz * dz < 1
+        return dx * dx + dz * dz <= 4
     }
 
     override fun render()
     {
         val now = System.currentTimeMillis()
         val cam = BlockLocation(Camera.x.toInt(), 200, Camera.z.toInt())
-        val aa = mcWorld.regions.filter { ass(it.x, it.z, cam.globalX, cam.globalZ) }
+        val aa = mcWorld.regions.filter { it.isLoaded || ass(it.x, it.z, cam.globalX, cam.globalZ) }
         for (region in aa)
         {
-            val chunks = region.getChunks()
+            val chunks = region.getLoadedChunks()
             val bb = chunks.filter { it.location.distance(cam.toChunkLocation()) <= 5 }
             for (chunk in bb)
             {
@@ -39,11 +39,9 @@ class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
                 if (!chunk.isLoaded)
                     continue
                 for (entity in chunk.entities)
-                {
                     entity.type.renderer.draw(entity)
-                }
             }
         }
-        RobertoGarbagio.logger.info("tick: ${(System.currentTimeMillis() - now)}\n---------------")
+        RobertoGarbagio.logger.info("tick: ${(System.currentTimeMillis() - now)}")
     }
 }

@@ -4,9 +4,12 @@ import me.danetnaverno.editoni.common.world.Chunk
 
 data class BlockLocation(@JvmField val globalX: Int, @JvmField val globalY: Int, @JvmField val globalZ: Int)
 {
-    @JvmField val localX: Int = globalX - (globalX shl 4)
-    @JvmField val localY: Int = globalY
-    @JvmField val localZ: Int = globalZ - (globalZ shl 4)
+    val localX: Int
+        get() = globalX and 15
+    val localY: Int
+        get() = globalY
+    val localZ: Int
+        get() = globalZ and 15
 
     constructor(chunk: Chunk, localX: Int, localY: Int, localZ: Int)
             : this(chunk.location.x shl 4 or (localX and 15), localY, chunk.location.z shl 4 or (localZ and 15))

@@ -13,7 +13,7 @@ class BlockRendererAir : BlockRenderer()
     {
     }
 
-    override fun shouldRenderSideAgainst(block: Block): Boolean
+    override fun shouldRenderSideAgainst(block: Block?): Boolean
     {
         return false
     }

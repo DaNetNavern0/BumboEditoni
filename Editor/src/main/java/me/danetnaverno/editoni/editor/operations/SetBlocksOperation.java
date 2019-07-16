@@ -14,7 +14,7 @@ public class SetBlocksOperation extends Operation
     public SetBlocksOperation(Collection<Block> blocks)
     {
         this.blocks = blocks;
-        rollback = blocks.stream().map(it -> it.getChunk().getBlockAt(it.location)).collect(Collectors.toList());
+        rollback = blocks.stream().map(it -> it.getChunk().getBlockAt(it.getLocation())).collect(Collectors.toList());
     }
 
     public void apply()

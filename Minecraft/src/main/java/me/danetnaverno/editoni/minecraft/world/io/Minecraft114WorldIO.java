@@ -113,11 +113,11 @@ public class Minecraft114WorldIO implements WorldIOProvider
 
         int posX = data.getCompoundTag("Level").getInt("xPos");
         int posZ = data.getCompoundTag("Level").getInt("zPos");
-        Map<BlockLocation, Block> blocks = new HashMap<>();
+        List<Block> blocks = new ArrayList<>();
         List<Entity> entities = new ArrayList<>();
         MinecraftChunk chunk = new MinecraftChunk(
                 world, new ChunkLocation(posX, posZ), renderX, renderZ,
-                new MCAExtraInfo114(data), blocks, entities);
+                new MCAExtraInfo114(data), entities);
 
         //if (Math.abs(x) > 2 || Math.abs(z) > 2)
         //    return chunk;
@@ -140,7 +140,7 @@ public class Minecraft114WorldIO implements WorldIOProvider
             int globalZ = tileEntity.getInt("z");
             int x = globalX - (posX << 4);
             int z = globalZ - (posZ << 4);
-            BlockLocation pos = new BlockLocation(x, y, z);
+            BlockLocation pos = new BlockLocation(x, (byte) y, z);
             tileEntities.put(pos, new MinecraftTileEntity(tileEntity));
         }
 
@@ -159,7 +159,7 @@ public class Minecraft114WorldIO implements WorldIOProvider
                             BlockLocation location = new BlockLocation(chunk, x, y, z);
                             TileEntity tileEntity = tileEntities.get(location);
                             Block block = new MinecraftBlock(chunk, location, blockType, blockState, tileEntity);
-                            blocks.put(location, block);
+                            blocks.add(block);
                         }
                     }
                     catch (Exception e)
@@ -167,6 +167,9 @@ public class Minecraft114WorldIO implements WorldIOProvider
                         e.printStackTrace();
                     }
                 }
+        if (blocks.size() > 0)
+            blocks = blocks;
+        chunk.load(blocks);
         return chunk;
     }
 
@@ -204,7 +207,7 @@ public class Minecraft114WorldIO implements WorldIOProvider
             blockState.putString("Name", block.getType().toString());
             if (properties != null)
                 blockState.put("Properties", properties);
-            mcaChunk.setBlockStateAt(block.location.globalX, block.location.globalY, block.location.globalZ, blockState, false);
+            mcaChunk.setBlockStateAt(block.getLocation().globalX, block.getLocation().globalY, block.getLocation().globalZ, blockState, false);
             mcaChunk.setEntities(entities);
 
             CompoundTag tileEntity = block.getTileEntity() != null ? block.getTileEntity().getTag() : null;

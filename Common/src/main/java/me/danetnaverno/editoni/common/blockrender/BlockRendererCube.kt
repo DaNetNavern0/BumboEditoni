@@ -107,9 +107,7 @@ open class BlockRendererCube : BlockRenderer
             GL11.glVertex3f(size, size, 0.0f)
             GL11.glEnd()
         }
-        GL11.glPopMatrix()
-        if (true)
-            return
+
         if (block.location.localY == 0 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, -1, 0))))
         {
             bottom.bind()
@@ -141,6 +139,7 @@ open class BlockRendererCube : BlockRenderer
             GL11.glVertex3f(size, 0.0f, size)
             GL11.glEnd()
         }
+
         nextCoords = block.location.add(0, 0, -1)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
         if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
@@ -157,6 +156,7 @@ open class BlockRendererCube : BlockRenderer
             GL11.glVertex3f(size, size, 0.0f)
             GL11.glEnd()
         }
+
         nextCoords = block.location.add(-1, 0, 0)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
         if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))

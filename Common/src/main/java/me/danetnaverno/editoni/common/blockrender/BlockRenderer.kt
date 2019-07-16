@@ -9,8 +9,8 @@ abstract class BlockRenderer
 
     abstract fun draw(block: Block)
 
-    open fun shouldRenderSideAgainst(block: Block): Boolean
+    open fun shouldRenderSideAgainst(block: Block?): Boolean
     {
-        return block.type.isOpaque
+        return block==null || block.type.isOpaque
     }
 }

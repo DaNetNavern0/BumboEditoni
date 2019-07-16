@@ -23,6 +23,11 @@ class MinecraftRegion(val world: MinecraftWorld, val regionFile: Path, val x: In
         }
     }
 
+    fun getLoadedChunks(): Collection<MinecraftChunk>
+    {
+        return ArrayList(chunks.values)
+    }
+
     fun getChunks(): Collection<MinecraftChunk>
     {
         load()

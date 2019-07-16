@@ -141,7 +141,6 @@ object Editor
             logger.info("Saved!")
         }
 
-        RobertoGarbagio.logger.info("${Camera.x} ${Camera.y} ${Camera.z}")
         InputHandler.update()
     }
 

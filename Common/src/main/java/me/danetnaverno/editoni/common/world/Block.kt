@@ -12,5 +12,13 @@ import me.danetnaverno.editoni.util.location.BlockLocation
  *
  * If you want to have a "coord-free block info", you can just ignore coords and apply them before making an [Operation]
  */
-abstract class Block(val chunk: Chunk, @JvmField val location: BlockLocation,
+abstract class Block(val chunk: Chunk, location: BlockLocation,
                      val type: BlockType, val state: BlockState?, val tileEntity: TileEntity?)
+{
+    private val globalX = location.globalX
+    private val globalY = location.globalY
+    private val globalZ = location.globalZ
+
+    val location
+        get() = BlockLocation(globalX, globalY, globalZ)
+}
