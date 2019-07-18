@@ -17,7 +17,7 @@ object Main
             TextureDictionary.textureProvider = TextureProvider
             MinecraftDictionaryFiller.init()
 
-            val world = Editor.loadWorld(Paths.get("data/1.14.2 world"))
+            val world = Editor.loadWorld(Paths.get("data/1.14.2 survival world"))
             Editor.currentWorld = world
         };
     }

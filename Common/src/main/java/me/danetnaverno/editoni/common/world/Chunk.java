@@ -25,8 +25,6 @@ public abstract class Chunk
         this.renderZ = renderZ;
     }
 
-    public abstract @NotNull Iterable<Block> getBlocks();
-
     public abstract @Nullable Block getBlockAt(@NotNull BlockLocation pos);
 
     public Block getBlockAt(int x, int y, int z)

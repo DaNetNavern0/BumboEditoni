@@ -8,7 +8,6 @@ import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO
 import me.danetnaverno.editoni.editor.operations.Operations
 import me.danetnaverno.editoni.util.Camera
-import me.danetnaverno.editoni.util.RobertoGarbagio
 import me.danetnaverno.editoni.util.location.EntityLocation
 import org.apache.logging.log4j.LogManager
 import org.joml.Vector3d
@@ -71,12 +70,12 @@ object Editor
         Editor.currentWorld.worldRenderer.render()
 
         val block = Editor.selectedBlock
-        if (block != null)
+        if (block?.state != null)
         {
             GL11.glDisable(GL11.GL_DEPTH_TEST)
             GL11.glDisable(GL11.GL_TEXTURE_2D)
             GL11.glColor4f(1f, 1f, 0f, 0.7f)
-            BlockRendererDictionary.ERROR.draw(block)
+            BlockRendererDictionary.ERROR.draw(block.location, block.state!!)
             GL11.glColor3f(1f, 1f, 1f)
         }
 

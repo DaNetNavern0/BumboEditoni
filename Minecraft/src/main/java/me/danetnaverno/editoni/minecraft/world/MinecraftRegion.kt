@@ -9,7 +9,8 @@ import kotlin.collections.ArrayList
 
 class MinecraftRegion(val world: MinecraftWorld, val regionFile: Path, val x: Int, val z: Int)
 {
-    private val chunks = HashMap<ChunkLocation, MinecraftChunk>()
+    private val chunks = mutableMapOf<ChunkLocation, MinecraftChunk>()
+    private val chunks404 = mutableSetOf<ChunkLocation>()
 
     fun loadAllChunks()
     {
@@ -18,8 +19,9 @@ class MinecraftRegion(val world: MinecraftWorld, val regionFile: Path, val x: In
 
     fun loadChunkAt(chunkLocation: ChunkLocation)
     {
-        if (!chunks.containsKey(chunkLocation))
-            Minecraft114WorldIO.loadChunk(world, this, chunkLocation)
+        if (!chunks.containsKey(chunkLocation) && !chunks404.contains(chunkLocation))
+            if (!Minecraft114WorldIO.loadChunk(world, this, chunkLocation))
+                chunks404.add(chunkLocation)
     }
 
     fun getLoadedChunks(): Collection<MinecraftChunk>

@@ -10,6 +10,6 @@ public class MinecraftLiquidState extends MinecraftBlockState
     public MinecraftLiquidState(CompoundTag properties)
     {
         super(properties);
-        level = Integer.parseInt(properties.getString("level"));
+        level = Integer.parseInt(properties.getCompoundTag("Properties").getString("level"));
     }
 }

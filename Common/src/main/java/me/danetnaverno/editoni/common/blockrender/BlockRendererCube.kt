@@ -2,8 +2,9 @@ package me.danetnaverno.editoni.common.blockrender
 
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.common.world.Block
+import me.danetnaverno.editoni.common.world.BlockState
 import me.danetnaverno.editoni.texture.Texture
+import me.danetnaverno.editoni.util.location.BlockLocation
 import org.lwjgl.opengl.GL11
 
 open class BlockRendererCube : BlockRenderer
@@ -86,14 +87,14 @@ open class BlockRendererCube : BlockRenderer
         return 1.0f
     }
 
-    override fun draw(block: Block)
+    override fun draw(location: BlockLocation, blockState: BlockState)
     {
         val size = getSize()
 
         GL11.glPushMatrix()
-        GL11.glTranslatef(block.location.globalX.toFloat(), block.location.globalY.toFloat(), block.location.globalZ.toFloat())
+        GL11.glTranslatef(location.globalX.toFloat(), location.globalY.toFloat(), location.globalZ.toFloat())
 
-        if (block.location.localY == 255 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, 1, 0))))
+        if (true /*location.localY == 255 || shouldRenderSideAgainst(blockState.getBlockAt(block.location.add(0, 1, 0)))*/)
         {
             top.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -108,7 +109,7 @@ open class BlockRendererCube : BlockRenderer
             GL11.glEnd()
         }
 
-        if (block.location.localY == 0 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, -1, 0))))
+        /*if (block.location.localY == 0 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, -1, 0))))
         {
             bottom.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -125,7 +126,7 @@ open class BlockRendererCube : BlockRenderer
 
         var nextCoords = block.location.add(0, 0, 1)
         var nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             south.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -142,7 +143,7 @@ open class BlockRendererCube : BlockRenderer
 
         nextCoords = block.location.add(0, 0, -1)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             north.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -159,7 +160,7 @@ open class BlockRendererCube : BlockRenderer
 
         nextCoords = block.location.add(-1, 0, 0)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             west.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -175,7 +176,7 @@ open class BlockRendererCube : BlockRenderer
         }
         nextCoords = block.location.add(1, 0, 0)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             east.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -188,7 +189,7 @@ open class BlockRendererCube : BlockRenderer
             GL11.glTexCoord2f(0.0f, 1.0f)
             GL11.glVertex3f(size, 0.0f, 0.0f)
             GL11.glEnd()
-        }
+        }*/
         GL11.glPopMatrix()
     }
 }
