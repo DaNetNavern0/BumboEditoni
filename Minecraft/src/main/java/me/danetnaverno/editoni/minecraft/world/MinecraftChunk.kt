@@ -18,10 +18,6 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
         for (block in blocks)
         {
             val index = (block.location.localY % 16) * 256 + block.location.localZ * 16 + block.location.localX
-            if (index<0)
-            {
-                val ass = index;
-            }
             val section = block.location.localY / 16
             if (this.blocks[section] == null)
                 this.blocks[section] = Array(4096) { null }
@@ -31,19 +27,16 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
 
     override fun getEntities(): Collection<Entity>
     {
-        check(isLoaded) { "Chunk is still loading: $this" }
         return ArrayList(entities)
     }
 
     override fun getBlocks(): Iterable<Block>
     {
-        check(isLoaded) { "Chunk is still loading: $this" }
         return blocks.flatMap { it?.filterNotNull() ?: listOf() }
     }
 
     override fun getBlockAt(location: BlockLocation): Block?
     {
-        check(isLoaded) { "Chunk is still loading: $this" }
         require(this.location.isBlockLocationBelongs(location)) {
             "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
         }
@@ -55,14 +48,8 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
 
     override fun setBlock(block: Block)
     {
-        check(isLoaded) { "Chunk is still loading: $this" }
         val index = (block.location.localY % 16) * 256 + block.location.localZ * 16 + block.location.localX
         val section = block.location.localY / 16
         blocks[section]!![index] = block
-    }
-
-    override fun isLoaded(): Boolean
-    {
-        return !blocks.isEmpty()
     }
 }

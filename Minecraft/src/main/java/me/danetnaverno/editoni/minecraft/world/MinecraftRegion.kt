@@ -9,18 +9,17 @@ import kotlin.collections.ArrayList
 
 class MinecraftRegion(val world: MinecraftWorld, val regionFile: Path, val x: Int, val z: Int)
 {
-    var isLoaded: Boolean = false
-        private set
-
     private val chunks = HashMap<ChunkLocation, MinecraftChunk>()
 
-    fun load()
+    fun loadAllChunks()
     {
-        if (!isLoaded)
-        {
-            isLoaded = true
-            Minecraft114WorldIO.loadRegion(world, this)
-        }
+        Minecraft114WorldIO.loadRegion(world, this)
+    }
+
+    fun loadChunkAt(chunkLocation: ChunkLocation)
+    {
+        if (!chunks.containsKey(chunkLocation))
+            Minecraft114WorldIO.loadChunk(world, this, chunkLocation)
     }
 
     fun getLoadedChunks(): Collection<MinecraftChunk>
@@ -30,18 +29,24 @@ class MinecraftRegion(val world: MinecraftWorld, val regionFile: Path, val x: In
 
     fun getChunks(): Collection<MinecraftChunk>
     {
-        load()
+        loadAllChunks()
         return ArrayList(chunks.values)
+    }
+
+    fun getChunkIfLoaded(location: ChunkLocation): MinecraftChunk?
+    {
+        return chunks[location]
     }
 
     fun getChunk(location: ChunkLocation): MinecraftChunk?
     {
-        load()
+        loadChunkAt(location)
         return chunks[location]
     }
 
     fun getChunk(location: BlockLocation): MinecraftChunk?
     {
+        Calendar.getInstance()
         return getChunk(location.toChunkLocation())
     }
 

@@ -1,8 +1,5 @@
 package me.danetnaverno.editoni.minecraft.world;
 
-import me.danetnaverno.editoni.common.ResourceLocation;
-import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
-import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.world.Block;
 import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.common.world.Entity;
@@ -10,6 +7,7 @@ import me.danetnaverno.editoni.common.world.World;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 import me.danetnaverno.editoni.util.location.EntityLocation;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 
 import java.util.*;
@@ -27,32 +25,12 @@ public class MinecraftWorld extends World
     }
 
     @Override
-    public List<Entity> getEntitiesAt(EntityLocation location, float radius)
-    {
-        Chunk chunk = getChunk(location.toChunkLocation()); //todo radius can touch multiple chunks
-        if (chunk == null)
-            return null;
-        return chunk.getEntitiesAt(location, radius).stream()
-                .sorted(Comparator.comparingDouble(it -> it.getGlobalPos().distanceSquared(location)))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Block getBlockAt(BlockLocation location)
-    {
-        Chunk chunk = getChunk(location);
-        if (chunk==null)
-            return null;
-        return chunk.getBlockAt(location);
-    }
-
-    @Override
     public Chunk getChunkIfLoaded(ChunkLocation location)
     {
         MinecraftRegion region = getRegion(location.x >> 6, location.z >> 6);
-        if (region == null || !region.isLoaded())
+        if (region == null)
             return null;
-        return region.getChunk(location);
+        return region.getChunkIfLoaded(location);
     }
 
     @Override
@@ -71,16 +49,36 @@ public class MinecraftWorld extends World
     }
 
     @Override
+    public void loadChunkAt(@NotNull ChunkLocation chunkLocation)
+    {
+        getRegion(chunkLocation.x >> 4, chunkLocation.z >> 4).loadChunkAt(chunkLocation);
+    }
+
+    @Override
+    public List<Entity> getEntitiesAt(EntityLocation location, float radius)
+    {
+        Chunk chunk = getChunk(location.toChunkLocation()); //todo radius can touch multiple chunks
+        if (chunk == null)
+            return null;
+        return chunk.getEntitiesAt(location, radius).stream()
+                .sorted(Comparator.comparingDouble(it -> it.getGlobalPos().distanceSquared(location)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Block getBlockAt(BlockLocation location)
+    {
+        Chunk chunk = getChunk(location);
+        if (chunk == null)
+            return null;
+        return chunk.getBlockAt(location);
+    }
+
+    @Override
     public void setBlock(Block block)
     {
         Chunk chunk = getChunk(block.getLocation().toChunkLocation());
         chunk.setBlock(block);
-    }
-
-    @Override
-    public BlockType getAirType()
-    {
-        return BlockDictionary.getBlockType(new ResourceLocation("minecraft", "air"));
     }
 
     public Collection<MinecraftRegion> getRegions()

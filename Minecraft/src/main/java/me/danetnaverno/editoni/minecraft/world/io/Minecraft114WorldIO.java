@@ -107,6 +107,25 @@ public class Minecraft114WorldIO implements WorldIOProvider
             }
     }
 
+    public static void loadChunk(MinecraftWorld world, MinecraftRegion region, ChunkLocation location) throws IOException
+    {
+        MCAFile mcaFile = MCAUtil.readMCAFile(region.getRegionFile().toFile());
+        for (int renderX = 0; renderX < 32; renderX++)
+            for (int renderZ = 0; renderZ < 32; renderZ++)
+            {
+                net.querz.nbt.mca.Chunk mcaChunk = mcaFile.getChunk(renderX, renderZ);
+                if (mcaChunk != null)
+                {
+                    if (location.x == mcaChunk.data.getCompoundTag("Level").getInt("xPos")
+                            && location.z == mcaChunk.data.getCompoundTag("Level").getInt("zPos"))
+                    {
+                        region.setChunk(readChunk(world, mcaFile.getChunk(renderX, renderZ), renderX, renderZ));
+                        return;
+                    }
+                }
+            }
+    }
+
     private static MinecraftChunk readChunk(MinecraftWorld world, Chunk mcaChunk, int renderX, int renderZ)
     {
         CompoundTag data = mcaChunk.data;
@@ -167,8 +186,6 @@ public class Minecraft114WorldIO implements WorldIOProvider
                         e.printStackTrace();
                     }
                 }
-        if (blocks.size() > 0)
-            blocks = blocks;
         chunk.load(blocks);
         return chunk;
     }
