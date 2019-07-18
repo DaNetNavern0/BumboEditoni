@@ -23,21 +23,17 @@ class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
         val aa = mcWorld.regions.filter { ass(it.x, it.z, cam.globalX, cam.globalZ) }
         for (region in aa)
         {
-            mcWorld.loadChunkAt(cam.toChunkLocation())
-            val chunks = region.getLoadedChunks()
+            if (region.getLoadedChunks().isEmpty())
+                region.loadAllChunks()
+            val chunks = region.getLoadedChunks().filter { it.location.distance(cam.toChunkLocation()) <= 5 }
             for (chunk in chunks)
             {
-                if (!chunk.isLoaded)
-                    continue
-
                 for (block in chunk.blocks)
                     block.type.renderer.draw(block)
             }
 
             for (chunk in region.getLoadedChunks())
             {
-                if (!chunk.isLoaded)
-                    continue
                 for (entity in chunk.entities)
                     entity.type.renderer.draw(entity)
             }

@@ -125,7 +125,7 @@ open class BlockRendererCube : BlockRenderer
 
         var nextCoords = block.location.add(0, 0, 1)
         var nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             south.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -142,7 +142,7 @@ open class BlockRendererCube : BlockRenderer
 
         nextCoords = block.location.add(0, 0, -1)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             north.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -159,7 +159,7 @@ open class BlockRendererCube : BlockRenderer
 
         nextCoords = block.location.add(-1, 0, 0)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             west.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -175,7 +175,7 @@ open class BlockRendererCube : BlockRenderer
         }
         nextCoords = block.location.add(1, 0, 0)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             east.bind()
             GL11.glBegin(GL11.GL_QUADS)

@@ -55,7 +55,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
         var nextCoords = block.location.add(0, 0, 1)
         var nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(1.0f, 0.0f)
@@ -71,7 +71,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
         nextCoords = block.location.add(0, 0, -1)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(1.0f, 1.0f)
@@ -87,7 +87,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
         nextCoords = block.location.add(0, 0, -1)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
@@ -103,7 +103,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
         nextCoords = block.location.add(-1, 0, 0)
         nextChunk = block.chunk.world.getChunkIfLoaded(nextCoords.toChunkLocation())
-        if (nextChunk!=null && nextChunk.isLoaded && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
+        if (nextChunk!=null && shouldRenderSideAgainst(nextChunk.getBlockAt(nextCoords)))
         {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
