@@ -13,7 +13,7 @@ class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
     {
         val dx = x - (x1 shr 10)
         val dz = z - (z1 shr 10)
-        return dx * dx + dz * dz < 3
+        return dx * dx + dz * dz < 1
     }
 
     override fun render()

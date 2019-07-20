@@ -1,8 +1,8 @@
 package me.danetnaverno.editoni.minecraft.world
 
-import me.danetnaverno.editoni.common.world.Block
-import me.danetnaverno.editoni.common.world.Chunk
-import me.danetnaverno.editoni.common.world.Entity
+import me.danetnaverno.editoni.common.world.*
+import me.danetnaverno.editoni.minecraft.utils.toChunkBlockIndex
+import me.danetnaverno.editoni.minecraft.utils.toSectionBlockIndex
 import me.danetnaverno.editoni.minecraft.world.io.MCAExtraInfo
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
@@ -12,17 +12,21 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
     : Chunk(world, location, renderX, renderZ)
 {
     private val blocks = Array<Array<Block?>?>(16) { null }
+    private lateinit var blockStates : Map<Int, BlockState>
+    private lateinit var tileEntities : Map<Int, TileEntity>
 
-    fun load(blocks: Collection<Block>)
+    fun load(blocks: Collection<Block>, blockStates: Map<Int, BlockState>, tileEntities: Map<Int, TileEntity>)
     {
         for (block in blocks)
         {
-            val index = (block.location.localY % 16) * 256 + block.location.localZ * 16 + block.location.localX
+            val index = block.location.toSectionBlockIndex()
             val section = block.location.localY / 16
             if (this.blocks[section] == null)
                 this.blocks[section] = Array(4096) { null }
             this.blocks[section]!![index] = block
         }
+        this.blockStates = blockStates
+        this.tileEntities = tileEntities
     }
 
     override fun getEntities(): Collection<Entity>
@@ -42,8 +46,27 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
         }
         val index = (location.localY % 16) * 256 + location.localZ * 16 + location.localX
         val section = location.localY / 16
-        val array = blocks[section] ?: return null
+        val array = blocks[section]
+        if (array==null)
+            return null
         return array[index]
+    }
+
+    override fun getBlockStateAt(location: BlockLocation): BlockState?
+    {
+        require(this.location.isBlockLocationBelongs(location)) {
+            "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
+        }
+        return blockStates[location.toChunkBlockIndex()]
+    }
+
+
+    override fun getTileEntityAt(location: BlockLocation): TileEntity?
+    {
+        require(this.location.isBlockLocationBelongs(location)) {
+            "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
+        }
+        return tileEntities[location.toChunkBlockIndex()]
     }
 
     override fun setBlock(block: Block)

@@ -25,9 +25,17 @@ public abstract class Chunk
         this.renderZ = renderZ;
     }
 
-    public abstract @NotNull Iterable<Block> getBlocks();
+    @NotNull
+    public abstract Iterable<Block> getBlocks();
 
-    public abstract @Nullable Block getBlockAt(@NotNull BlockLocation pos);
+    @Nullable
+    public abstract Block getBlockAt(@NotNull BlockLocation location);
+
+    @Nullable
+    public abstract BlockState getBlockStateAt(@NotNull BlockLocation location);
+
+    @Nullable
+    public abstract TileEntity getTileEntityAt(@NotNull BlockLocation location);
 
     public Block getBlockAt(int x, int y, int z)
     {
@@ -36,11 +44,11 @@ public abstract class Chunk
 
     public abstract void setBlock(@NotNull Block block);
 
-
     public abstract Collection<Entity> getEntities();
 
     public List<Entity> getEntitiesAt(EntityLocation location, float radius)
     {
         return getEntities().stream().filter( it-> it.getGlobalPos().distance(location) < radius).collect(Collectors.toList());
     }
+
 }

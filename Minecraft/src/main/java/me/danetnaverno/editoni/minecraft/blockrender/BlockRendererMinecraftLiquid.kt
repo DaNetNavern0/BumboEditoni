@@ -19,12 +19,16 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
     override fun draw(block: Block)
     {
+        if (block.state !is MinecraftLiquidState)
+        {
+            val ass = block.state;
+        }
         val height = (8 - (block.state as MinecraftLiquidState).level) / 8f - 0.1f
 
         GL11.glPushMatrix()
         GL11.glTranslatef(block.location.globalX.toFloat(), block.location.globalY.toFloat(), block.location.globalZ.toFloat())
 
-        if (block.location.localY == 255 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, 1, 0))))
+        if (block.location.localY == 256 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, 1, 0))))
         {
             texture.bind()
             GL11.glBegin(GL11.GL_QUADS)

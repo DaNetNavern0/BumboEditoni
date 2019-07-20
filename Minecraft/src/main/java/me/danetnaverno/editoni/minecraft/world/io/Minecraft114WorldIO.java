@@ -7,6 +7,7 @@ import me.danetnaverno.editoni.common.entitytype.EntityDictionary;
 import me.danetnaverno.editoni.common.entitytype.EntityType;
 import me.danetnaverno.editoni.common.world.*;
 import me.danetnaverno.editoni.common.world.io.WorldIOProvider;
+import me.danetnaverno.editoni.minecraft.utils.LocationUtilsKt;
 import me.danetnaverno.editoni.minecraft.world.*;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
@@ -129,17 +130,17 @@ public class Minecraft114WorldIO implements WorldIOProvider
     private static MinecraftChunk readChunk(MinecraftWorld world, Chunk mcaChunk, int renderX, int renderZ)
     {
         CompoundTag data = mcaChunk.data;
-
         int posX = data.getCompoundTag("Level").getInt("xPos");
         int posZ = data.getCompoundTag("Level").getInt("zPos");
+
         List<Block> blocks = new ArrayList<>();
+        Map<Integer, BlockState> blockStates = new HashMap<>();
+        Map<Integer, MinecraftTileEntity> tileEntities = new HashMap<>();
         List<Entity> entities = new ArrayList<>();
+
         MinecraftChunk chunk = new MinecraftChunk(
                 world, new ChunkLocation(posX, posZ), renderX, renderZ,
                 new MCAExtraInfo114(data), entities);
-
-        //if (Math.abs(x) > 2 || Math.abs(z) > 2)
-        //    return chunk;
 
         //Entities
         for (CompoundTag tag : mcaChunk.getEntities())
@@ -151,7 +152,6 @@ public class Minecraft114WorldIO implements WorldIOProvider
         }
 
         //Tile Entities
-        Map<BlockLocation, MinecraftTileEntity> tileEntities = new HashMap<>();
         for (CompoundTag tileEntity : mcaChunk.getTileEntities())
         {
             int globalX = tileEntity.getInt("x");
@@ -159,13 +159,13 @@ public class Minecraft114WorldIO implements WorldIOProvider
             int globalZ = tileEntity.getInt("z");
             int x = globalX - (posX << 4);
             int z = globalZ - (posZ << 4);
-            BlockLocation pos = new BlockLocation(x, (byte) y, z);
-            tileEntities.put(pos, new MinecraftTileEntity(tileEntity));
+            int index = LocationUtilsKt.toChunkBlockIndex(new BlockLocation(x, (byte) y, z));
+            tileEntities.put(index, new MinecraftTileEntity(tileEntity));
         }
 
         //Block States
         for (int x = 0; x < 16; x++)
-            for (int y = 0; y < 255; y++)
+            for (int y = 0; y < 256; y++)
                 for (int z = 0; z < 16; z++)
                 {
                     try
@@ -176,8 +176,9 @@ public class Minecraft114WorldIO implements WorldIOProvider
                             BlockType blockType = BlockDictionary.getBlockType(new ResourceLocation(tag.getString("Name")));
                             BlockState blockState = BlockStateDictionary.createBlockState(blockType, tag.getCompoundTag("Properties"));
                             BlockLocation location = new BlockLocation(chunk, x, y, z);
-                            TileEntity tileEntity = tileEntities.get(location);
-                            Block block = new MinecraftBlock(chunk, location, blockType, blockState, tileEntity);
+                            Block block = new MinecraftBlock(chunk, location, blockType);
+                            if (blockState != null)
+                                blockStates.put(LocationUtilsKt.toChunkBlockIndex(location), blockState);
                             blocks.add(block);
                         }
                     }
@@ -186,7 +187,7 @@ public class Minecraft114WorldIO implements WorldIOProvider
                         e.printStackTrace();
                     }
                 }
-        chunk.load(blocks);
+        chunk.load(blocks, blockStates, tileEntities);
         return chunk;
     }
 

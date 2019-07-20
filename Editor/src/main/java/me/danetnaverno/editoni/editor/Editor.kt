@@ -8,7 +8,6 @@ import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO
 import me.danetnaverno.editoni.editor.operations.Operations
 import me.danetnaverno.editoni.util.Camera
-import me.danetnaverno.editoni.util.RobertoGarbagio
 import me.danetnaverno.editoni.util.location.EntityLocation
 import org.apache.logging.log4j.LogManager
 import org.joml.Vector3d
@@ -98,13 +97,13 @@ object Editor
         if (InputHandler.keyDown(GLFW.GLFW_KEY_SPACE))
             Camera.y += 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_1))
-            Camera.yaw += 0.2f
+            Camera.yaw += 4.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_2))
-            Camera.yaw -= 0.2f
+            Camera.yaw -= 4.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_3))
-            Camera.pitch += 0.2f
+            Camera.pitch += 4.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_4))
-            Camera.pitch -= 0.2f
+            Camera.pitch -= 4.2f
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_Z)
                 && (InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_CONTROL) || InputHandler.keyDown(GLFW.GLFW_KEY_RIGHT_CONTROL)))
         {

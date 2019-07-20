@@ -23,4 +23,6 @@ data class BlockLocation(@JvmField val globalX: Int, @JvmField val globalY: Int,
     {
         return ChunkLocation(globalX shr 4, globalZ shr 4)
     }
+
+    companion object
 }

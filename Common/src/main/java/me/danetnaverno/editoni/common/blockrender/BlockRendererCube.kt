@@ -93,7 +93,7 @@ open class BlockRendererCube : BlockRenderer
         GL11.glPushMatrix()
         GL11.glTranslatef(block.location.globalX.toFloat(), block.location.globalY.toFloat(), block.location.globalZ.toFloat())
 
-        if (block.location.localY == 255 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, 1, 0))))
+        if (block.location.localY == 256 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, 1, 0))))
         {
             top.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -111,7 +111,7 @@ open class BlockRendererCube : BlockRenderer
         if (block.location.localY == 0 || shouldRenderSideAgainst(block.chunk.getBlockAt(block.location.add(0, -1, 0))))
         {
             bottom.bind()
-            GL11.glBegin(GL11.GL_QUADS)
+            /*GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
             GL11.glVertex3f(0.0f, 0.0f, 0.0f)
             GL11.glTexCoord2f(1.0f, 0.0f)
@@ -120,7 +120,7 @@ open class BlockRendererCube : BlockRenderer
             GL11.glVertex3f(size, 0.0f, size)
             GL11.glTexCoord2f(0.0f, 1.0f)
             GL11.glVertex3f(0.0f, 0.0f, size)
-            GL11.glEnd()
+            GL11.glEnd()*/
         }
 
         var nextCoords = block.location.add(0, 0, 1)
