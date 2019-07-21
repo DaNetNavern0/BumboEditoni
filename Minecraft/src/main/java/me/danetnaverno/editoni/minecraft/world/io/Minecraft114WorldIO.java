@@ -5,9 +5,12 @@ import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
 import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.entitytype.EntityDictionary;
 import me.danetnaverno.editoni.common.entitytype.EntityType;
-import me.danetnaverno.editoni.common.world.*;
-import me.danetnaverno.editoni.common.world.io.WorldIOProvider;
-import me.danetnaverno.editoni.minecraft.utils.LocationUtilsKt;
+import me.danetnaverno.editoni.common.world.BlockState;
+import me.danetnaverno.editoni.common.world.BlockStateDictionary;
+import me.danetnaverno.editoni.common.world.Entity;
+import me.danetnaverno.editoni.common.world.World;
+import me.danetnaverno.editoni.minecraft.util.location.LocationUtilsKt;
+import me.danetnaverno.editoni.minecraft.util.location.RegionLocation;
 import me.danetnaverno.editoni.minecraft.world.*;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
@@ -19,10 +22,10 @@ import net.querz.nbt.NBTUtil;
 import net.querz.nbt.mca.Chunk;
 import net.querz.nbt.mca.MCAFile;
 import net.querz.nbt.mca.MCAUtil;
-import net.querz.nbt.mca.Section;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +35,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Minecraft114WorldIO implements WorldIOProvider
+public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
 {
     private static Logger logger = LogManager.getLogger("Minecraft114WorldIO");
     private static Pattern mcaRegex = Pattern.compile("r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca");
@@ -62,17 +65,11 @@ public class Minecraft114WorldIO implements WorldIOProvider
     }
 
     @Override
-    public boolean isAppropriateToWrite(@NotNull World world)
-    {
-        return ((MinecraftWorld)world).version.startsWith("1.14");
-    }
-
-    @Override
     public World readWorld(@NotNull Path path) throws IOException
     {
         CompoundTag levelDat = (CompoundTag) NBTUtil.readTag(path.resolve("level.dat").toFile());
         String versionName = levelDat.getCompoundTag("Data").getCompoundTag("Version").getString("Name");
-        MinecraftWorld world = new MinecraftWorld(versionName);
+        MinecraftWorld world = new MinecraftWorld(versionName, this);
         Path regionFolder = path.resolve("region");
 
         for (File regionFile : Objects.requireNonNull(regionFolder.toFile().listFiles()))
@@ -90,12 +87,14 @@ public class Minecraft114WorldIO implements WorldIOProvider
 
     private static MinecraftRegion readRegion(MinecraftWorld world, Path regionFile, int x, int z)
     {
-        return new MinecraftRegion(world, regionFile, x, z);
+        return new MinecraftRegion(world, regionFile, new RegionLocation(x, z));
     }
 
-    public static void loadRegion(MinecraftWorld world, MinecraftRegion region) throws IOException
+    @Override
+    public void loadRegion(@NotNull MinecraftWorld world, @NotNull RegionLocation location) throws IOException
     {
-        MCAFile mcaFile = MCAUtil.readMCAFile(region.getRegionFile().toFile());
+        MinecraftRegion region = world.getRegion(location);
+        MCAFile mcaFile = MCAUtil.readMCAFile(region.regionFile.toFile());
         for (int renderX = 0; renderX < 32; renderX++)
             for (int renderZ = 0; renderZ < 32; renderZ++)
             {
@@ -108,9 +107,12 @@ public class Minecraft114WorldIO implements WorldIOProvider
             }
     }
 
-    public static void loadChunk(MinecraftWorld world, MinecraftRegion region, ChunkLocation location) throws IOException
+    @Override
+    public void loadChunk(@NotNull World world, @NotNull ChunkLocation location) throws IOException
     {
-        MCAFile mcaFile = MCAUtil.readMCAFile(region.getRegionFile().toFile());
+        MinecraftWorld mcWorld = (MinecraftWorld) world;
+        MinecraftRegion region = mcWorld.getRegion(LocationUtilsKt.toRegionLocation(location));
+        MCAFile mcaFile = MCAUtil.readMCAFile(region.regionFile.toFile());
         for (int renderX = 0; renderX < 32; renderX++)
             for (int renderZ = 0; renderZ < 32; renderZ++)
             {
@@ -120,7 +122,7 @@ public class Minecraft114WorldIO implements WorldIOProvider
                     if (location.x == mcaChunk.data.getCompoundTag("Level").getInt("xPos")
                             && location.z == mcaChunk.data.getCompoundTag("Level").getInt("zPos"))
                     {
-                        region.setChunk(readChunk(world, mcaFile.getChunk(renderX, renderZ), renderX, renderZ));
+                        region.setChunk(readChunk(mcWorld, mcaFile.getChunk(renderX, renderZ), renderX, renderZ));
                         return;
                     }
                 }
@@ -133,7 +135,7 @@ public class Minecraft114WorldIO implements WorldIOProvider
         int posX = data.getCompoundTag("Level").getInt("xPos");
         int posZ = data.getCompoundTag("Level").getInt("zPos");
 
-        List<Block> blocks = new ArrayList<>();
+        BlockType[][] blockTypes = new BlockType[16][];
         Map<Integer, BlockState> blockStates = new HashMap<>();
         Map<Integer, MinecraftTileEntity> tileEntities = new HashMap<>();
         List<Entity> entities = new ArrayList<>();
@@ -176,10 +178,11 @@ public class Minecraft114WorldIO implements WorldIOProvider
                             BlockType blockType = BlockDictionary.getBlockType(new ResourceLocation(tag.getString("Name")));
                             BlockState blockState = BlockStateDictionary.createBlockState(blockType, tag.getCompoundTag("Properties"));
                             BlockLocation location = new BlockLocation(chunk, x, y, z);
-                            Block block = new MinecraftBlock(chunk, location, blockType);
                             if (blockState != null)
                                 blockStates.put(LocationUtilsKt.toChunkBlockIndex(location), blockState);
-                            blocks.add(block);
+                            if (blockTypes[y / 16]==null)
+                                blockTypes[y / 16] = new BlockType[4096];
+                            blockTypes[y / 16][LocationUtilsKt.toSectionBlockIndex(location)] = blockType;
                         }
                     }
                     catch (Exception e)
@@ -187,7 +190,7 @@ public class Minecraft114WorldIO implements WorldIOProvider
                         e.printStackTrace();
                     }
                 }
-        chunk.load(blocks, blockStates, tileEntities);
+        chunk.load(blockTypes, blockStates, tileEntities);
         return chunk;
     }
 
@@ -198,12 +201,14 @@ public class Minecraft114WorldIO implements WorldIOProvider
         Files.createDirectories(regionFolder);
         MinecraftWorld mcWorld = (MinecraftWorld) world;
         for (MinecraftRegion region : mcWorld.getRegions())
-            writeRegion(region, regionFolder.resolve("r." + region.getX() + "." + region.getZ() + ".mca"));
+        {
+            writeRegion(region, regionFolder.resolve("r." + region.location.x + "." + region.location.z + ".mca"));
+        }
     }
 
     private static void writeRegion(@NotNull MinecraftRegion region, @NotNull Path regionFile) throws IOException
     {
-        MCAFile result = new MCAFile(region.getX(), region.getZ());
+        MCAFile result = new MCAFile(region.location.x, region.location.z);
         for (MinecraftChunk chunk : region.getChunks())
             result.setChunk(chunk.renderX, chunk.renderZ, writeChunk(chunk));
         MCAUtil.writeMCAFile(result, regionFile.toFile());
@@ -211,7 +216,8 @@ public class Minecraft114WorldIO implements WorldIOProvider
 
     private static Chunk writeChunk(@NotNull MinecraftChunk chunk)
     {
-        ListTag<CompoundTag> tileEntities = new ListTag<>(CompoundTag.class);
+        throw new NotImplementedException();
+        /*ListTag<CompoundTag> tileEntities = new ListTag<>(CompoundTag.class);
         ListTag<CompoundTag> entities = new ListTag<>(CompoundTag.class);
         Chunk mcaChunk = new Chunk(chunk.getExtras().getData());
 
@@ -244,6 +250,6 @@ public class Minecraft114WorldIO implements WorldIOProvider
             }
         }
         mcaChunk.updateHandle(chunk.renderX, chunk.renderZ);
-        return mcaChunk;
+        return mcaChunk;*/
     }
 }

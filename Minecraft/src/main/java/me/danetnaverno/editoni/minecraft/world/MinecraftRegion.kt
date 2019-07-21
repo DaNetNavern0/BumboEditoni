@@ -1,25 +1,26 @@
 package me.danetnaverno.editoni.minecraft.world
 
-import me.danetnaverno.editoni.minecraft.world.io.Minecraft114WorldIO
+import me.danetnaverno.editoni.minecraft.util.location.RegionLocation
+import me.danetnaverno.editoni.minecraft.world.io.IMinecraftWorldIOProvider
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
 import java.nio.file.Path
 import java.util.*
 import kotlin.collections.ArrayList
 
-class MinecraftRegion(val world: MinecraftWorld, val regionFile: Path, val x: Int, val z: Int)
+class MinecraftRegion(@JvmField val world: MinecraftWorld, @JvmField val regionFile: Path, @JvmField val location: RegionLocation)
 {
     private val chunks = HashMap<ChunkLocation, MinecraftChunk>()
 
     fun loadAllChunks()
     {
-        Minecraft114WorldIO.loadRegion(world, this)
+        (world.worldIOProvider as IMinecraftWorldIOProvider).loadRegion(world, location)
     }
 
     fun loadChunkAt(chunkLocation: ChunkLocation)
     {
         if (!chunks.containsKey(chunkLocation))
-            Minecraft114WorldIO.loadChunk(world, this, chunkLocation)
+            world.worldIOProvider.loadChunk(world, chunkLocation)
     }
 
     fun getLoadedChunks(): Collection<MinecraftChunk>

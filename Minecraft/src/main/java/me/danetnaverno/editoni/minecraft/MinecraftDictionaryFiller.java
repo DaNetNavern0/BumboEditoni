@@ -3,7 +3,6 @@ package me.danetnaverno.editoni.minecraft;
 import me.danetnaverno.editoni.common.ResourceLocation;
 import me.danetnaverno.editoni.common.blockrender.*;
 import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
-import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.entitytype.EntityDictionary;
 import me.danetnaverno.editoni.common.entitytype.EntityType;
 import me.danetnaverno.editoni.common.world.BlockStateDictionary;
@@ -42,7 +41,5 @@ public class MinecraftDictionaryFiller
         BlockStateDictionary.register(
                 BlockDictionary.getBlockType(new ResourceLocation("minecraft:lava")),
                 MinecraftLiquidState.class);
-
-        BlockDictionary.register(new ResourceLocation("minecraft", "air"), new BlockType(new ResourceLocation("minecraft", "air"), new BlockRendererAir(), true));
     }
 }

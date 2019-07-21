@@ -1,18 +1,19 @@
 package me.danetnaverno.editoni.common.world.io;
 
 import me.danetnaverno.editoni.common.world.World;
+import me.danetnaverno.editoni.util.location.ChunkLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-public interface WorldIOProvider
+public interface IWorldIOProvider
 {
     boolean isAppropriateToRead(@NotNull Path path);
 
-    boolean isAppropriateToWrite(@NotNull World world);
-
-    World readWorld(@NotNull Path path) throws IOException;
+    @NotNull World readWorld(@NotNull Path path) throws IOException;
 
     void writeWorld(@NotNull World world, @NotNull Path path) throws IOException;
+
+    void loadChunk(@NotNull World world, @NotNull ChunkLocation location)  throws IOException;
 }

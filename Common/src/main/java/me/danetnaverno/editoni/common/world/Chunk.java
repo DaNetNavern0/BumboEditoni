@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.common.world;
 
+import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 import me.danetnaverno.editoni.util.location.EntityLocation;
@@ -26,10 +27,13 @@ public abstract class Chunk
     }
 
     @NotNull
-    public abstract Iterable<Block> getBlocks();
+    public abstract BlockType[][] getBlockTypes();
 
     @Nullable
     public abstract Block getBlockAt(@NotNull BlockLocation location);
+
+    @Nullable
+    public abstract BlockType getBlockTypeAt(@NotNull BlockLocation location);
 
     @Nullable
     public abstract BlockState getBlockStateAt(@NotNull BlockLocation location);

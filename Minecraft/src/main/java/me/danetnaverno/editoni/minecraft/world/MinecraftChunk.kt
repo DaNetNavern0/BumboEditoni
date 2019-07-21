@@ -1,8 +1,9 @@
 package me.danetnaverno.editoni.minecraft.world
 
+import me.danetnaverno.editoni.common.blocktype.BlockType
 import me.danetnaverno.editoni.common.world.*
-import me.danetnaverno.editoni.minecraft.utils.toChunkBlockIndex
-import me.danetnaverno.editoni.minecraft.utils.toSectionBlockIndex
+import me.danetnaverno.editoni.minecraft.util.location.toChunkBlockIndex
+import me.danetnaverno.editoni.minecraft.util.location.toSectionBlockIndex
 import me.danetnaverno.editoni.minecraft.world.io.MCAExtraInfo
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
@@ -11,20 +12,13 @@ import java.util.*
 class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: Int, renderZ: Int, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
     : Chunk(world, location, renderX, renderZ)
 {
-    private val blocks = Array<Array<Block?>?>(16) { null }
+    private lateinit var blockTypes : Array<Array<BlockType?>?>
     private lateinit var blockStates : Map<Int, BlockState>
     private lateinit var tileEntities : Map<Int, TileEntity>
 
-    fun load(blocks: Collection<Block>, blockStates: Map<Int, BlockState>, tileEntities: Map<Int, TileEntity>)
+    fun load(blockTypes: Array<Array<BlockType?>?>, blockStates: Map<Int, BlockState>, tileEntities: Map<Int, TileEntity>)
     {
-        for (block in blocks)
-        {
-            val index = block.location.toSectionBlockIndex()
-            val section = block.location.localY / 16
-            if (this.blocks[section] == null)
-                this.blocks[section] = Array(4096) { null }
-            this.blocks[section]!![index] = block
-        }
+        this.blockTypes = blockTypes
         this.blockStates = blockStates
         this.tileEntities = tileEntities
     }
@@ -34,11 +28,12 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
         return ArrayList(entities)
     }
 
-    override fun getBlocks(): Iterable<Block>
+    override fun getBlockTypes(): Array<Array<BlockType?>?>
     {
-        return blocks.flatMap { it?.filterNotNull() ?: listOf() }
+        return blockTypes.clone()
     }
 
+    @Deprecated("no")
     override fun getBlockAt(location: BlockLocation): Block?
     {
         require(this.location.isBlockLocationBelongs(location)) {
@@ -46,10 +41,19 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
         }
         val index = (location.localY % 16) * 256 + location.localZ * 16 + location.localX
         val section = location.localY / 16
-        val array = blocks[section]
-        if (array==null)
+        val array = blockTypes[section]
+        if (array==null || array[index]==null)
             return null
-        return array[index]
+        return MinecraftBlock(this, location, array[index]!!)
+    }
+
+    override fun getBlockTypeAt(location: BlockLocation): BlockType?
+    {
+        require(this.location.isBlockLocationBelongs(location)) {
+            "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
+        }
+        val section = blockTypes[location.localY / 16] ?: return null
+        return section[location.toSectionBlockIndex()]
     }
 
     override fun getBlockStateAt(location: BlockLocation): BlockState?
@@ -73,6 +77,6 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
     {
         val index = (block.location.localY % 16) * 256 + block.location.localZ * 16 + block.location.localX
         val section = block.location.localY / 16
-        blocks[section]!![index] = block
+        //blocks[section]!![index] = block
     }
 }
