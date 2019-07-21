@@ -41,11 +41,6 @@ public abstract class Chunk
     @Nullable
     public abstract TileEntity getTileEntityAt(@NotNull BlockLocation location);
 
-    public Block getBlockAt(int x, int y, int z)
-    {
-        return getBlockAt(new BlockLocation(this, x, y, z));
-    }
-
     public abstract void setBlock(@NotNull Block block);
 
     public abstract Collection<Entity> getEntities();
@@ -54,5 +49,4 @@ public abstract class Chunk
     {
         return getEntities().stream().filter( it-> it.getGlobalPos().distance(location) < radius).collect(Collectors.toList());
     }
-
 }

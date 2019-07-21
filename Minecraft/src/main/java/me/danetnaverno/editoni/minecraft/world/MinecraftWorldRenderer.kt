@@ -5,6 +5,7 @@ import me.danetnaverno.editoni.minecraft.util.location.fromSectionIndex
 import me.danetnaverno.editoni.util.Camera
 import me.danetnaverno.editoni.util.RobertoGarbagio
 import me.danetnaverno.editoni.util.location.BlockLocation
+import java.util.concurrent.Executors
 
 class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
 {
@@ -37,7 +38,7 @@ class MinecraftWorldRenderer(world: MinecraftWorld) : WorldRenderer(world)
                     {
                         val blockType = blockTypes[index] ?: continue
                         val location = BlockLocation.fromSectionIndex(chunk, section, index)
-                        blockType.renderer.draw(chunk, location)
+                        blockType.renderer.draw(world, location)
                     }
                 }
             }

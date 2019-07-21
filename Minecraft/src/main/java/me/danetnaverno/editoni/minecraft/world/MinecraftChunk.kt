@@ -33,7 +33,6 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
         return blockTypes.clone()
     }
 
-    @Deprecated("no")
     override fun getBlockAt(location: BlockLocation): Block?
     {
         require(this.location.isBlockLocationBelongs(location)) {

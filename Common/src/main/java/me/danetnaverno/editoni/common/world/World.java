@@ -47,5 +47,4 @@ public abstract class World
     public abstract TileEntity getLoadedTileEntityAt(@NotNull BlockLocation location);
 
     public abstract void setBlock(@NotNull Block block);
-
 }

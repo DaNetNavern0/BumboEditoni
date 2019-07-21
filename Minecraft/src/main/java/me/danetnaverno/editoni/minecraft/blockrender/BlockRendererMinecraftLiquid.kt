@@ -3,7 +3,7 @@ package me.danetnaverno.editoni.minecraft.blockrender
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.common.ResourceLocation
 import me.danetnaverno.editoni.common.blockrender.BlockRenderer
-import me.danetnaverno.editoni.common.world.Chunk
+import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.minecraft.blockstate.MinecraftLiquidState
 import me.danetnaverno.editoni.texture.Texture
 import me.danetnaverno.editoni.util.location.BlockLocation
@@ -18,15 +18,15 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
         texture = Texture[ResourceLocation(data.getString("texture"))]
     }
 
-    override fun draw(chunk: Chunk, location: BlockLocation)
+    override fun draw(world: World, location: BlockLocation)
     {
-        val state = chunk.getBlockStateAt(location)
+        val state = world.getBlockStateAt(location)
         val height = (8 - (state as MinecraftLiquidState).level) / 8f - 0.1f
 
         GL11.glPushMatrix()
         GL11.glTranslatef(location.globalX.toFloat(), location.globalY.toFloat(), location.globalZ.toFloat())
 
-        if (shouldRenderSideAgainst(chunk, location.add(0, 1, 0)))
+        if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
         {
             texture.bind()
             GL11.glBegin(GL11.GL_QUADS)
@@ -41,7 +41,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
             GL11.glEnd()
         }
 
-        if (shouldRenderSideAgainst(chunk, location.add(0, -1, 0)))
+        if (shouldRenderSideAgainst(world, location.add(0, -1, 0)))
         {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
@@ -55,7 +55,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
             GL11.glEnd()
         }
 
-        if (shouldRenderSideAgainst(chunk, location.add(0, 0, 1)))
+        if (shouldRenderSideAgainst(world, location.add(0, 0, 1)))
         {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(1.0f, 0.0f)
@@ -69,7 +69,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
             GL11.glEnd()
         }
 
-        if (shouldRenderSideAgainst(chunk, location.add(0, 0, -1)))
+        if (shouldRenderSideAgainst(world, location.add(0, 0, -1)))
         {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(1.0f, 1.0f)
@@ -83,7 +83,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
             GL11.glEnd()
         }
 
-        if (shouldRenderSideAgainst(chunk, location.add(1, 0, 0)))
+        if (shouldRenderSideAgainst(world, location.add(1, 0, 0)))
         {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
@@ -97,7 +97,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
             GL11.glEnd()
         }
 
-        if (shouldRenderSideAgainst(chunk, location.add(-1, 0, 0)))
+        if (shouldRenderSideAgainst(world, location.add(-1, 0, 0)))
         {
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)

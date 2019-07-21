@@ -43,10 +43,10 @@ object Editor
             Camera.pitch = -90f
 
             Camera.x = 0f
-            Camera.y = 60f
+            Camera.y = 80f
             Camera.z = 0f
             Camera.yaw = 0f
-            Camera.pitch = 0f
+            Camera.pitch = -20f
         }
         catch (e: Exception)
         {
@@ -82,7 +82,7 @@ object Editor
             GL11.glDisable(GL11.GL_DEPTH_TEST)
             GL11.glDisable(GL11.GL_TEXTURE_2D)
             GL11.glColor4f(1f, 1f, 0f, 0.7f)
-            BlockRendererDictionary.ERROR.draw(block.chunk, block.location)
+            BlockRendererDictionary.ERROR.draw(block.chunk.world, block.location)
             GL11.glColor3f(1f, 1f, 1f)
         }
 

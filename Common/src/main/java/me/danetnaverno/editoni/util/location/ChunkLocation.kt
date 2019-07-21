@@ -6,7 +6,7 @@ data class ChunkLocation(@JvmField val x: Int, @JvmField val z: Int)
 {
     fun isBlockLocationBelongs(pos: BlockLocation) : Boolean
     {
-        return pos.toChunkLocation() == this
+        return pos.globalX shr 4 == x && pos.globalZ shr 4 == z
     }
 
     fun distance(other: ChunkLocation): Double

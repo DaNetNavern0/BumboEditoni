@@ -47,7 +47,6 @@ class MinecraftRegion(@JvmField val world: MinecraftWorld, @JvmField val regionF
 
     fun getChunk(location: BlockLocation): MinecraftChunk?
     {
-        Calendar.getInstance()
         return getChunk(location.toChunkLocation())
     }
 
