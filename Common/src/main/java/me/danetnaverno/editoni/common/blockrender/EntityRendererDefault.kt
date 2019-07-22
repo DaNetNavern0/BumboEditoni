@@ -19,6 +19,8 @@ class EntityRendererDefault : EntityRenderer()
 
     override fun draw(entity: Entity)
     {
+        if (true)
+            return
         val size = getSize()
 
         texture.bind()

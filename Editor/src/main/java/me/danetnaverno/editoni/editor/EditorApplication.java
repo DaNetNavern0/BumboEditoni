@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL11;
 
 public class EditorApplication extends LWJGUIApplication
 {
-    public static final int PANELS_WIDTH = 600;
+    public static final int PANELS_WIDTH = 400;
 
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
@@ -59,7 +59,7 @@ public class EditorApplication extends LWJGUIApplication
         {
             try
             {
-                GL11.glViewport(300, 0, context.getWidth() - PANELS_WIDTH, context.getHeight());
+                GL11.glViewport(200, 0, context.getWidth() - PANELS_WIDTH, context.getHeight());
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GL11.glEnable(GL11.GL_TEXTURE_2D);

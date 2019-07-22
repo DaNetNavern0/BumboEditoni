@@ -1,6 +1,13 @@
 {
 	"langauge": "English",
-	"test1": "Test1",
+	
+	"top_bar.file": "File",
+	"top_bar.file.open": "Open",
+	"top_bar.file.save": "Save",
+	
+	"status_bar.fps": "{0} FPS",
+	
 	"gui.block_info.type": "Type: {0}",
-	"gui.block_info.light": "Block Light: {0}. Sky Light: {1}",
+	"gui.block_info.location.global": "Global: x: {0}, y: {1}, z:{2}",
+	"gui.block_info.location.local": "Chunk: x: {0}, y: {1}, z:{2}",
 }

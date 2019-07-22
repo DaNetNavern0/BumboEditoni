@@ -20,6 +20,8 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
     override fun draw(world: World, location: BlockLocation)
     {
+        if (true)
+            return
         val state = world.getBlockStateAt(location)
         val height = (8 - (state as MinecraftLiquidState).level) / 8f - 0.1f
 

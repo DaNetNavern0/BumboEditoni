@@ -5,6 +5,7 @@ import java.nio.file.Path
 
 abstract class Texture protected constructor(path: Path)
 {
+    abstract val id : Int
     abstract fun bind()
 
     companion object

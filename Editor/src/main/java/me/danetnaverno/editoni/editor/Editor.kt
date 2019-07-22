@@ -8,6 +8,7 @@ import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO
 import me.danetnaverno.editoni.editor.operations.Operations
 import me.danetnaverno.editoni.util.Camera
+import me.danetnaverno.editoni.util.Translation
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.EntityLocation
 import org.apache.logging.log4j.LogManager
@@ -23,12 +24,15 @@ object Editor
 {
     private val logger = LogManager.getLogger("Editor")
 
-    var selectedBlock: Block? = null
-        private set
     lateinit var currentWorld: World
-
     private val worlds = mutableMapOf<Path, World>()
     private val hiddenBlocks = mutableSetOf<Block>()
+
+    var selectedBlock: Block? = null
+        private set
+
+    var fps = 0
+        private set
 
     init
     {
@@ -36,12 +40,6 @@ object Editor
 
         try
         {
-            Camera.x = 0f
-            Camera.y = 80f
-            Camera.z = 0f
-            Camera.yaw = 0f
-            Camera.pitch = -90f
-
             Camera.x = 0f
             Camera.y = 80f
             Camera.z = 0f
@@ -54,12 +52,13 @@ object Editor
         }
 
     }
-    fun loadWorld(worldFolder: Path) : World
+
+    fun loadWorld(worldPath: Path) : World
     {
-        if (!worlds.containsKey(worldFolder))
+        if (!worlds.containsKey(worldPath))
         {
-            val world = WorldIO.readWorld(worldFolder)
-            worlds[worldFolder] = world
+            val world = WorldIO.readWorld(worldPath)
+            worlds[worldPath] = world
             return world
         }
         else
@@ -74,7 +73,10 @@ object Editor
         GL11.glRotated(Camera.yaw.toDouble(), 0.0, -1.0, 0.0)
         GL11.glTranslated(-Camera.x.toDouble(), -Camera.y.toDouble(), -Camera.z.toDouble())
 
+        val startTime = System.currentTimeMillis()
         Editor.currentWorld.worldRenderer.render()
+        fps = (1000f / (System.currentTimeMillis() - startTime)).toInt()
+        EditorGUI.fpsLabel.text = Translation.translate("status_bar.fps", fps) //todo move refresh logic to the label itself
 
         val block = Editor.selectedBlock
         if (block != null)

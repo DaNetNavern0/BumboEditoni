@@ -12,7 +12,10 @@ import java.nio.file.Path
 
 class TextureImpl constructor(path: Path) : Texture(path)
 {
-    private var id: Int = 0
+    override val id: Int
+        get() = _id
+
+    private var _id: Int = 0
     var width: Int = 0
         private set
     var height: Int = 0
@@ -32,7 +35,7 @@ class TextureImpl constructor(path: Path) : Texture(path)
             this.width = w.get()
             this.height = h.get()
 
-            this.id = glGenTextures()
+            this._id = glGenTextures()
 
             glBindTexture(GL_TEXTURE_2D, this.id)
 

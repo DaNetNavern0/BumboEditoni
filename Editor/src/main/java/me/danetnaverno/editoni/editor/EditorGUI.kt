@@ -13,11 +13,15 @@ import me.danetnaverno.editoni.util.Translation
 import net.querz.nbt.CompoundTag
 import javax.swing.JFileChooser
 
+
+
 object EditorGUI
 {
     private lateinit var root : BorderPane
     private lateinit var blockInfoBox : VBox
     private lateinit var operationHistory : ScrollPane
+    lateinit var fpsLabel : Label
+        private set
 
     fun init(window: Window): Pane
     {
@@ -35,11 +39,17 @@ object EditorGUI
         val bar = MenuBar()
         bar.minWidth = EditorApplication.WIDTH.toDouble()
 
-        val file = Menu("File")
-        val open = MenuItem("Open")
-        open.setOnAction { JFileChooser().showOpenDialog(null) }
+        val file = Menu(Translation.translate("top_bar.file"))
+        val open = MenuItem(Translation.translate("top_bar.file.open"))
+        open.setOnAction {
+            val fc = JFileChooser()
+            fc.fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES;
+            val state = fc.showOpenDialog(null)
+            if (state == JFileChooser.APPROVE_OPTION)
+                Editor.currentWorld = Editor.loadWorld(fc.selectedFile.toPath())
+        }
         file.items.add(open)
-        file.items.add(MenuItem("Save"))
+        file.items.add(MenuItem(Translation.translate("top_bar.file.save")))
         bar.items.add(file)
 
         val edit = Menu("Edit")
@@ -57,7 +67,7 @@ object EditorGUI
         blockInfoBox = VBox()
         blockInfoBox.spacing = 4.0
         blockInfoBox.padding = Insets(5.0)
-        blockInfoBox.prefWidth = 300.0
+        blockInfoBox.prefWidth = 200.0
         blockInfoBox.setOnMouseClicked { Editor.onMouseClick(it.mouseX.toInt(),it.mouseY.toInt()) }
         leftPanel.children.add(blockInfoBox)
 
@@ -67,6 +77,12 @@ object EditorGUI
         operationHistory.isFillToParentWidth = true
         leftPanel.children.add(operationHistory)
         root.setLeft(leftPanel)
+
+        val statusBar = HBox()
+        statusBar.alignment = Pos.TOP_LEFT
+        fpsLabel = Label(Translation.translate("status_bar.fps", Editor.fps))
+        statusBar.children.add(fpsLabel)
+        leftPanel.children.add(statusBar)
 
         return root
     }
@@ -79,13 +95,30 @@ object EditorGUI
         blockInfoBox.children.clear()
 
         val blockInfoLabel = Label(Translation.translate("gui.block_info.type", selectedBlock?.type ?: "-"))
-        blockInfoLabel.alignment = Pos.TOP_LEFT
         blockInfoLabel.isFillToParentWidth = true
+        blockInfoLabel.alignment = Pos.TOP_LEFT
+
+        val blockGlobalLocLabel = if (selectedBlock==null)
+            Label(Translation.translate("gui.block_info.location.global", "-", "-", "-"))
+        else
+            Label(Translation.translate("gui.block_info.location.global", selectedBlock.location.globalX, selectedBlock.location.globalY, selectedBlock.location.globalZ))
+
+        val blockChunkLocLabel = if (selectedBlock==null)
+            Label(Translation.translate("gui.block_info.location.local", "-", "-", "-"))
+        else
+            Label(Translation.translate("gui.block_info.location.local", selectedBlock.location.localX, selectedBlock.location.localY, selectedBlock.location.localZ))
+
+        blockGlobalLocLabel.isFillToParentWidth = true
+        blockGlobalLocLabel.alignment = Pos.TOP_LEFT
+        blockChunkLocLabel.isFillToParentWidth = true
+        blockChunkLocLabel.alignment = Pos.TOP_LEFT
 
         val blockStatePane = buildPane(selectedBlock?.state?.tag)
         val tileEntityPane = buildPane(selectedBlock?.tileEntity?.tag)
 
         blockInfoBox.children.add(blockInfoLabel)
+        blockInfoBox.children.add(blockGlobalLocLabel)
+        blockInfoBox.children.add(blockChunkLocLabel)
         blockInfoBox.children.add(blockStatePane)
         blockInfoBox.children.add(tileEntityPane)
     }

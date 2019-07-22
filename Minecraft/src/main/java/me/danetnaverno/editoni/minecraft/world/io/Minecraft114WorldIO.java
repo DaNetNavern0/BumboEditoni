@@ -45,6 +45,9 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     {
         try
         {
+            if (path.getFileName().toString().equalsIgnoreCase("level.dat"))
+                path = path.getParent();
+
             if (!Files.isDirectory(path))
                 return false;
 
@@ -67,6 +70,8 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     @Override
     public World readWorld(@NotNull Path path) throws IOException
     {
+        if (path.getFileName().toString().equalsIgnoreCase("level.dat"))
+            path = path.getParent();
         CompoundTag levelDat = (CompoundTag) NBTUtil.readTag(path.resolve("level.dat").toFile());
         String versionName = levelDat.getCompoundTag("Data").getCompoundTag("Version").getString("Name");
         MinecraftWorld world = new MinecraftWorld(versionName, this);
