@@ -22,7 +22,7 @@ data class EntityLocation(@JvmField val globalX: Double, @JvmField val globalY: 
     fun distanceSquared(other: EntityLocation): Double
     {
         val dx = this.globalX - other.globalX
-        val dy = this.globalZ - other.globalY
+        val dy = this.globalY - other.globalY
         val dz = this.globalZ - other.globalZ
         return dx * dx + dy * dy + dz * dz
     }

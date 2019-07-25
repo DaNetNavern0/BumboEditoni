@@ -10,7 +10,7 @@ public class Renderer
 {
     //*******************
     //todo optimize with glDrawArray or something. This is just a prototype.
-    //A working prototype nonetheless
+    //A working prototype nonetheless, but has to be done properly at some point.
     //*******************
 
     private static Collection<Pair<Integer,float[]>> faces = new ArrayList<>();
@@ -18,6 +18,14 @@ public class Renderer
     public static synchronized void addObject(int texture, float[] facez)
     {
         faces.add(new Pair<>(texture,facez));
+    }
+
+    public static void addObject(int texture, double[] facez)
+    {
+        float[] facef = new float[facez.length];
+        for (int i = 0; i < facez.length; i++)
+            facef[i] = (float) facez[i];
+        addObject(texture, facef);
     }
 
     public static void draw()

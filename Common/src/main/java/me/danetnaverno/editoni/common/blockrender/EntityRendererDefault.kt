@@ -2,9 +2,9 @@ package me.danetnaverno.editoni.common.blockrender
 
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.common.ResourceLocation
+import me.danetnaverno.editoni.common.renderer.Renderer
 import me.danetnaverno.editoni.common.world.Entity
 import me.danetnaverno.editoni.texture.Texture
-import org.lwjgl.opengl.GL11
 
 class EntityRendererDefault : EntityRenderer()
 {
@@ -19,76 +19,39 @@ class EntityRendererDefault : EntityRenderer()
 
     override fun draw(entity: Entity)
     {
-        if (true)
-            return
         val size = getSize()
 
-        texture.bind()
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, 0.0f)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, size)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, size, size)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(size, size, 0.0f)
-        GL11.glEnd()
+        val location = entity.location
 
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, 0.0f, 0.0f)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(size, 0.0f, 0.0f)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, size)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, size)
-        GL11.glEnd()
+        Renderer.addObject(texture.id, doubleArrayOf(location.globalX + 0.0f, location.globalY + size, location.globalZ + 0.0f,
+                location.globalX + 0.0f, location.globalY + size, location.globalZ + size,
+                location.globalX + size, location.globalY + size, location.globalZ + size,
+                location.globalX + size, location.globalY + size, location.globalZ + 0.0f))
 
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(size, size, size)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, size)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, size)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, size)
-        GL11.glEnd()
+        Renderer.addObject(texture.id, doubleArrayOf(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
+                location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f,
+                location.globalX + size, location.globalY + 0.0f, location.globalZ + size,
+                location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size))
 
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, 0.0f)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, 0.0f)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, 0.0f)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(size, size, 0.0f)
-        GL11.glEnd()
+        Renderer.addObject(texture.id, doubleArrayOf(location.globalX + size, location.globalY + size, location.globalZ + size,
+                location.globalX + 0.0f, location.globalY + size, location.globalZ + size,
+                location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size,
+                location.globalX + size, location.globalY + 0.0f, location.globalZ + size))
 
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, size)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(0.0f, size, 0.0f)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, 0.0f)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(0.0f, 0.0f, size)
-        GL11.glEnd()
+        Renderer.addObject(texture.id, doubleArrayOf(location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f,
+                location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
+                location.globalX + 0.0f, location.globalY + size, location.globalZ + 0.0f,
+                location.globalX + size, location.globalY + size, location.globalZ + 0.0f))
 
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex3f(size, size, 0.0f)
-        GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex3f(size, size, size)
-        GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, size)
-        GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex3f(size, 0.0f, 0.0f)
-        GL11.glEnd()
+        Renderer.addObject(texture.id, doubleArrayOf(location.globalX + 0.0f, location.globalY + size, location.globalZ + size,
+                location.globalX + 0.0f, location.globalY + size, location.globalZ + 0.0f,
+                location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
+                location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size))
+
+        Renderer.addObject(texture.id, doubleArrayOf(location.globalX + size, location.globalY + size, location.globalZ + 0.0f,
+                location.globalX + size, location.globalY + size, location.globalZ + size,
+                location.globalX + size, location.globalY + 0.0f, location.globalZ + size,
+                location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f))
     }
 
     companion object

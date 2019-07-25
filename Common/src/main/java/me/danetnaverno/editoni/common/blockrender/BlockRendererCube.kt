@@ -100,16 +100,16 @@ open class BlockRendererCube : BlockRenderer
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, -1, 0)))
-        {
-            Renderer.addObject(top.id, floatArrayOf(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
-            location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f,
-            location.globalX + size, location.globalY + 0.0f, location.globalZ + size,
-            location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size))
+            {
+                Renderer.addObject(bottom.id, floatArrayOf(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
+                location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f,
+                location.globalX + size, location.globalY + 0.0f, location.globalZ + size,
+                location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size))
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, 1)))
         {
-            Renderer.addObject(top.id, floatArrayOf(location.globalX + size, location.globalY + size, location.globalZ + size,
+            Renderer.addObject(south.id, floatArrayOf(location.globalX + size, location.globalY + size, location.globalZ + size,
             location.globalX + 0.0f, location.globalY + size, location.globalZ + size,
             location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size,
             location.globalX + size, location.globalY + 0.0f, location.globalZ + size))
@@ -117,7 +117,7 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, -1)))
         {
-            Renderer.addObject(top.id, floatArrayOf(location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f,
+            Renderer.addObject(north.id, floatArrayOf(location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f,
             location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
             location.globalX + 0.0f, location.globalY + size, location.globalZ + 0.0f,
             location.globalX + size, location.globalY + size, location.globalZ + 0.0f))
@@ -125,7 +125,7 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(-1, 0, 0)))
         {
-            Renderer.addObject(top.id, floatArrayOf(location.globalX + 0.0f, location.globalY + size, location.globalZ + size,
+            Renderer.addObject(west.id, floatArrayOf(location.globalX + 0.0f, location.globalY + size, location.globalZ + size,
             location.globalX + 0.0f, location.globalY + size, location.globalZ + 0.0f,
             location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
             location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size))
@@ -133,7 +133,7 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(1, 0, 0)))
         {
-            Renderer.addObject(top.id, floatArrayOf(location.globalX + size, location.globalY + size, location.globalZ + 0.0f,
+            Renderer.addObject(east.id, floatArrayOf(location.globalX + size, location.globalY + size, location.globalZ + 0.0f,
             location.globalX + size, location.globalY + size, location.globalZ + size,
             location.globalX + size, location.globalY + 0.0f, location.globalZ + size,
             location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f))

@@ -56,7 +56,7 @@ public class MinecraftWorld extends World
         if (chunk == null)
             return null;
         return chunk.getEntitiesAt(location, radius).stream()
-                .sorted(Comparator.comparingDouble(it -> it.getGlobalPos().distanceSquared(location)))
+                .sorted(Comparator.comparingDouble(it -> it.getLocation().distanceSquared(location)))
                 .collect(Collectors.toList());
     }
 

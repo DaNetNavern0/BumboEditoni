@@ -8,7 +8,6 @@ import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO
 import me.danetnaverno.editoni.editor.operations.Operations
 import me.danetnaverno.editoni.util.Camera
-import me.danetnaverno.editoni.util.Translation
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.EntityLocation
 import org.apache.logging.log4j.LogManager
@@ -20,24 +19,14 @@ import org.lwjgl.opengl.GL11
 import java.nio.file.Path
 import java.nio.file.Paths
 
-object Editor
+
+object Editor : AbstractEditor()
 {
-    private val logger = LogManager.getLogger("Editor")
-
-    lateinit var currentWorld: World
-    private val worlds = mutableMapOf<Path, World>()
-    private val hiddenBlocks = mutableSetOf<Block>()
-
-    var selectedBlock: Block? = null
-        private set
-
-    var fps = 0
-        private set
+    val logger = LogManager.getLogger("Editor")!!
 
     init
     {
         InputHandler.init(EditorApplication.getWindowId())
-
         try
         {
             Camera.x = 0f
@@ -50,7 +39,6 @@ object Editor
         {
             e.printStackTrace()
         }
-
     }
 
     fun loadWorld(worldPath: Path) : World
@@ -73,10 +61,7 @@ object Editor
         GL11.glRotated(Camera.yaw.toDouble(), 0.0, -1.0, 0.0)
         GL11.glTranslated(-Camera.x.toDouble(), -Camera.y.toDouble(), -Camera.z.toDouble())
 
-        val startTime = System.currentTimeMillis()
         Editor.currentWorld.worldRenderer.render()
-        fps = (1000f / (System.currentTimeMillis() - startTime)).toInt()
-        EditorGUI.fpsLabel.text = Translation.translate("status_bar.fps", fps) //todo move refresh logic to the label itself
 
         val block = Editor.selectedBlock
         if (block != null)
@@ -157,9 +142,7 @@ object Editor
         val raycast = raycast(x, y)
         val entity = findEntity(EntityLocation(raycast.x, raycast.y, raycast.z))
         if (entity!=null)
-        {
-            //todo wip
-        }
+            selectEntity(entity)
         else
             selectBlock(findBlock(raycast(x, y)))
     }
@@ -190,7 +173,7 @@ object Editor
 
     private fun findEntity(location: EntityLocation): Entity?
     {
-        return currentWorld.getEntitiesAt(location, 2f).firstOrNull()
+        return currentWorld.getEntitiesAt(location, 1f).firstOrNull()
     }
 
     private fun findBlock(point: Vector3d): Block?
@@ -219,8 +202,16 @@ object Editor
         return closest
     }
 
+    private fun selectEntity(entity: Entity)
+    {
+        selectedBlock = null
+        selectedEntity = entity
+        EditorGUI.refreshBlockInfoLabel()
+    }
+
     fun selectBlock(block: Block?)
     {
+        selectedEntity = null
         selectedBlock = block
         EditorGUI.refreshBlockInfoLabel()
     }

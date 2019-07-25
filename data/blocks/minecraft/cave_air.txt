@@ -1,0 +1,6 @@
+{
+	is_opaque: false,
+	renderer: {
+		type: "minecraft:air"
+	}
+}

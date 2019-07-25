@@ -10,4 +10,6 @@
 	"gui.block_info.type": "Type: {0}",
 	"gui.block_info.location.global": "Global: x: {0}, y: {1}, z:{2}",
 	"gui.block_info.location.local": "Chunk: x: {0}, y: {1}, z:{2}",
+
+	"gui.world.label": "World:"
 }

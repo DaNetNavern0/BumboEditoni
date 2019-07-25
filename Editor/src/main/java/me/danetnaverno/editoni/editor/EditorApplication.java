@@ -2,7 +2,6 @@ package me.danetnaverno.editoni.editor;
 
 import lwjgui.LWJGUIApplication;
 import lwjgui.scene.Context;
-import lwjgui.scene.Node;
 import lwjgui.scene.Scene;
 import lwjgui.scene.Window;
 import org.lwjgl.glfw.GLFW;
@@ -11,14 +10,15 @@ import org.lwjgl.opengl.GL11;
 
 public class EditorApplication extends LWJGUIApplication
 {
-    public static final int PANELS_WIDTH = 400;
-
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
+    public static final int PANELS_WIDTH = 400;
 
     private static long handleId;
     public static Context context;
     public static Runnable afterStart;
+
+    public static int fps = 0;
 
     public static void main(String[] args, Runnable function)
     {
@@ -31,17 +31,13 @@ public class EditorApplication extends LWJGUIApplication
     public void start(String[] args, Window window)
     {
         handleId = window.getContext().getWindowHandle();
-
-        Node root = EditorGUI.INSTANCE.init(window);
-
-        window.setScene(new Scene(root, WIDTH, HEIGHT));
+        window.setTitle("Bumbo Editoni");
+        window.setScene(new Scene(EditorGUI.INSTANCE.init(window), WIDTH, HEIGHT));
         context = window.getContext();
-        window.show();
-
         GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-
+        GLFW.glfwSwapInterval(1);
         GLFW.glfwSetWindowPos(handleId, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
-
+        window.show();
         window.setRenderingCallback(new Renderer());
 
         afterStart.run();
@@ -54,6 +50,8 @@ public class EditorApplication extends LWJGUIApplication
 
     static class Renderer implements lwjgui.gl.Renderer
     {
+        private long frameStamp = System.currentTimeMillis();
+
         @Override
         public void render(Context context)
         {
@@ -84,6 +82,9 @@ public class EditorApplication extends LWJGUIApplication
                 GL11.glLoadIdentity();
 
                 Editor.INSTANCE.displayLoop();
+                long deltaTime = System.currentTimeMillis() - frameStamp;
+                fps = (int) (1000f / deltaTime);
+                frameStamp = System.currentTimeMillis();
             }
             catch (Throwable e)
             {

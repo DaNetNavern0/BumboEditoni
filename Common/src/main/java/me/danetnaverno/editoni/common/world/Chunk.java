@@ -47,6 +47,6 @@ public abstract class Chunk
 
     public List<Entity> getEntitiesAt(EntityLocation location, float radius)
     {
-        return getEntities().stream().filter( it-> it.getGlobalPos().distance(location) < radius).collect(Collectors.toList());
+        return getEntities().stream().filter( it-> it.getLocation().distance(location) < radius).collect(Collectors.toList());
     }
 }

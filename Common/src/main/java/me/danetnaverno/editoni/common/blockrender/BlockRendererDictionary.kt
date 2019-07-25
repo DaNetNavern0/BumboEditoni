@@ -22,7 +22,7 @@ object BlockRendererDictionary
         val name = ResourceLocation(data.getString("type"))
         val rendererClass = renderers[name]
         requireNotNull(rendererClass) { "Renderer type '$name' not found!" }
-        val constr = rendererClass.getConstructor()
+        val constr = rendererClass!!.getConstructor()
         val instance = constr.newInstance() as BlockRenderer
         instance.fromJson(data)
         return instance

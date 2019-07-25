@@ -12,7 +12,7 @@ abstract class BlockRenderer
 
     open fun shouldRenderSideAgainst(world: World, location: BlockLocation): Boolean
     {
-        if (location.localY < 0 || location.localY > 256)
+        if (location.localY < 0 || location.localY > 255)
             return true
         val chunk = world.getChunkIfLoaded(location.toChunkLocation()) ?: return false
         val type = chunk.getBlockTypeAt(location) ?: return true

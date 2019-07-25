@@ -20,7 +20,7 @@ object EntityRendererDictionary
         val name = ResourceLocation(data.getString("type"))
         val rendererClass = renderers[name]
         requireNotNull(rendererClass) { "Entity renderer type '$name' not found!" }
-        val constr = rendererClass.getConstructor()
+        val constr = rendererClass!!.getConstructor()
         val instance = constr.newInstance() as EntityRenderer
         instance.fromJson(data)
         return instance
