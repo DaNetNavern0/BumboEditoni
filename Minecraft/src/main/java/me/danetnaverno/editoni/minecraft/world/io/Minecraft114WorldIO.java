@@ -5,10 +5,7 @@ import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
 import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.entitytype.EntityDictionary;
 import me.danetnaverno.editoni.common.entitytype.EntityType;
-import me.danetnaverno.editoni.common.world.BlockState;
-import me.danetnaverno.editoni.common.world.BlockStateDictionary;
-import me.danetnaverno.editoni.common.world.Entity;
-import me.danetnaverno.editoni.common.world.World;
+import me.danetnaverno.editoni.common.world.*;
 import me.danetnaverno.editoni.minecraft.util.location.LocationUtilsKt;
 import me.danetnaverno.editoni.minecraft.util.location.RegionLocation;
 import me.danetnaverno.editoni.minecraft.world.*;
@@ -74,7 +71,7 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
             path = path.getParent();
         CompoundTag levelDat = (CompoundTag) NBTUtil.readTag(path.resolve("level.dat").toFile());
         String versionName = levelDat.getCompoundTag("Data").getCompoundTag("Version").getString("Name");
-        MinecraftWorld world = new MinecraftWorld(versionName, this);
+        MinecraftWorld world = new MinecraftWorld(versionName, this, path);
         Path regionFolder = path.resolve("region");
 
         for (File regionFile : Objects.requireNonNull(regionFolder.toFile().listFiles()))
@@ -142,7 +139,7 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
 
         BlockType[][] blockTypes = new BlockType[16][];
         Map<Integer, BlockState> blockStates = new HashMap<>();
-        Map<Integer, MinecraftTileEntity> tileEntities = new HashMap<>();
+        Map<Integer, TileEntity> tileEntities = new HashMap<>();
         List<Entity> entities = new ArrayList<>();
 
         MinecraftChunk chunk = new MinecraftChunk(

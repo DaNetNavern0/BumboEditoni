@@ -7,16 +7,15 @@ import me.danetnaverno.editoni.minecraft.util.location.toSectionBlockIndex
 import me.danetnaverno.editoni.minecraft.world.io.MCAExtraInfo
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
-import java.util.*
 
 class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: Int, renderZ: Int, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
     : Chunk(world, location, renderX, renderZ)
 {
     private lateinit var blockTypes : Array<Array<BlockType?>?>
-    private lateinit var blockStates : Map<Int, BlockState>
-    private lateinit var tileEntities : Map<Int, TileEntity>
+    private lateinit var blockStates : MutableMap<Int, BlockState?>
+    private lateinit var tileEntities : MutableMap<Int, TileEntity?>
 
-    fun load(blockTypes: Array<Array<BlockType?>?>, blockStates: Map<Int, BlockState>, tileEntities: Map<Int, TileEntity>)
+    fun load(blockTypes: Array<Array<BlockType?>?>, blockStates: MutableMap<Int, BlockState?>, tileEntities: MutableMap<Int, TileEntity?>)
     {
         this.blockTypes = blockTypes
         this.blockStates = blockStates
@@ -25,7 +24,7 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
 
     override fun getEntities(): Collection<Entity>
     {
-        return ArrayList(entities)
+        return entities.toList()
     }
 
     override fun getBlockTypes(): Array<Array<BlockType?>?>
@@ -43,7 +42,7 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
         val array = blockTypes[section]
         if (array==null || array[index]==null)
             return null
-        return MinecraftBlock(this, location, array[index]!!)
+        return MinecraftBlock(this, location, array[index]!!, getBlockStateAt(location), getTileEntityAt(location))
     }
 
     override fun getBlockTypeAt(location: BlockLocation): BlockType?
@@ -74,8 +73,10 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
 
     override fun setBlock(block: Block)
     {
-        val index = (block.location.localY % 16) * 256 + block.location.localZ * 16 + block.location.localX
         val section = block.location.localY / 16
-        //blocks[section]!![index] = block
+        val cindex = block.location.toChunkBlockIndex()
+        blockTypes[section]!![block.location.toSectionBlockIndex()] = block.type
+        blockStates[cindex] = block.state
+        tileEntities[cindex] = block.tileEntity
     }
 }

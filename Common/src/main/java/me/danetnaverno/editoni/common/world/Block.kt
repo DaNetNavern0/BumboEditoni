@@ -12,11 +12,5 @@ import me.danetnaverno.editoni.util.location.BlockLocation
  *
  * If you want to have a "coord-free block info", you can just ignore coords and apply them before making an [Operation]
  */
-abstract class Block(open val chunk: Chunk, open val location: BlockLocation, open val type: BlockType)
-{
-    val state
-        get() = chunk.getBlockStateAt(location)
-
-    val tileEntity
-        get() = chunk.getTileEntityAt(location)
-}
+open class Block(open val chunk: Chunk, open val location: BlockLocation,
+                     open val type: BlockType, open val state: BlockState?, open val tileEntity: TileEntity?)

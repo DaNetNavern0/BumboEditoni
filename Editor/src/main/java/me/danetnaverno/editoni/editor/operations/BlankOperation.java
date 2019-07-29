@@ -11,4 +11,10 @@ public class BlankOperation extends Operation
     public void rollback()
     {
     }
+
+    @Override
+    public String getDisplayName()
+    {
+        return "Loaded";
+    }
 }

@@ -6,7 +6,7 @@ import me.danetnaverno.editoni.common.renderer.Renderer
 import me.danetnaverno.editoni.common.world.Entity
 import me.danetnaverno.editoni.texture.Texture
 
-class EntityRendererDefault : EntityRenderer()
+open class EntityRendererDefault : EntityRenderer()
 {
     override fun fromJson(data: JSONObject)
     {
@@ -21,7 +21,7 @@ class EntityRendererDefault : EntityRenderer()
     {
         val size = getSize()
 
-        val location = entity.location
+        val location = entity.location.add(-0.5, 0.0, -0.5)
 
         Renderer.addObject(texture.id, doubleArrayOf(location.globalX + 0.0f, location.globalY + size, location.globalZ + 0.0f,
                 location.globalX + 0.0f, location.globalY + size, location.globalZ + size,

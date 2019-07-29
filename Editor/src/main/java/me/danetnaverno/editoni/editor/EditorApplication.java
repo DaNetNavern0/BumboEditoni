@@ -12,7 +12,7 @@ public class EditorApplication extends LWJGUIApplication
 {
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
-    public static final int PANELS_WIDTH = 400;
+    public static final double PANEL_WIDTH = 250;
 
     private static long handleId;
     public static Context context;
@@ -57,12 +57,11 @@ public class EditorApplication extends LWJGUIApplication
         {
             try
             {
-                GL11.glViewport(200, 0, context.getWidth() - PANELS_WIDTH, context.getHeight());
+                GL11.glViewport((int) PANEL_WIDTH, 0, context.getWidth() - (int) PANEL_WIDTH * 2, context.getHeight());
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-                GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GL11.glEnable(GL11.GL_TEXTURE_2D);
                 GL11.glEnable(GL11.GL_BLEND);
-                //GL11.glFrontFace(GL11.GL_CCW);
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GL11.glEnable(GL11.GL_CULL_FACE);
                 GL11.glCullFace(GL11.GL_NONE);
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -73,7 +72,7 @@ public class EditorApplication extends LWJGUIApplication
                 double fovY = 90.0;
                 double zNear = 0.01;
                 double zFar = 1000.0;
-                double aspect = (context.getWidth() - PANELS_WIDTH) / (double) context.getHeight();
+                double aspect = (context.getWidth() - PANEL_WIDTH * 2) / (double) context.getHeight();
                 double fH = Math.tan(fovY / 360 * Math.PI) * zNear;
                 double fW = fH * aspect;
                 GL11.glFrustum(-fW, fW, -fH, fH, zNear, zFar);

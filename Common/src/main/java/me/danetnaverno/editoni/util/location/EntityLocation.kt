@@ -4,6 +4,11 @@ import org.joml.Math
 
 data class EntityLocation(@JvmField val globalX: Double, @JvmField val globalY: Double, @JvmField val globalZ: Double)
 {
+    fun add(x: Double, y: Double, z: Double): EntityLocation
+    {
+        return EntityLocation(this.globalX + x, this.globalY + y, this.globalZ + z)
+    }
+
     fun toBlockLocation() : BlockLocation
     {
         return BlockLocation(globalX.toInt(), globalY.toInt(), globalZ.toInt())

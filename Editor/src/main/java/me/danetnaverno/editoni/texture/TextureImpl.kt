@@ -46,7 +46,6 @@ class TextureImpl constructor(path: Path) : Texture(path)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, decodedImage)
-
             GL30.glGenerateMipmap(GL_TEXTURE_2D)
         }
     }

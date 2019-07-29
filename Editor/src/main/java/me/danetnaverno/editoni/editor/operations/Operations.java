@@ -83,7 +83,7 @@ public class Operations
         }
         else
         {
-            for (int i = newPosition + 1; i <= position; i++)
+            for (int i = position + 1; i <= newPosition; i++)
                 operations.get(i).apply();
         }
         position = newPosition;

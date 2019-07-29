@@ -61,13 +61,13 @@ object EditorGUI
 
         val leftPanelBcg = VBox()
         leftPanelBcg.padding = Insets(7.0)
-        leftPanelBcg.prefWidth = 200.0
+        leftPanelBcg.prefWidth = EditorApplication.PANEL_WIDTH
         leftPanelBcg.isFillToParentWidth = true
         leftPanelBcg.isFillToParentHeight = true
         root.setLeft(leftPanelBcg)
         val leftPanel = VBox()
-        leftPanel.minWidth = 186.0
-        leftPanel.maxWidth = 186.0
+        leftPanel.minWidth = EditorApplication.PANEL_WIDTH - 14
+        leftPanel.maxWidth = EditorApplication.PANEL_WIDTH - 14
         leftPanelBcg.children.add(leftPanel)
 
         selectInfoBox = VBox()
@@ -85,18 +85,18 @@ object EditorGUI
 
         val rightPanelBcg = VBox()
         rightPanelBcg.padding = Insets(7.0)
-        rightPanelBcg.prefWidth = 200.0
+        rightPanelBcg.prefWidth = EditorApplication.PANEL_WIDTH
         rightPanelBcg.isFillToParentWidth = true
         rightPanelBcg.isFillToParentHeight = true
         root.setRight(rightPanelBcg)
         val rightPanel = VBox()
-        rightPanel.maxWidth = 186.0
+        rightPanel.maxWidth = EditorApplication.PANEL_WIDTH - 14
         rightPanelBcg.children.add(rightPanel)
 
         rightPanel.children.add(Label(Translation.translate("gui.world.label", EditorApplication.fps)))
 
         worldList = ComboBox("")
-        worldList.prefWidth = 180.0
+        worldList.prefWidth = EditorApplication.PANEL_WIDTH - 20
         worldList.alignment = Pos.CENTER
         rightPanel.children.add(worldList)
 
@@ -138,8 +138,8 @@ object EditorGUI
         blockChunkLocLabel.isFillToParentWidth = true
         blockChunkLocLabel.alignment = Pos.TOP_LEFT
 
-        val blockStatePane = buildPane(selectedBlock?.state?.tag, 150.0)
-        val tileEntityPane = buildPane(selectedBlock?.tileEntity?.tag, 150.0)
+        val blockStatePane = buildPane(selectedBlock?.state?.tag, EditorApplication.PANEL_WIDTH - 50)
+        val tileEntityPane = buildPane(selectedBlock?.tileEntity?.tag, EditorApplication.PANEL_WIDTH - 50)
 
         selectInfoBox.children.add(blockInfoLabel)
         selectInfoBox.children.add(blockGlobalLocLabel)
@@ -162,7 +162,7 @@ object EditorGUI
         locationLabel.isFillToParentWidth = true
         locationLabel.alignment = Pos.TOP_LEFT
 
-        val tagPane = buildPane(selectedEntity.tag, 300.0)
+        val tagPane = buildPane(selectedEntity.tag, EditorApplication.PANEL_WIDTH)
 
         selectInfoBox.children.add(infoLabel)
         selectInfoBox.children.add(locationLabel)
@@ -171,12 +171,12 @@ object EditorGUI
 
     fun refreshOperationHistory()
     {
-        val ohContainer = VBox()
-        for (i in 1 until Operations.getOperations().size)
+        val ohContainer = TreeView<String>()
+        for (i in 0 until Operations.getOperations().size)
         {
-            val text = Label(Operations.getOperation(i).toString())
-            text.setOnMouseClicked { Operations.setPosition(i) }
-            ohContainer.children.add(text)
+            val item = TreeItem(Operations.getOperation(i).displayName)
+            item.setOnMouseClicked { Operations.setPosition(i) }
+            ohContainer.items.add(item)
         }
         operationHistory.content = ohContainer
     }
@@ -220,8 +220,8 @@ object EditorGUI
     {
         worldList.items.clear()
         for (world in Editor.getWorlds())
-            worldList.items.add(world.toString())
-        worldList.value = Editor.currentWorld.toString()
+            worldList.items.add(world.name)
+        worldList.value = Editor.currentWorld.name
     }
 
     fun buildTree(base: TreeBase<String>, compoundTag: CompoundTag?)

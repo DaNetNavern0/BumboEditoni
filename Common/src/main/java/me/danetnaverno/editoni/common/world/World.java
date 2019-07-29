@@ -8,12 +8,17 @@ import me.danetnaverno.editoni.util.location.EntityLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.List;
 
 public abstract class World
 {
     public WorldRenderer worldRenderer;
     public IWorldIOProvider worldIOProvider;
+    protected Path path;
+
+    @Nullable
+    public abstract String getName();
 
     @Nullable
     public abstract Chunk getChunkIfLoaded(@NotNull ChunkLocation location);
@@ -47,4 +52,7 @@ public abstract class World
     public abstract TileEntity getLoadedTileEntityAt(@NotNull BlockLocation location);
 
     public abstract void setBlock(@NotNull Block block);
+
+    @NotNull
+    public abstract BlockType getAirType();
 }

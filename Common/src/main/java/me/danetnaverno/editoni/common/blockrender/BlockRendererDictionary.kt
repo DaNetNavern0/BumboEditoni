@@ -2,13 +2,9 @@ package me.danetnaverno.editoni.common.blockrender
 
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.texture.TextureDictionary
 
 object BlockRendererDictionary
 {
-    @JvmField
-    val ERROR = BlockRendererCube(TextureDictionary[ResourceLocation("common:error")])
-
     private val renderers = mutableMapOf<ResourceLocation, Class<out BlockRenderer>>()
 
     @JvmStatic

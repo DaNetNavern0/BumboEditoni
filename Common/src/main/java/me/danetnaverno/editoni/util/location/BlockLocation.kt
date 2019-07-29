@@ -24,5 +24,15 @@ data class BlockLocation(@JvmField val globalX: Int, @JvmField val globalY: Int,
         return ChunkLocation(globalX shr 4, globalZ shr 4)
     }
 
+    override fun toString(): String
+    {
+        return "{$globalX, $globalY, $globalZ}"
+    }
+
+    fun toLocalString(): String
+    {
+        return "{$localX, $localY, $localZ}"
+    }
+
     companion object
 }

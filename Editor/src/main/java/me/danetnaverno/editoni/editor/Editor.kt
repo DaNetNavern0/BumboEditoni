@@ -1,12 +1,15 @@
 package me.danetnaverno.editoni.editor
 
 import com.jogamp.opengl.glu.GLU
-import me.danetnaverno.editoni.common.blockrender.BlockRendererDictionary
+import me.danetnaverno.editoni.common.ResourceLocation
+import me.danetnaverno.editoni.common.blockrender.BlockRendererCube
 import me.danetnaverno.editoni.common.world.Block
 import me.danetnaverno.editoni.common.world.Entity
 import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO
+import me.danetnaverno.editoni.editor.operations.DeleteBlocksOperation
 import me.danetnaverno.editoni.editor.operations.Operations
+import me.danetnaverno.editoni.texture.Texture
 import me.danetnaverno.editoni.util.Camera
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.EntityLocation
@@ -61,17 +64,12 @@ object Editor : AbstractEditor()
         GL11.glRotated(Camera.yaw.toDouble(), 0.0, -1.0, 0.0)
         GL11.glTranslated(-Camera.x.toDouble(), -Camera.y.toDouble(), -Camera.z.toDouble())
 
-        Editor.currentWorld.worldRenderer.render()
-
         val block = Editor.selectedBlock
         if (block != null)
         {
-            GL11.glDisable(GL11.GL_DEPTH_TEST)
-            GL11.glDisable(GL11.GL_TEXTURE_2D)
-            GL11.glColor4f(1f, 1f, 0f, 0.7f)
-            BlockRendererDictionary.ERROR.draw(block.chunk.world, block.location)
-            GL11.glColor3f(1f, 1f, 1f)
+            BlockRendererCube(Texture[ResourceLocation("common:select")]).draw(block.chunk.world, block.location)
         }
+        Editor.currentWorld.worldRenderer.render()
 
         controls()
     }
@@ -114,7 +112,7 @@ object Editor : AbstractEditor()
             {
                 val block = selectedBlock
                 if (block != null)
-                    hiddenBlocks.add(block)
+                    hiddenBlocks.add(block.location)
             }
         }
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_DELETE))
@@ -122,10 +120,8 @@ object Editor : AbstractEditor()
             val block = selectedBlock
             if (block != null)
             {
-                //val air = MinecraftBlock(block.chunk, block.localPos, BlockType.airType, block.state, block.tileEntity)
-                //val operation = SetBlocksOperation(listOf(air))
-                //Operations.apply(operation)
-                //todo delete opration
+                val operation = DeleteBlocksOperation(listOf(block))
+                Operations.apply(operation)
             }
         }
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_S) && InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_CONTROL))
@@ -141,7 +137,7 @@ object Editor : AbstractEditor()
     {
         val raycast = raycast(x, y)
         val entity = findEntity(EntityLocation(raycast.x, raycast.y, raycast.z))
-        if (entity!=null)
+        if (entity != null)
             selectEntity(entity)
         else
             selectBlock(findBlock(raycast(x, y)))
@@ -166,14 +162,14 @@ object Editor : AbstractEditor()
         return Vector3d(output.get(0).toDouble(), output.get(1).toDouble(), output.get(2).toDouble())
     }
 
-    fun getHiddenBlocks(): List<Block>
+    fun getHiddenBlocks(): List<BlockLocation>
     {
         return hiddenBlocks.toList()
     }
 
     private fun findEntity(location: EntityLocation): Entity?
     {
-        return currentWorld.getEntitiesAt(location, 1f).firstOrNull()
+        return currentWorld.getEntitiesAt(location.add(0.0, -0.5, 0.0), 1f).firstOrNull()
     }
 
     private fun findBlock(point: Vector3d): Block?
@@ -192,7 +188,7 @@ object Editor : AbstractEditor()
                     if (distance < min)
                     {
                         val block = currentWorld.getBlockAt(BlockLocation(x, y, z))
-                        if (block != null && !isHidden(block) && !getHiddenBlocks().contains(block))
+                        if (block != null && !isHidden(block))
                         {
                             closest = block
                             min = distance
@@ -218,6 +214,6 @@ object Editor : AbstractEditor()
 
     private fun isHidden(block: Block): Boolean
     {
-        return block.type.id.path.contains("air") || hiddenBlocks.contains(block) //todo magic value
+        return block.type.id.path.contains("air") || hiddenBlocks.contains(block.location) //todo magic value
     }
 }

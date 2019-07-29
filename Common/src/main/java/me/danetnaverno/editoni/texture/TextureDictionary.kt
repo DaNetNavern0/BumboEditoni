@@ -14,7 +14,7 @@ object TextureDictionary
     {
         var texture = textures[name]
         if (texture != null)
-            logger.warn("Texture '$name' has been re-provided!")
+            return texture
 
         texture = try
         {

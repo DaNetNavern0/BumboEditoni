@@ -11,5 +11,8 @@
 	"gui.block_info.location.global": "Global: x: {0}, y: {1}, z:{2}",
 	"gui.block_info.location.local": "Chunk: x: {0}, y: {1}, z:{2}",
 
-	"gui.world.label": "World:"
+	"gui.world.label": "World:",
+	
+	"operation.set": "Set: {0} to {1}",
+	"operation.delete": "Delete: {0} to {1}"
 }

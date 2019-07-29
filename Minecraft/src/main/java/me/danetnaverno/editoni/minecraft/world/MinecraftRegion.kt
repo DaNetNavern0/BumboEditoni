@@ -6,7 +6,6 @@ import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
 import java.nio.file.Path
 import java.util.*
-import kotlin.collections.ArrayList
 
 class MinecraftRegion(@JvmField val world: MinecraftWorld, @JvmField val regionFile: Path, @JvmField val location: RegionLocation)
 {
@@ -25,13 +24,13 @@ class MinecraftRegion(@JvmField val world: MinecraftWorld, @JvmField val regionF
 
     fun getLoadedChunks(): Collection<MinecraftChunk>
     {
-        return ArrayList(chunks.values)
+        return chunks.values.toList()
     }
 
     fun getChunks(): Collection<MinecraftChunk>
     {
         loadAllChunks()
-        return ArrayList(chunks.values)
+        return chunks.values.toList()
     }
 
     fun getChunkIfLoaded(location: ChunkLocation): MinecraftChunk?

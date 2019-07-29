@@ -1,5 +1,7 @@
 package me.danetnaverno.editoni.minecraft.world;
 
+import me.danetnaverno.editoni.common.ResourceLocation;
+import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
 import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.world.*;
 import me.danetnaverno.editoni.common.world.io.IWorldIOProvider;
@@ -9,7 +11,9 @@ import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 import me.danetnaverno.editoni.util.location.EntityLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,11 +22,19 @@ public class MinecraftWorld extends World
     public final String version;
     private final Map<RegionLocation, MinecraftRegion> regions = new HashMap<>();
 
-    public MinecraftWorld(String version, IWorldIOProvider worldIOProvider)
+    public MinecraftWorld(String version, IWorldIOProvider worldIOProvider, Path path)
     {
         this.version = version;
         this.worldRenderer = new MinecraftWorldRenderer(this);
         this.worldIOProvider = worldIOProvider;
+        this.path = path;
+    }
+
+    @Nullable
+    @Override
+    public String getName()
+    {
+        return path.getFileName().toString() + " (" + version + ")";
     }
 
     @Override
@@ -66,10 +78,7 @@ public class MinecraftWorld extends World
         Chunk chunk = getChunk(location.toChunkLocation());
         if (chunk==null)
             return null;
-        BlockType type = getBlockTypeAt(location);
-        if (type==null)
-            return null;
-        return new MinecraftBlock(chunk, location, type);
+        return chunk.getBlockAt(location);
     }
 
     @Override
@@ -131,6 +140,13 @@ public class MinecraftWorld extends World
     {
         Chunk chunk = getChunk(block.getLocation().toChunkLocation());
         chunk.setBlock(block);
+    }
+
+    @NotNull
+    @Override
+    public BlockType getAirType()
+    {
+        return BlockDictionary.getBlockType(new ResourceLocation("minecraft:air"));
     }
 
     public Collection<MinecraftRegion> getRegions()
