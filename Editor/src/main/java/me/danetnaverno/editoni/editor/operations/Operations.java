@@ -1,36 +1,52 @@
 package me.danetnaverno.editoni.editor.operations;
 
-import me.danetnaverno.editoni.editor.Editor;
+import me.danetnaverno.editoni.common.world.World;
 import me.danetnaverno.editoni.editor.EditorGUI;
 import me.danetnaverno.editoni.util.Translation;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Operations
 {
-    private static List<Operation> operations = new ArrayList<>();
-    private static int position = 0;
+    private static Map<World, Operations> operationManagers = new HashMap<>();
 
-    static
+    private List<Operation> operationList = new ArrayList<>();
+    private int position = 0;
+    private World world;
+
+    public static Operations get(World world)
     {
-        operations.add(new BlankOperation());
+        return operationManagers.computeIfAbsent(world, it -> new Operations(world));
     }
 
-    public static void apply(Operation operation)
+    private static void createOperations(World world)
     {
-        if (position == operations.size() - 1)
+        if (!operationManagers.containsKey(world))
+            operationManagers.put(world, new Operations(world));
+    }
+
+    private Operations(World world)
+    {
+        this.world = world;
+    }
+
+    public void apply(Operation operation)
+    {
+        if (position >= operationList.size() - 1)
         {
-            operations.add(operation);
-            position = operations.size() - 1;
+            operationList.add(operation);
+            position = operationList.size() - 1;
             operation.apply();
-            Editor.INSTANCE.currentWorld.worldRenderer.refreshRenderCache();
+            world.worldRenderer.refreshRenderCache();
         }
         else
         {
             int dialogButton = JOptionPane.showConfirmDialog(null,
-                    Translation.INSTANCE.translate("operation.confirm_forced_operation", operations.size() - position),
+                    Translation.INSTANCE.translate("operation.confirm_forced_operation", operationList.size() - position),
                     "", JOptionPane.YES_NO_OPTION);
             if (dialogButton == JOptionPane.YES_OPTION)
                 applyForced(operation);
@@ -41,52 +57,53 @@ public class Operations
     /**
      * Erases all operations after selected position and applies the operation
      */
-    public static void applyForced(Operation operation)
+    public void applyForced(Operation operation)
     {
-        operations.subList(position, operations.size()).clear();
-        operations.add(operation);
-        position = operations.size() - 1;
+        operationList.subList(position, operationList.size()).clear();
+        operationList.add(operation);
+        position = operationList.size() - 1;
     }
 
-    public static List<Operation> getOperations()
+    public List<Operation> getAll()
     {
-        return new ArrayList<>(operations);
+        return new ArrayList<>(operationList);
     }
 
-    public static Operation getOperation(int i)
+    public Operation getOperation(int i)
     {
-        return operations.get(i);
+        return operationList.get(i);
     }
 
-    public static void moveBack()
+    public void moveBack()
     {
         setPosition(position--);
     }
 
-    public static void moveForward()
+    public void moveForward()
     {
         setPosition(position++);
     }
 
-    public static int getPosition()
+    public int getPosition()
     {
         return position;
     }
 
-    public static void setPosition(int newPosition)
+    public void setPosition(int newPosition)
     {
-        newPosition = Math.max(0, Math.min(newPosition, operations.size() - 1));
+        newPosition = Math.max(0, Math.min(newPosition, operationList.size() - 1));
         if (newPosition < position)
         {
             for (int i = position; i > newPosition; i--)
-                operations.get(i).rollback();
+                operationList.get(i).rollback();
+            operationList.get(newPosition).apply();
         }
         else
         {
             for (int i = position + 1; i <= newPosition; i++)
-                operations.get(i).apply();
+                operationList.get(i).apply();
         }
-        Editor.INSTANCE.currentWorld.worldRenderer.refreshRenderCache();
+        world.worldRenderer.refreshRenderCache();
         position = newPosition;
     }
 }

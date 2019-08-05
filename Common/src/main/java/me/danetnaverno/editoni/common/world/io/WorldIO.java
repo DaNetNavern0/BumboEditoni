@@ -6,17 +6,18 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class WorldIO
 {
     private static List<IWorldIOProvider> providers = new ArrayList<>();
 
-    public static World readWorld(@NotNull Path path) throws IOException
+    public static Collection<World> readWorlds(@NotNull Path path) throws IOException
     {
         for (IWorldIOProvider provider : providers)
             if (provider.isAppropriateToRead(path))
-                return provider.readWorld(path);
+                return provider.readWorlds(path);
         throw new IllegalArgumentException("World Provider not found for folder or file '"+path+"'");
     }
 

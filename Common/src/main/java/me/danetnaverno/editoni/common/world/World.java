@@ -17,8 +17,11 @@ public abstract class World
     public IWorldIOProvider worldIOProvider;
     protected Path path;
 
-    @Nullable
-    public abstract String getName();
+    @NotNull
+    public Path getPath()
+    {
+        return path;
+    }
 
     @Nullable
     public abstract Chunk getChunkIfLoaded(@NotNull ChunkLocation location);

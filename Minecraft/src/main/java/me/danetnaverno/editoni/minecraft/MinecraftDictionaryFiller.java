@@ -14,6 +14,7 @@ import me.danetnaverno.editoni.minecraft.blockstate.MinecraftChestBlockState;
 import me.danetnaverno.editoni.minecraft.blockstate.MinecraftLiquidState;
 import me.danetnaverno.editoni.minecraft.blockstate.MinecraftSignBlockState;
 import me.danetnaverno.editoni.minecraft.world.io.Minecraft114WorldIO;
+import me.danetnaverno.editoni.minecraft.world.io.MinecraftLevelDatIO;
 
 public class MinecraftDictionaryFiller
 {
@@ -21,6 +22,7 @@ public class MinecraftDictionaryFiller
 
     public static void init()
     {
+        WorldIO.registerProvider(new MinecraftLevelDatIO());
         WorldIO.registerProvider(new Minecraft114WorldIO());
 
         EntityRendererDictionary.register(new ResourceLocation("minecraft", "default"), EntityRendererDefault.class);

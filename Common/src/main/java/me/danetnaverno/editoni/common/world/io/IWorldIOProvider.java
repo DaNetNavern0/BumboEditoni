@@ -6,12 +6,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collection;
 
 public interface IWorldIOProvider
 {
     boolean isAppropriateToRead(@NotNull Path path);
 
-    @NotNull World readWorld(@NotNull Path path) throws IOException;
+    @NotNull
+    Collection<World> readWorlds(@NotNull Path path) throws IOException;
 
     void writeWorld(@NotNull World world, @NotNull Path path) throws IOException;
 

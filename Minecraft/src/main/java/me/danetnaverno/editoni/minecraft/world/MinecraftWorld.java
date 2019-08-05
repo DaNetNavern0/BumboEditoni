@@ -10,7 +10,6 @@ import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 import me.danetnaverno.editoni.util.location.EntityLocation;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -29,9 +28,8 @@ public class MinecraftWorld extends World
         this.path = path;
     }
 
-    @Nullable
     @Override
-    public String getName()
+    public String toString()
     {
         return path.getFileName().toString() + " (" + version + ")";
     }

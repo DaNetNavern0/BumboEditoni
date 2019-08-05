@@ -8,6 +8,7 @@ import lwjgui.scene.layout.BorderPane
 import lwjgui.scene.layout.HBox
 import lwjgui.scene.layout.Pane
 import lwjgui.scene.layout.VBox
+import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.editor.control.DynamicLabel
 import me.danetnaverno.editoni.editor.operations.Operations
 import me.danetnaverno.editoni.util.Translation
@@ -19,7 +20,7 @@ object EditorGUI
     private lateinit var root : BorderPane
     private lateinit var selectInfoBox : VBox
     private lateinit var operationHistory : ScrollPane
-    private lateinit var worldList : ComboBox<String>
+    private lateinit var worldList : ComboBox<World>
 
     fun init(window: Window): Pane
     {
@@ -32,7 +33,7 @@ object EditorGUI
         workArea.isFillToParentHeight = true
         workArea.isFillToParentWidth = true
         workArea.background = null
-        workArea.setOnMouseClicked { Editor.onMouseClick(it.mouseX.toInt(), it.mouseY.toInt()); }
+        workArea.setOnMouseClicked { EditorUserHandler.onMouseClick(it.mouseX.toInt(), it.mouseY.toInt()); }
 
         val bar = MenuBar()
         bar.minWidth = EditorApplication.WIDTH.toDouble()
@@ -45,10 +46,7 @@ object EditorGUI
             fc.fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES
             val state = fc.showOpenDialog(null)
             if (state == JFileChooser.APPROVE_OPTION)
-            {
                 Editor.currentWorld = Editor.loadWorld(fc.selectedFile.toPath())
-                EditorGUI.refreshWorldList()
-            }
         }
         file.items.add(open)
         file.items.add(MenuItem(Translation.translate("top_bar.file.save")))
@@ -72,7 +70,7 @@ object EditorGUI
 
         selectInfoBox = VBox()
         selectInfoBox.isFillToParentWidth = true
-        selectInfoBox.setOnMouseClicked { Editor.onMouseClick(it.mouseX.toInt(),it.mouseY.toInt()) }
+        selectInfoBox.setOnMouseClicked { EditorUserHandler.onMouseClick(it.mouseX.toInt(),it.mouseY.toInt()) }
         leftPanel.children.add(selectInfoBox)
 
         refreshSelectInfoLabel()
@@ -98,7 +96,10 @@ object EditorGUI
         worldList = ComboBox()
         worldList.prefWidth = EditorApplication.PANEL_WIDTH - 20
         worldList.alignment = Pos.CENTER
-        worldList.setOnAction { action -> Editor.currentWorld = Editor.getWorlds().first { it.name == worldList.value } }
+        worldList.setOnAction { action ->
+            if (Editor.currentWorld != worldList.value)
+                Editor.currentWorld = worldList.value
+        }
         rightPanel.children.add(worldList)
 
         operationHistory = ScrollPane()
@@ -212,13 +213,14 @@ object EditorGUI
 
     fun refreshOperationHistory()
     {
+        val operations = Operations.get(Editor.currentWorld)
         val ohContainer = TreeView<String>()
-        for (i in 0 until Operations.getOperations().size)
+        for (i in 0 until operations.all.size)
         {
-            val item = TreeItem(Operations.getOperation(i).displayName)
-            item.setOnMouseClicked { Operations.setPosition(i) }
+            val item = TreeItem(operations.getOperation(i).displayName)
+            item.setOnMouseClicked { operations.position = i }
             ohContainer.items.add(item)
-            if (i == Operations.getPosition())
+            if (i == operations.position)
                 ohContainer.selectItem(item)
         }
         operationHistory.content = ohContainer
@@ -261,15 +263,13 @@ object EditorGUI
 
     fun refreshWorldList()
     {
-        refreshOperationHistory()
         worldList.items.clear()
         for (world in Editor.getWorlds())
-            worldList.items.add(world.name)
-        for(i in 0 until worldList.items.size())
-        {
-            //todo
-        }
-        worldList.value = Editor.currentWorld.name
+            worldList.items.add(world)
+        worldList.value = Editor.currentWorld
+        Editor.selectArea(null)
+        Editor.selectEntity(null)
+        refreshOperationHistory()
     }
 
     fun buildTree(base: TreeBase<String>, compoundTag: CompoundTag?)

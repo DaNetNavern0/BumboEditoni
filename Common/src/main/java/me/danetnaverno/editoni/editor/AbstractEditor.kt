@@ -7,9 +7,10 @@ import java.nio.file.Path
 
 abstract class AbstractEditor
 {
-    lateinit var currentWorld: World
     protected val worlds = mutableMapOf<Path, World>()
-    protected val hiddenBlocks = mutableSetOf<BlockLocation>()
+    val hiddenBlocks = mutableSetOf<BlockLocation>()
+
+    abstract var currentWorld: World
 
     var selectedArea: BlockArea? = null
         protected set

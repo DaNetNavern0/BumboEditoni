@@ -9,20 +9,18 @@ import me.danetnaverno.editoni.common.world.*;
 import me.danetnaverno.editoni.minecraft.util.location.LocationUtilsKt;
 import me.danetnaverno.editoni.minecraft.util.location.RegionLocation;
 import me.danetnaverno.editoni.minecraft.world.*;
+import me.danetnaverno.editoni.util.RobertoGarbagio;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 import me.danetnaverno.editoni.util.location.EntityLocation;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.DoubleTag;
 import net.querz.nbt.ListTag;
-import net.querz.nbt.NBTUtil;
 import net.querz.nbt.mca.Chunk;
 import net.querz.nbt.mca.MCAFile;
 import net.querz.nbt.mca.MCAUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.querz.nbt.mca.Section;
 import org.jetbrains.annotations.NotNull;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,10 +29,10 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
 {
-    private static Logger logger = LogManager.getLogger("Minecraft114WorldIO");
     private static Pattern mcaRegex = Pattern.compile("r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca");
 
     @Override
@@ -42,21 +40,34 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     {
         try
         {
-            if (path.getFileName().toString().equalsIgnoreCase("level.dat"))
-                path = path.getParent();
-
             if (!Files.isDirectory(path))
                 return false;
 
-            Path levelDatFile = path.resolve("level.dat");
-            if (Files.exists(levelDatFile))
-            {
-                CompoundTag levelDat = (CompoundTag) NBTUtil.readTag(levelDatFile.toFile());
-                String versionName = levelDat.getCompoundTag("Data").getCompoundTag("Version").getString("Name");
+            int[] minVersion = { Integer.MAX_VALUE };
+            int[] maxVersion = { 0 };
 
-                if (Integer.parseInt(versionName.split("\\.")[1]) >= 14)
-                    return true;
-            }
+            Files.list(path).forEach( it-> {
+                try
+                {
+                    MCAFile mcaFile = MCAUtil.readMCAFile(it.toFile());
+                    for (int i = 0; i < 1024; i++)
+                    {
+                        Chunk chunk = mcaFile.getChunk(i);
+                        if (chunk != null)
+                        {
+                            if (chunk.getDataVersion() < minVersion[0])
+                                minVersion[0] = chunk.getDataVersion();
+                            if (chunk.getDataVersion() > maxVersion[0])
+                                maxVersion[0] = chunk.getDataVersion();
+                        }
+                    }
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            });
+            return maxVersion[0] > 1947; //1.14 pre-1.
         }
         catch (Exception ignored)
         {
@@ -65,16 +76,13 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     }
 
     @Override
-    public World readWorld(@NotNull Path path) throws IOException
+    public Collection<World> readWorlds(@NotNull Path path) throws IOException
     {
         if (path.getFileName().toString().equalsIgnoreCase("level.dat"))
             path = path.getParent();
-        CompoundTag levelDat = (CompoundTag) NBTUtil.readTag(path.resolve("level.dat").toFile());
-        String versionName = levelDat.getCompoundTag("Data").getCompoundTag("Version").getString("Name");
-        MinecraftWorld world = new MinecraftWorld(versionName, this, path);
-        Path regionFolder = path.resolve("region");
+        MinecraftWorld world = new MinecraftWorld("todo", this, path);
 
-        for (File regionFile : Objects.requireNonNull(regionFolder.toFile().listFiles()))
+        for (File regionFile : Objects.requireNonNull(path.toFile().listFiles()))
         {
             Matcher matcher = mcaRegex.matcher(regionFile.getName());
             if (matcher.matches())
@@ -84,7 +92,7 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
                 world.addRegion(readRegion(world, regionFile.toPath(), x, z));
             }
         }
-        return world;
+        return Collections.singletonList(world);
     }
 
     private static MinecraftRegion readRegion(MinecraftWorld world, Path regionFile, int x, int z)
@@ -218,29 +226,34 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
 
     private static Chunk writeChunk(@NotNull MinecraftChunk chunk)
     {
-        throw new NotImplementedException();
-        /*ListTag<CompoundTag> tileEntities = new ListTag<>(CompoundTag.class);
+        ListTag<CompoundTag> tileEntities = new ListTag<>(CompoundTag.class);
         ListTag<CompoundTag> entities = new ListTag<>(CompoundTag.class);
         Chunk mcaChunk = new Chunk(chunk.getExtras().getData());
 
         for (Entity entity : chunk.getEntities())
             entities.add(entity.getTag());
 
-        for (Block block : chunk.getBlocks())
-        {
-            CompoundTag properties = block.getState() != null ? block.getState().getTag() : null;
-            CompoundTag blockState = new CompoundTag();
-            blockState.putString("Name", block.getType().toString());
-            if (properties != null)
-                blockState.put("Properties", properties);
-            mcaChunk.setBlockStateAt(block.getLocation().globalX, block.getLocation().globalY, block.getLocation().globalZ, blockState, false);
-            mcaChunk.setEntities(entities);
-
-            CompoundTag tileEntity = block.getTileEntity() != null ? block.getTileEntity().getTag() : null;
-            if (tileEntity != null)
-                tileEntities.add(tileEntity);
-        }
+        RobertoGarbagio.logger.info("ass");
+        long now = System.currentTimeMillis();
+        for(int x = 0; x < 16; x++)
+            for(int y = 0; y < 256; y++)
+                for(int z = 0; z < 16; z++)
+                {
+                    Block block = chunk.getBlockAt(new BlockLocation(chunk, x, y, z));
+                    if (block==null)
+                        continue;
+                    CompoundTag properties = block.getState() != null ? block.getState().getTag() : null;
+                    CompoundTag blockState = new CompoundTag();
+                    blockState.putString("Name", block.getType().toString());
+                    if (properties != null)
+                        blockState.put("Properties", properties);
+                    mcaChunk.setBlockStateAt(block.getLocation().globalX, block.getLocation().globalY, block.getLocation().globalZ, blockState, false);
+                }
+        RobertoGarbagio.logger.info("ass1: "+(System.currentTimeMillis() - now));
+        mcaChunk.setEntities(entities);
+        tileEntities.addAll(chunk.getTileEntities().values().stream().map(TileEntity::getTag).collect(Collectors.toList()));
         mcaChunk.setTileEntities(tileEntities);
+        RobertoGarbagio.logger.info("ass2: "+(System.currentTimeMillis() - now));
 
         for (int i = 0; i < 16; i++)
         {
@@ -252,6 +265,6 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
             }
         }
         mcaChunk.updateHandle(chunk.renderX, chunk.renderZ);
-        return mcaChunk;*/
+        return mcaChunk;
     }
 }

@@ -32,6 +32,16 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, renderX: In
         return blockTypes.clone()
     }
 
+    fun getBlockStates(): Map<Int, BlockState?>
+    {
+        return blockStates.toMap()
+    }
+
+    fun getTileEntities(): Map<Int, TileEntity?>
+    {
+        return tileEntities.toMap()
+    }
+
     override fun getBlockAt(location: BlockLocation): Block?
     {
         require(this.location.isBlockLocationBelongs(location)) {

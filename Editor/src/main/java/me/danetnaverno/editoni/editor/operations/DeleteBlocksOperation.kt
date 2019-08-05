@@ -2,7 +2,6 @@ package me.danetnaverno.editoni.editor.operations
 
 import me.danetnaverno.editoni.common.world.Block
 import me.danetnaverno.editoni.editor.BlockArea
-import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.util.Translation
 
 class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
@@ -13,13 +12,13 @@ class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
     {
         deletedBlocks = area.mapNotNull { area.world.getBlockAt(it) }.toList()
         for (location in area)
-            Editor.currentWorld.deleteBlock(location)
+            area.world.deleteBlock(location)
     }
 
     override fun rollback()
     {
         for (deletedBlock in deletedBlocks)
-            Editor.currentWorld.setBlock(deletedBlock)
+            area.world.setBlock(deletedBlock)
     }
 
     override fun getDisplayName(): String
