@@ -25,13 +25,13 @@ public class Operations
             operations.add(operation);
             position = operations.size() - 1;
             operation.apply();
-            Editor.INSTANCE.selectBlock(null);
+            Editor.INSTANCE.currentWorld.worldRenderer.refreshRenderCache();
         }
         else
         {
-            int dialogButton = JOptionPane.YES_NO_OPTION;
-            dialogButton = JOptionPane.showConfirmDialog(null, Translation.INSTANCE.translate("operations.confirm_force"), "", dialogButton);
-
+            int dialogButton = JOptionPane.showConfirmDialog(null,
+                    Translation.INSTANCE.translate("operation.confirm_forced_operation", operations.size() - position),
+                    "", JOptionPane.YES_NO_OPTION);
             if (dialogButton == JOptionPane.YES_OPTION)
                 applyForced(operation);
         }
@@ -86,6 +86,7 @@ public class Operations
             for (int i = position + 1; i <= newPosition; i++)
                 operations.get(i).apply();
         }
+        Editor.INSTANCE.currentWorld.worldRenderer.refreshRenderCache();
         position = newPosition;
     }
 }

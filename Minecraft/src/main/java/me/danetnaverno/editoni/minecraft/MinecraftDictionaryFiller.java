@@ -3,6 +3,7 @@ package me.danetnaverno.editoni.minecraft;
 import me.danetnaverno.editoni.common.ResourceLocation;
 import me.danetnaverno.editoni.common.blockrender.*;
 import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
+import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.entitytype.EntityDictionary;
 import me.danetnaverno.editoni.common.entitytype.EntityType;
 import me.danetnaverno.editoni.common.world.BlockStateDictionary;
@@ -16,6 +17,8 @@ import me.danetnaverno.editoni.minecraft.world.io.Minecraft114WorldIO;
 
 public class MinecraftDictionaryFiller
 {
+    public static BlockType AIR;
+
     public static void init()
     {
         WorldIO.registerProvider(new Minecraft114WorldIO());
@@ -41,5 +44,7 @@ public class MinecraftDictionaryFiller
         BlockStateDictionary.register(
                 BlockDictionary.getBlockType(new ResourceLocation("minecraft:lava")),
                 MinecraftLiquidState.class);
+
+        AIR = BlockDictionary.getBlockType(new ResourceLocation("minecraft:air"));
     }
 }

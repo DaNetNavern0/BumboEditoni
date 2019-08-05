@@ -18,13 +18,15 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
         texture = Texture[ResourceLocation(data.getString("texture"))]
     }
 
-    override fun draw(world: World, location: BlockLocation)
+    override fun draw(world: World, location: BlockLocation) : Boolean
     {
         val state = world.getBlockStateAt(location)
         val height = (8 - (state as MinecraftLiquidState).level) / 8f - 0.1f
+        var isVisible = false
 
         if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
         {
+            isVisible = true
             Renderer.addObject(texture.id, floatArrayOf(location.globalX + 0.0f, location.globalY + height, location.globalZ + 0.0f,
                     location.globalX + 0.0f, location.globalY + height, location.globalZ + 1.0f,
                     location.globalX + 1.0f, location.globalY + height, location.globalZ + 1.0f,
@@ -33,6 +35,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
         if (shouldRenderSideAgainst(world, location.add(0, -1, 0)))
         {
+            isVisible = true
             Renderer.addObject(texture.id, floatArrayOf(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
                     location.globalX + 1.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
                     location.globalX + 1.0f, location.globalY + 0.0f, location.globalZ + 1.0f,
@@ -41,6 +44,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, 1)))
         {
+            isVisible = true
             Renderer.addObject(texture.id, floatArrayOf(location.globalX + 1.0f, location.globalY + height, location.globalZ + 1.0f,
                     location.globalX + 0.0f, location.globalY + height, location.globalZ + 1.0f,
                     location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 1.0f,
@@ -49,6 +53,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, -1)))
         {
+            isVisible = true
             Renderer.addObject(texture.id, floatArrayOf(location.globalX + 1.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
                     location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
                     location.globalX + 0.0f, location.globalY + height, location.globalZ + 0.0f,
@@ -57,6 +62,7 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
         if (shouldRenderSideAgainst(world, location.add(1, 0, 0)))
         {
+            isVisible = true
             Renderer.addObject(texture.id, floatArrayOf(location.globalX + 0.0f, location.globalY + height, location.globalZ + 1.0f,
                     location.globalX + 0.0f, location.globalY + height, location.globalZ + 0.0f,
                     location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f,
@@ -65,10 +71,13 @@ class BlockRendererMinecraftLiquid : BlockRenderer()
 
         if (shouldRenderSideAgainst(world, location.add(-1, 0, 0)))
         {
+            isVisible = true
             Renderer.addObject(texture.id, floatArrayOf(location.globalX + 1.0f, location.globalY + height, location.globalZ + 0.0f,
                     location.globalX + 1.0f, location.globalY + height, location.globalZ + 1.0f,
                     location.globalX + 1.0f, location.globalY + 0.0f, location.globalZ + 1.0f,
                     location.globalX + 1.0f, location.globalY + 0.0f, location.globalZ + 0.0f))
         }
+
+        return isVisible
     }
 }

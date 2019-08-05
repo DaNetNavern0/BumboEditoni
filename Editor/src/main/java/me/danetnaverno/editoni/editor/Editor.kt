@@ -2,15 +2,14 @@ package me.danetnaverno.editoni.editor
 
 import com.jogamp.opengl.glu.GLU
 import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.common.blockrender.BlockRendererCube
 import me.danetnaverno.editoni.common.world.Block
 import me.danetnaverno.editoni.common.world.Entity
 import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO
-import me.danetnaverno.editoni.editor.operations.DeleteBlocksOperation
-import me.danetnaverno.editoni.editor.operations.Operations
+import me.danetnaverno.editoni.editor.operations.*
 import me.danetnaverno.editoni.texture.Texture
 import me.danetnaverno.editoni.util.Camera
+import me.danetnaverno.editoni.util.Translation
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.EntityLocation
 import org.apache.logging.log4j.LogManager
@@ -20,23 +19,25 @@ import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 import java.nio.file.Path
-import java.nio.file.Paths
+import javax.swing.JOptionPane
 
 
 object Editor : AbstractEditor()
 {
     val logger = LogManager.getLogger("Editor")!!
 
+    var selectedCorner: BlockLocation? = null
+
     init
     {
         InputHandler.init(EditorApplication.getWindowId())
         try
         {
-            Camera.x = 0f
-            Camera.y = 80f
-            Camera.z = 0f
-            Camera.yaw = 0f
-            Camera.pitch = -20f
+            Camera.x = 0.0
+            Camera.y = 80.0
+            Camera.z = 0.0
+            Camera.yaw = 0.0
+            Camera.pitch = -20.0
         }
         catch (e: Exception)
         {
@@ -46,48 +47,122 @@ object Editor : AbstractEditor()
 
     fun loadWorld(worldPath: Path) : World
     {
-        if (!worlds.containsKey(worldPath))
+        if (Operations.getOperations().last() !is SaveOperation)
+        {
+            val lastSave = Operations.getOperations().indexOfLast { it is SaveOperation }
+            val dialogButton = JOptionPane.showConfirmDialog(null,
+                    Translation.translate("operation.confirm_unsaved", Operations.getOperations().size - lastSave), "", JOptionPane.YES_NO_CANCEL_OPTION)
+            if (dialogButton == JOptionPane.YES_OPTION)
+            {
+                Operations.setPosition(Operations.getOperations().size - 1)
+                Operations.apply(SaveOperation())
+            }
+            else if (dialogButton == JOptionPane.CANCEL_OPTION)
+                return currentWorld
+        }
+        val loadedWorld = worlds[worldPath]
+        if (loadedWorld == null)
         {
             val world = WorldIO.readWorld(worldPath)
             worlds[worldPath] = world
             return world
         }
-        else
-        {
-            throw NotImplementedError() //todo
-        }
+        return loadedWorld
     }
 
     fun displayLoop()
     {
-        GL11.glRotated(Camera.pitch.toDouble(), -1.0, 0.0, 0.0)
-        GL11.glRotated(Camera.yaw.toDouble(), 0.0, -1.0, 0.0)
-        GL11.glTranslated(-Camera.x.toDouble(), -Camera.y.toDouble(), -Camera.z.toDouble())
+        GL11.glRotated(Camera.pitch, -1.0, 0.0, 0.0)
+        GL11.glRotated(Camera.yaw, 0.0, -1.0, 0.0)
+        GL11.glTranslated(-Camera.x, -Camera.y, -Camera.z)
 
-        val block = Editor.selectedBlock
-        if (block != null)
-        {
-            BlockRendererCube(Texture[ResourceLocation("common:select")]).draw(block.chunk.world, block.location)
-        }
-        Editor.currentWorld.worldRenderer.render()
+        currentWorld.worldRenderer.render()
 
         controls()
+
+        val area = selectedArea
+        if (area != null)
+            renderSelection(area)
+        val corner = selectedCorner
+        if (corner != null)
+        {
+            val mouse = InputHandler.getMouseCoords()
+            val secondCorner = findBlock(raycast(mouse.key.toInt(), mouse.value.toInt()))?.location
+            if (secondCorner != null)
+                renderSelection(BlockArea(currentWorld, corner, secondCorner))
+        }
+    }
+
+    private fun renderSelection(area: BlockArea)
+    {
+        Texture[ResourceLocation("common:select")].bind()
+
+        val min = EntityLocation(area.min.globalX - 0.01, area.min.globalY - 0.01, area.min.globalZ - 0.01)
+        val max = EntityLocation(area.max.globalX + 1.01, area.max.globalY + 1.01, area.max.globalZ + 1.01)
+
+        //GL11.glDisable(GL11.GL_CULL_FACE)
+        GL11.glBegin(GL11.GL_QUADS)
+        GL11.glVertex3d(max.globalX, min.globalY, min.globalZ)
+        GL11.glVertex3d(max.globalX, min.globalY, max.globalZ)
+        GL11.glVertex3d(min.globalX, min.globalY, max.globalZ)
+        GL11.glVertex3d(min.globalX, min.globalY, min.globalZ)
+
+        GL11.glVertex3d(min.globalX, max.globalY, min.globalZ)
+        GL11.glVertex3d(min.globalX, max.globalY, max.globalZ)
+        GL11.glVertex3d(max.globalX, max.globalY, max.globalZ)
+        GL11.glVertex3d(max.globalX, max.globalY, min.globalZ)
+
+        GL11.glVertex3d(min.globalX, min.globalY, min.globalZ)
+        GL11.glVertex3d(min.globalX, min.globalY, max.globalZ)
+        GL11.glVertex3d(min.globalX, max.globalY, max.globalZ)
+        GL11.glVertex3d(min.globalX, max.globalY, min.globalZ)
+
+        GL11.glVertex3d(min.globalX, max.globalY, min.globalZ)
+        GL11.glVertex3d(max.globalX, max.globalY, min.globalZ)
+        GL11.glVertex3d(max.globalX, min.globalY, min.globalZ)
+        GL11.glVertex3d(min.globalX, min.globalY, min.globalZ)
+
+        GL11.glVertex3d(min.globalX, min.globalY, max.globalZ)
+        GL11.glVertex3d(max.globalX, min.globalY, max.globalZ)
+        GL11.glVertex3d(max.globalX, max.globalY, max.globalZ)
+        GL11.glVertex3d(min.globalX, max.globalY, max.globalZ)
+
+        GL11.glVertex3d(max.globalX, max.globalY, min.globalZ)
+        GL11.glVertex3d(max.globalX, max.globalY, max.globalZ)
+        GL11.glVertex3d(max.globalX, min.globalY, max.globalZ)
+        GL11.glVertex3d(max.globalX, min.globalY, min.globalZ)
+
+        GL11.glEnd()
     }
 
     fun controls()
     {
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_A))
-            Camera.x -= 0.2f
-        if (InputHandler.keyDown(GLFW.GLFW_KEY_D))
-            Camera.x += 0.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_W))
-            Camera.z -= 0.2f
+        {
+            Camera.x -= 20.0 / EditorApplication.fps * Math.sin(Math.toRadians(Camera.yaw)) * Math.cos(Math.toRadians(Camera.pitch))
+            Camera.y += 20.0 / EditorApplication.fps * Math.sin(Math.toRadians(Camera.pitch))
+            Camera.z -= 20.0 / EditorApplication.fps * Math.cos(Math.toRadians(Camera.yaw)) * Math.cos(Math.toRadians(Camera.pitch))
+        }
         if (InputHandler.keyDown(GLFW.GLFW_KEY_S))
-            Camera.z += 0.2f
+        {
+            Camera.x += 20.0 / EditorApplication.fps * Math.sin(Math.toRadians(Camera.yaw)) * Math.cos(Math.toRadians(Camera.pitch))
+            Camera.y -= 20.0 / EditorApplication.fps * Math.sin(Math.toRadians(Camera.pitch))
+            Camera.z += 20.0 / EditorApplication.fps * Math.cos(Math.toRadians(Camera.yaw)) * Math.cos(Math.toRadians(Camera.pitch))
+        }
+        if (InputHandler.keyDown(GLFW.GLFW_KEY_A))
+        {
+            Camera.x -= 20.0 / EditorApplication.fps * Math.cos(Math.toRadians(Camera.yaw))
+            Camera.z += 20.0 / EditorApplication.fps * Math.sin(Math.toRadians(Camera.yaw))
+        }
+        if (InputHandler.keyDown(GLFW.GLFW_KEY_D))
+        {
+            Camera.x += 20.0 / EditorApplication.fps * Math.cos(Math.toRadians(Camera.yaw))
+            Camera.z -= 20.0 / EditorApplication.fps * Math.sin(Math.toRadians(Camera.yaw))
+        }
         if (InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_SHIFT))
-            Camera.y -= 0.2f
+            Camera.y -= 20.0 / EditorApplication.fps
         if (InputHandler.keyDown(GLFW.GLFW_KEY_SPACE))
-            Camera.y += 0.2f
+            Camera.y += 20.0 / EditorApplication.fps
         if (InputHandler.keyDown(GLFW.GLFW_KEY_1))
             Camera.yaw += 4.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_2))
@@ -110,24 +185,23 @@ object Editor : AbstractEditor()
                 hiddenBlocks.clear()
             else
             {
-                val block = selectedBlock
-                if (block != null)
-                    hiddenBlocks.add(block.location)
+                val area = selectedArea
+                if (area != null)
+                    hiddenBlocks.addAll(area)
             }
         }
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_DELETE))
         {
-            val block = selectedBlock
-            if (block != null)
+            val area = selectedArea
+            if (area != null)
             {
-                val operation = DeleteBlocksOperation(listOf(block))
+                val operation = DeleteBlocksOperation(area)
                 Operations.apply(operation)
             }
         }
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_S) && InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_CONTROL))
         {
-            WorldIO.writeWorld(currentWorld, Paths.get("data/output"))
-            logger.info("Saved!")
+            Operations.apply(SaveOperation())
         }
 
         InputHandler.update()
@@ -138,9 +212,18 @@ object Editor : AbstractEditor()
         val raycast = raycast(x, y)
         val entity = findEntity(EntityLocation(raycast.x, raycast.y, raycast.z))
         if (entity != null)
-            selectEntity(entity)
+            Operations.apply(SelectEntityOperation(entity))
         else
-            selectBlock(findBlock(raycast(x, y)))
+        {
+            if (selectedCorner==null)
+                selectedCorner = findBlock(raycast(x, y))?.location
+            else
+            {
+                val secondCorner = findBlock(raycast(x, y))
+                if (secondCorner != null)
+                    Operations.apply(SelectAreaOperation(BlockArea(currentWorld, secondCorner.location, selectedCorner!!)))
+            }
+        }
     }
 
     fun raycast(screenX: Int, screenY: Int): Vector3d
@@ -198,18 +281,20 @@ object Editor : AbstractEditor()
         return closest
     }
 
-    private fun selectEntity(entity: Entity)
+    fun selectEntity(entity: Entity?)
     {
-        selectedBlock = null
+        selectedArea = null
         selectedEntity = entity
-        EditorGUI.refreshBlockInfoLabel()
+        selectedCorner = null
+        EditorGUI.refreshSelectInfoLabel()
     }
 
-    fun selectBlock(block: Block?)
+    fun selectArea(area: BlockArea?)
     {
         selectedEntity = null
-        selectedBlock = block
-        EditorGUI.refreshBlockInfoLabel()
+        selectedArea = area
+        selectedCorner = null
+        EditorGUI.refreshSelectInfoLabel()
     }
 
     private fun isHidden(block: Block): Boolean

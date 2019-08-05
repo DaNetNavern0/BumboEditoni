@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.editor;
 
+import javafx.util.Pair;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
@@ -19,6 +20,7 @@ public final class InputHandler
     private static long mouseDoubleClickPeriodNS = 1000000000 / 5; //5th of a second for double click.
 
     private static int NO_STATE = -1;
+    private static long windowId;
 
     protected static GLFWKeyCallback keyboard = new GLFWKeyCallback()
     {
@@ -45,6 +47,7 @@ public final class InputHandler
         resetKeyboard();
         resetMouse();
         glfwSetKeyCallback(window, keyboard);
+        windowId = window;
         //glfwSetMouseButtonCallback(window, mouse);
     }
 
@@ -124,5 +127,13 @@ public final class InputHandler
             return true;
         }
         return false;
+    }
+
+    public static Pair<Double,Double> getMouseCoords()
+    {
+        double[] posX = new double[1];
+        double[] posY = new double[1];
+        glfwGetCursorPos(windowId, posX, posY);
+        return new Pair<>(posX[0], posY[0]);
     }
 }

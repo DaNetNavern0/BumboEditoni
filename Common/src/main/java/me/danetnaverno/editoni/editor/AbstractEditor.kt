@@ -1,6 +1,5 @@
 package me.danetnaverno.editoni.editor
 
-import me.danetnaverno.editoni.common.world.Block
 import me.danetnaverno.editoni.common.world.Entity
 import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.util.location.BlockLocation
@@ -12,7 +11,7 @@ abstract class AbstractEditor
     protected val worlds = mutableMapOf<Path, World>()
     protected val hiddenBlocks = mutableSetOf<BlockLocation>()
 
-    var selectedBlock: Block? = null
+    var selectedArea: BlockArea? = null
         protected set
 
     var selectedEntity: Entity? = null

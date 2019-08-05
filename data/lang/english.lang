@@ -14,5 +14,8 @@
 	"gui.world.label": "World:",
 	
 	"operation.set": "Set: {0} to {1}",
-	"operation.delete": "Delete: {0} to {1}"
+	"operation.delete": "Delete: {0} to {1}",
+	"operation.confirm_forced_operation": "You're about to overwrite {0} changes. Continue?",
+	"operation.confirm_unsaved": "You have {0} unsaved changes.",
+	"operation.loaded": "Loaded"
 }

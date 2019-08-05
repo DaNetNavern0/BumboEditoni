@@ -1,8 +1,8 @@
 {
 	renderer: {
 		type: "minecraft:cube",
-		"top": "minecraft:sandstone_top",
-		"side": "minecraft:sandstone",
-        "bottom": "minecraft:sandstone_bottom"
+		top: "minecraft:sandstone_top",
+		side: "minecraft:sandstone",
+        bottom: "minecraft:sandstone_bottom"
 	}
 }

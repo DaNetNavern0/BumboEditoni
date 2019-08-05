@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.minecraft.world
 
+import me.danetnaverno.editoni.common.world.Chunk
 import me.danetnaverno.editoni.minecraft.util.location.RegionLocation
 import me.danetnaverno.editoni.minecraft.world.io.IMinecraftWorldIOProvider
 import me.danetnaverno.editoni.util.location.BlockLocation
@@ -52,5 +53,17 @@ class MinecraftRegion(@JvmField val world: MinecraftWorld, @JvmField val regionF
     fun setChunk(chunk: MinecraftChunk)
     {
         chunks[chunk.location] = chunk
+    }
+
+    fun unload()
+    {
+        chunks.clear()
+    }
+
+    fun createEmptyChunk(location: ChunkLocation): Chunk
+    {
+        //val chunk = MinecraftChunk(world, location, renderX, renderZ, MCAExtraInfo114(data), entities)
+        //todo
+        throw NotImplementedError()
     }
 }

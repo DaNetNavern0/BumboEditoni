@@ -75,7 +75,7 @@ object EditorGUI
         selectInfoBox.setOnMouseClicked { Editor.onMouseClick(it.mouseX.toInt(),it.mouseY.toInt()) }
         leftPanel.children.add(selectInfoBox)
 
-        refreshBlockInfoLabel()
+        refreshSelectInfoLabel()
 
         val statusBar = HBox()
         statusBar.alignment = Pos.TOP_LEFT
@@ -95,12 +95,15 @@ object EditorGUI
 
         rightPanel.children.add(Label(Translation.translate("gui.world.label", EditorApplication.fps)))
 
-        worldList = ComboBox("")
+        worldList = ComboBox()
         worldList.prefWidth = EditorApplication.PANEL_WIDTH - 20
         worldList.alignment = Pos.CENTER
+        worldList.setOnAction { action -> Editor.currentWorld = Editor.getWorlds().first { it.name == worldList.value } }
         rightPanel.children.add(worldList)
 
         operationHistory = ScrollPane()
+        operationHistory.padding = Insets(5.0)
+        operationHistory.prefHeight = 500.0
         operationHistory.isFillToParentWidth = true
         rightPanel.children.add(operationHistory)
 
@@ -108,16 +111,30 @@ object EditorGUI
     }
 
     //Buttons don't update for some reason, had to re-create the entire UI section
-    fun refreshBlockInfoLabel()
+    fun refreshSelectInfoLabel()
     {
+        selectInfoBox.children.clear()
+
         if (Editor.selectedEntity !=null)
         {
             refreshEntityInfoLabel()
             return
         }
-        val selectedBlock = Editor.selectedBlock
+        val selectedArea = Editor.selectedArea
+        if (selectedArea!=null)
+        {
+            if (selectedArea.min != selectedArea.max)
+            {
+                refreshAreaInfoLabel()
+                return
+            }
+        }
+        refreshBlockInfoLabel()
+    }
 
-        selectInfoBox.children.clear()
+    fun refreshBlockInfoLabel()
+    {
+        val selectedBlock = Editor.selectedArea?.world?.getBlockAt(Editor.selectedArea!!.min)
 
         val blockInfoLabel = Label(Translation.translate("gui.block_info.type", selectedBlock?.type ?: "-"))
         blockInfoLabel.isFillToParentWidth = true
@@ -146,6 +163,30 @@ object EditorGUI
         selectInfoBox.children.add(blockChunkLocLabel)
         selectInfoBox.children.add(blockStatePane)
         selectInfoBox.children.add(tileEntityPane)
+    }
+
+    fun refreshAreaInfoLabel()
+    {
+        val selectedArea = Editor.selectedArea!!
+
+        val blockInfoLabel = Label(Translation.translate("gui.block_info.type", "Area"))
+        blockInfoLabel.isFillToParentWidth = true
+        blockInfoLabel.alignment = Pos.TOP_LEFT
+
+        val minLabel = Label(Translation.translate("gui.block_info.location.local", selectedArea.min.globalX, selectedArea.min.globalY, selectedArea.min.globalZ))
+        val maxLabel = Label(Translation.translate("gui.block_info.location.local", selectedArea.max.globalX, selectedArea.max.globalY, selectedArea.max.globalZ))
+
+        minLabel.isFillToParentWidth = true
+        minLabel.alignment = Pos.TOP_LEFT
+        maxLabel.isFillToParentWidth = true
+        maxLabel.alignment = Pos.TOP_LEFT
+
+        val tagPane = buildPane(CompoundTag(), EditorApplication.PANEL_WIDTH)
+
+        selectInfoBox.children.add(blockInfoLabel)
+        selectInfoBox.children.add(minLabel)
+        selectInfoBox.children.add(maxLabel)
+        selectInfoBox.children.add(tagPane)
     }
 
     fun refreshEntityInfoLabel()
@@ -177,6 +218,8 @@ object EditorGUI
             val item = TreeItem(Operations.getOperation(i).displayName)
             item.setOnMouseClicked { Operations.setPosition(i) }
             ohContainer.items.add(item)
+            if (i == Operations.getPosition())
+                ohContainer.selectItem(item)
         }
         operationHistory.content = ohContainer
     }
@@ -218,9 +261,14 @@ object EditorGUI
 
     fun refreshWorldList()
     {
+        refreshOperationHistory()
         worldList.items.clear()
         for (world in Editor.getWorlds())
             worldList.items.add(world.name)
+        for(i in 0 until worldList.items.size())
+        {
+            //todo
+        }
         worldList.value = Editor.currentWorld.name
     }
 

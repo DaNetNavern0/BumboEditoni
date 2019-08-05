@@ -12,4 +12,6 @@ public abstract class WorldRenderer
     }
 
     public abstract void render();
+
+    public abstract void refreshRenderCache();
 }

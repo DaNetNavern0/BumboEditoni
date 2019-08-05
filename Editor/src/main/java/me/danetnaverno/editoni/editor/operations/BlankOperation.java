@@ -1,6 +1,8 @@
 package me.danetnaverno.editoni.editor.operations;
 
-public class BlankOperation extends Operation
+import me.danetnaverno.editoni.util.Translation;
+
+public class BlankOperation extends SaveOperation
 {
     @Override
     public void apply()
@@ -8,13 +10,8 @@ public class BlankOperation extends Operation
     }
 
     @Override
-    public void rollback()
-    {
-    }
-
-    @Override
     public String getDisplayName()
     {
-        return "Loaded";
+        return Translation.INSTANCE.translate("operation.loaded");
     }
 }

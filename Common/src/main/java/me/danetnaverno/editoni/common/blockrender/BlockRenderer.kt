@@ -8,7 +8,7 @@ abstract class BlockRenderer
 {
     abstract fun fromJson(data: JSONObject)
 
-    abstract fun draw(world: World, location: BlockLocation)
+    abstract fun draw(world: World, location: BlockLocation) : Boolean
 
     open fun shouldRenderSideAgainst(world: World, location: BlockLocation): Boolean
     {

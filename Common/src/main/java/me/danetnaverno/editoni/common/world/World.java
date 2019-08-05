@@ -28,6 +28,7 @@ public abstract class World
 
     public abstract void loadChunkAt(@NotNull ChunkLocation chunkLocation);
 
+    @NotNull
     public abstract List<Entity> getEntitiesAt(@NotNull EntityLocation location, float radius);
 
     @Nullable
@@ -53,6 +54,5 @@ public abstract class World
 
     public abstract void setBlock(@NotNull Block block);
 
-    @NotNull
-    public abstract BlockType getAirType();
+    public abstract void deleteBlock(@NotNull BlockLocation location);
 }

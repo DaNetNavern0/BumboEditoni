@@ -10,8 +10,9 @@ class BlockRendererAir : BlockRenderer()
     {
     }
 
-    override fun draw(world: World, location: BlockLocation)
+    override fun draw(world: World, location: BlockLocation) : Boolean
     {
+        return false
     }
 
     override fun shouldRenderSideAgainst(world: World, location: BlockLocation): Boolean

@@ -1,10 +1,9 @@
 package me.danetnaverno.editoni.minecraft.world;
 
-import me.danetnaverno.editoni.common.ResourceLocation;
-import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
 import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.world.*;
 import me.danetnaverno.editoni.common.world.io.IWorldIOProvider;
+import me.danetnaverno.editoni.minecraft.MinecraftDictionaryFiller;
 import me.danetnaverno.editoni.minecraft.util.location.LocationUtilsKt;
 import me.danetnaverno.editoni.minecraft.util.location.RegionLocation;
 import me.danetnaverno.editoni.util.location.BlockLocation;
@@ -59,6 +58,11 @@ public class MinecraftWorld extends World
     public void loadChunkAt(@NotNull ChunkLocation chunkLocation)
     {
         getRegion(LocationUtilsKt.toRegionLocation(chunkLocation)).loadChunkAt(chunkLocation);
+    }
+
+    public Chunk createEmptyChunk(ChunkLocation location)
+    {
+        return getRegion(LocationUtilsKt.toRegionLocation(location)).createEmptyChunk(location);
     }
 
     @Override
@@ -139,14 +143,19 @@ public class MinecraftWorld extends World
     public void setBlock(Block block)
     {
         Chunk chunk = getChunk(block.getLocation().toChunkLocation());
+        if (chunk==null)
+        {
+
+        }
         chunk.setBlock(block);
     }
 
-    @NotNull
     @Override
-    public BlockType getAirType()
+    public void deleteBlock(@NotNull BlockLocation location)
     {
-        return BlockDictionary.getBlockType(new ResourceLocation("minecraft:air"));
+        Chunk chunk = getChunk(location.toChunkLocation());
+        if (chunk != null)
+            setBlock(new Block(chunk, location, MinecraftDictionaryFiller.AIR, null, null));
     }
 
     public Collection<MinecraftRegion> getRegions()
