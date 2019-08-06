@@ -2,7 +2,10 @@ package me.danetnaverno.editoni.editor
 
 import me.danetnaverno.editoni.common.ResourceLocation
 import me.danetnaverno.editoni.common.world.io.WorldIO
-import me.danetnaverno.editoni.editor.operations.*
+import me.danetnaverno.editoni.editor.operations.DeleteBlocksOperation
+import me.danetnaverno.editoni.editor.operations.Operations
+import me.danetnaverno.editoni.editor.operations.SelectAreaOperation
+import me.danetnaverno.editoni.editor.operations.SelectEntityOperation
 import me.danetnaverno.editoni.texture.Texture
 import me.danetnaverno.editoni.util.Camera
 import me.danetnaverno.editoni.util.location.BlockLocation
@@ -25,7 +28,7 @@ object EditorUserHandler
         {
             val mouse = InputHandler.getMouseCoords()
             val secondCorner = Editor.findBlock(Editor.currentWorld, Editor.raycast(mouse.key.toInt(), mouse.value.toInt()))?.location
-            if (secondCorner != null)
+            if (secondCorner != null && !InputHandler.mouseButtonDown(0))
                 renderSelection(BlockArea(Editor.currentWorld, corner, secondCorner))
         }
     }
@@ -128,6 +131,7 @@ object EditorUserHandler
                     Editor.hiddenBlocks.addAll(area)
             }
         }
+
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_DELETE))
         {
             val area = Editor.selectedArea
@@ -139,7 +143,7 @@ object EditorUserHandler
         }
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_S) && InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_CONTROL))
         {
-            operations.apply(SaveOperation())
+            operations.savePosition = operations.position
             WorldIO.writeWorld(Editor.currentWorld, Paths.get("data/output"))
             Editor.logger.info("Saved!")
         }

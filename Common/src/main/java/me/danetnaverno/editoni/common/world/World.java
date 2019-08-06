@@ -26,10 +26,15 @@ public abstract class World
     @Nullable
     public abstract Chunk getChunkIfLoaded(@NotNull ChunkLocation location);
 
+    @NotNull
+    public abstract List<Chunk> getLoadedChunks();
+
     @Nullable
     public abstract Chunk getChunk(@NotNull ChunkLocation location);
 
     public abstract void loadChunkAt(@NotNull ChunkLocation chunkLocation);
+
+    public abstract void unloadChunks(List<Chunk> chunksToUnload);
 
     @NotNull
     public abstract List<Entity> getEntitiesAt(@NotNull EntityLocation location, float radius);

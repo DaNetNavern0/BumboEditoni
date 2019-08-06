@@ -22,7 +22,7 @@ public class MinecraftDictionaryFiller
 
     public static void init()
     {
-        WorldIO.registerProvider(new MinecraftLevelDatIO());
+        WorldIO.registerProvider(new MinecraftLevelDatIO()); //todo from instance to class
         WorldIO.registerProvider(new Minecraft114WorldIO());
 
         EntityRendererDictionary.register(new ResourceLocation("minecraft", "default"), EntityRendererDefault.class);

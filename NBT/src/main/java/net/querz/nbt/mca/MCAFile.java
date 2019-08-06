@@ -35,6 +35,8 @@ public class MCAFile {
 	 * */
 	public void deserialize(RandomAccessFile raf) throws IOException {
 		chunks = new Chunk[1024];
+		if (raf.length() == 0)
+			return;
 		for (int i = 0; i < 1024; i++)
 		{
 			raf.seek(i * 4);

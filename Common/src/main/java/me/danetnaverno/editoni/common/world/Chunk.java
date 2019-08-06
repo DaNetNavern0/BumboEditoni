@@ -15,15 +15,11 @@ public abstract class Chunk
 {
     public final World world;
     public final ChunkLocation location;
-    public final int renderX;
-    public final int renderZ;
 
-    public Chunk(World world, ChunkLocation location, int renderX, int renderZ)
+    public Chunk(World world, ChunkLocation location)
     {
         this.world = world;
         this.location = location;
-        this.renderX = renderX;
-        this.renderZ = renderZ;
     }
 
     @NotNull

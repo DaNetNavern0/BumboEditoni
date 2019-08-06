@@ -9,6 +9,11 @@ data class ChunkLocation(@JvmField val x: Int, @JvmField val z: Int)
         return pos.globalX shr 4 == x && pos.globalZ shr 4 == z
     }
 
+    fun add(x: Int, z: Int): ChunkLocation
+    {
+        return ChunkLocation(this.x + x, this.z + z)
+    }
+
     fun distance(other: ChunkLocation): Double
     {
         return Math.sqrt(distanceSquared(other).toDouble())

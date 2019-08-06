@@ -43,6 +43,13 @@ public class MinecraftWorld extends World
         return region.getChunkIfLoaded(location);
     }
 
+    @NotNull
+    @Override
+    public List<Chunk> getLoadedChunks()
+    {
+        return regions.values().stream().flatMap(it -> it.getLoadedChunks().stream()).collect(Collectors.toList());
+    }
+
     @Override
     public Chunk getChunk(ChunkLocation location)
     {
@@ -58,9 +65,13 @@ public class MinecraftWorld extends World
         getRegion(LocationUtilsKt.toRegionLocation(chunkLocation)).loadChunkAt(chunkLocation);
     }
 
-    public Chunk createEmptyChunk(ChunkLocation location)
+    @Override
+    public void unloadChunks(List<Chunk> chunksToUnload)
     {
-        return getRegion(LocationUtilsKt.toRegionLocation(location)).createEmptyChunk(location);
+        for (Chunk chunk : chunksToUnload)
+        {
+            getRegion(LocationUtilsKt.toRegionLocation(chunk.location)).unloadChunk(chunk.location);
+        }
     }
 
     @Override

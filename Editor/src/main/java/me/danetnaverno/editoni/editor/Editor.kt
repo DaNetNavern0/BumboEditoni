@@ -61,6 +61,7 @@ object Editor : AbstractEditor()
         return loadedWorld
     }
 
+    var tick = 0;
     fun displayLoop()
     {
         GL11.glRotated(Camera.pitch, -1.0, 0.0, 0.0)
@@ -68,6 +69,13 @@ object Editor : AbstractEditor()
         GL11.glTranslated(-Camera.x, -Camera.y, -Camera.z)
 
         currentWorld.worldRenderer.render()
+
+        tick++;
+        if (tick==100)
+        {
+            tick = 0;
+            GarbageChunkCollector.unloadExcessChunks(currentWorld)
+        }
 
         EditorUserHandler.controls()
         EditorUserHandler.selections()

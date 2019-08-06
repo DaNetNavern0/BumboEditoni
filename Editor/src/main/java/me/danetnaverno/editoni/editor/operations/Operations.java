@@ -16,6 +16,7 @@ public class Operations
 
     private List<Operation> operationList = new ArrayList<>();
     private int position = 0;
+    public int savePosition = 0;
     private World world;
 
     public static Operations get(World world)

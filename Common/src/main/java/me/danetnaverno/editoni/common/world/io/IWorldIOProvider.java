@@ -17,5 +17,5 @@ public interface IWorldIOProvider
 
     void writeWorld(@NotNull World world, @NotNull Path path) throws IOException;
 
-    void loadChunk(@NotNull World world, @NotNull ChunkLocation location)  throws IOException;
+    void loadChunk(@NotNull World world, @NotNull ChunkLocation location) throws IOException;
 }

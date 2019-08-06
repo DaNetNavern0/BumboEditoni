@@ -6,6 +6,7 @@ import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.entitytype.EntityDictionary;
 import me.danetnaverno.editoni.common.entitytype.EntityType;
 import me.danetnaverno.editoni.common.world.*;
+import me.danetnaverno.editoni.minecraft.util.location.ChunkRegionOffset;
 import me.danetnaverno.editoni.minecraft.util.location.LocationUtilsKt;
 import me.danetnaverno.editoni.minecraft.util.location.RegionLocation;
 import me.danetnaverno.editoni.minecraft.world.*;
@@ -27,6 +28,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -34,6 +37,7 @@ import java.util.stream.Collectors;
 public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
 {
     private static Pattern mcaRegex = Pattern.compile("r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca");
+    private Map<Path, MCAFile> mcaCache = new HashMap<>(); //todo tmp
 
     @Override
     public boolean isAppropriateToRead(@NotNull Path path)
@@ -76,7 +80,7 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     }
 
     @Override
-    public Collection<World> readWorlds(@NotNull Path path) throws IOException
+    public Collection<World> readWorlds(@NotNull Path path)
     {
         if (path.getFileName().toString().equalsIgnoreCase("level.dat"))
             path = path.getParent();
@@ -105,41 +109,45 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     {
         MinecraftRegion region = world.getRegion(location);
         MCAFile mcaFile = MCAUtil.readMCAFile(region.regionFile.toFile());
-        for (int renderX = 0; renderX < 32; renderX++)
-            for (int renderZ = 0; renderZ < 32; renderZ++)
+        for (int offsetX = 0; offsetX < 32; offsetX++)
+            for (int offsetZ = 0; offsetZ < 32; offsetZ++)
             {
-                net.querz.nbt.mca.Chunk mcaChunk = mcaFile.getChunk(renderX, renderZ);
+                net.querz.nbt.mca.Chunk mcaChunk = mcaFile.getChunk(offsetX, offsetZ);
                 if (mcaChunk != null)
                 {
-                    MinecraftChunk chunk = readChunk(world, mcaFile.getChunk(renderX, renderZ), renderX, renderZ);
-                    region.setChunk(chunk);
-                }
-            }
-    }
-
-    @Override
-    public void loadChunk(@NotNull World world, @NotNull ChunkLocation location) throws IOException
-    {
-        MinecraftWorld mcWorld = (MinecraftWorld) world;
-        MinecraftRegion region = mcWorld.getRegion(LocationUtilsKt.toRegionLocation(location));
-        MCAFile mcaFile = MCAUtil.readMCAFile(region.regionFile.toFile());
-        for (int renderX = 0; renderX < 32; renderX++)
-            for (int renderZ = 0; renderZ < 32; renderZ++)
-            {
-                net.querz.nbt.mca.Chunk mcaChunk = mcaFile.getChunk(renderX, renderZ);
-                if (mcaChunk != null)
-                {
-                    if (location.x == mcaChunk.data.getCompoundTag("Level").getInt("xPos")
-                            && location.z == mcaChunk.data.getCompoundTag("Level").getInt("zPos"))
+                    if (region.getChunkIfLoaded(LocationUtilsKt.toChunkLocation(
+                            new ChunkRegionOffset(offsetX, offsetZ), location)) == null)
                     {
-                        region.setChunk(readChunk(mcWorld, mcaFile.getChunk(renderX, renderZ), renderX, renderZ));
-                        return;
+                        MinecraftChunk chunk = readChunk(world, mcaChunk);
+                        region.setChunk(chunk);
                     }
                 }
             }
     }
 
-    private static MinecraftChunk readChunk(MinecraftWorld world, Chunk mcaChunk, int renderX, int renderZ)
+    @Override
+    public void loadChunk(@NotNull World world, @NotNull ChunkLocation location)
+    {
+        MinecraftWorld mcWorld = (MinecraftWorld) world;
+        MinecraftRegion region = mcWorld.getRegion(LocationUtilsKt.toRegionLocation(location));
+        MCAFile mcaFile = mcaCache.computeIfAbsent(region.regionFile, it -> {
+            try
+            {
+                return MCAUtil.readMCAFile(region.regionFile.toFile());
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            return null;
+        });
+        ChunkRegionOffset offset = LocationUtilsKt.toRegionOffset(location);
+        net.querz.nbt.mca.Chunk mcaChunk = mcaFile.getChunk(offset.x, offset.z);
+        if (mcaChunk != null)
+            region.setChunk(readChunk(mcWorld, mcaChunk));
+    }
+
+    private static MinecraftChunk readChunk(MinecraftWorld world, Chunk mcaChunk)
     {
         CompoundTag data = mcaChunk.data;
         int posX = data.getCompoundTag("Level").getInt("xPos");
@@ -151,7 +159,7 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
         List<Entity> entities = new ArrayList<>();
 
         MinecraftChunk chunk = new MinecraftChunk(
-                world, new ChunkLocation(posX, posZ), renderX, renderZ,
+                world, new ChunkLocation(posX, posZ),
                 new MCAExtraInfo114(data), entities);
 
         //Entities
@@ -207,20 +215,35 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     @Override
     public void writeWorld(@NotNull World world, @NotNull Path path) throws IOException
     {
+        long now = System.currentTimeMillis();
         Path regionFolder = path.resolve("region");
         Files.createDirectories(regionFolder);
         MinecraftWorld mcWorld = (MinecraftWorld) world;
         for (MinecraftRegion region : mcWorld.getRegions())
-        {
             writeRegion(region, regionFolder.resolve("r." + region.location.x + "." + region.location.z + ".mca"));
-        }
+        RobertoGarbagio.logger.info("Saved in " + (System.currentTimeMillis() - now));
     }
 
-    private static void writeRegion(@NotNull MinecraftRegion region, @NotNull Path regionFile) throws IOException
+    private void writeRegion(@NotNull MinecraftRegion region, @NotNull Path regionFile) throws IOException
     {
         MCAFile result = new MCAFile(region.location.x, region.location.z);
-        for (MinecraftChunk chunk : region.getChunks())
-            result.setChunk(chunk.renderX, chunk.renderZ, writeChunk(chunk));
+        ForkJoinPool executor = new ForkJoinPool();
+        for (MinecraftChunk chunk : region.getAllChunks())
+        {
+            executor.execute(() -> {
+                ChunkRegionOffset offset = LocationUtilsKt.toRegionOffset(chunk.location);
+                result.setChunk(offset.x, offset.z, writeChunk(chunk));
+            });
+        }
+        try
+        {
+            executor.shutdown();
+            executor.awaitTermination(9999, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
         MCAUtil.writeMCAFile(result, regionFile.toFile());
     }
 
@@ -233,8 +256,6 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
         for (Entity entity : chunk.getEntities())
             entities.add(entity.getTag());
 
-        RobertoGarbagio.logger.info("ass");
-        long now = System.currentTimeMillis();
         for(int x = 0; x < 16; x++)
             for(int y = 0; y < 256; y++)
                 for(int z = 0; z < 16; z++)
@@ -249,11 +270,9 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
                         blockState.put("Properties", properties);
                     mcaChunk.setBlockStateAt(block.getLocation().globalX, block.getLocation().globalY, block.getLocation().globalZ, blockState, false);
                 }
-        RobertoGarbagio.logger.info("ass1: "+(System.currentTimeMillis() - now));
         mcaChunk.setEntities(entities);
         tileEntities.addAll(chunk.getTileEntities().values().stream().map(TileEntity::getTag).collect(Collectors.toList()));
         mcaChunk.setTileEntities(tileEntities);
-        RobertoGarbagio.logger.info("ass2: "+(System.currentTimeMillis() - now));
 
         for (int i = 0; i < 16; i++)
         {
@@ -264,7 +283,8 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
                 section.skyLight = null;
             }
         }
-        mcaChunk.updateHandle(chunk.renderX, chunk.renderZ);
+        ChunkRegionOffset offset = LocationUtilsKt.toRegionOffset(chunk.location);
+        mcaChunk.updateHandle(offset.x, offset.z);
         return mcaChunk;
     }
 }
