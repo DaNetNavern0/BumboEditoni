@@ -131,7 +131,7 @@ open class BlockRendererCube : BlockRenderer
         if (shouldRenderSideAgainst(world, location.add(0, 0, 1)))
         {
             isVisible = true
-            bottom.bind()
+            south.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
             GL11.glVertex3f(location.globalX + size, location.globalY + size, location.globalZ + size)
@@ -147,7 +147,7 @@ open class BlockRendererCube : BlockRenderer
         if (shouldRenderSideAgainst(world, location.add(0, 0, -1)))
         {
             isVisible = true
-            bottom.bind()
+            north.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
             GL11.glVertex3f(location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f)
@@ -163,7 +163,7 @@ open class BlockRendererCube : BlockRenderer
         if (shouldRenderSideAgainst(world, location.add(-1, 0, 0)))
         {
             isVisible = true
-            bottom.bind()
+            west.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
             GL11.glVertex3f(location.globalX + 0.0f, location.globalY + size, location.globalZ + size)
@@ -179,7 +179,7 @@ open class BlockRendererCube : BlockRenderer
         if (shouldRenderSideAgainst(world, location.add(1, 0, 0)))
         {
             isVisible = true
-            bottom.bind()
+            east.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
             GL11.glVertex3f(location.globalX + size, location.globalY + size, location.globalZ + 0.0f)

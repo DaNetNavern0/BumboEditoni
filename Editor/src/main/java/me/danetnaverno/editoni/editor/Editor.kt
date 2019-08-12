@@ -73,8 +73,8 @@ object Editor : AbstractEditor()
 
         if (lastChunkUnload < System.currentTimeMillis())
         {
-            lastChunkUnload = System.currentTimeMillis() + 10_000
             GarbageChunkCollector.unloadExcessChunks(currentWorld)
+            lastChunkUnload = System.currentTimeMillis() + 10_000
         }
 
         EditorUserHandler.selections()

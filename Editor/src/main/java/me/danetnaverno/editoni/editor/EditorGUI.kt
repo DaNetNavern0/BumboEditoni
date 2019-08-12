@@ -14,7 +14,6 @@ import me.danetnaverno.editoni.editor.control.DynamicLabel
 import me.danetnaverno.editoni.editor.operations.Operations
 import me.danetnaverno.editoni.util.Translation
 import net.querz.nbt.CompoundTag
-import java.nio.file.Paths
 import javax.swing.JFileChooser
 
 object EditorGUI
@@ -67,13 +66,6 @@ object EditorGUI
         }
         file.items.add(open)
 
-        val save = MenuItem(Translation.translate("top_bar.file.save"))
-        save.setOnAction {
-            WorldIO.writeWorld(Editor.currentWorld, Paths.get("tests/output"))
-            GarbageChunkCollector.unloadExcessChunks(Editor.currentWorld)
-        }
-        file.items.add(save)
-
         val saveAs = MenuItem(Translation.translate("top_bar.file.save_as"))
         saveAs.setOnAction {
             val fc = JFileChooser()
@@ -83,6 +75,7 @@ object EditorGUI
             {
                 WorldIO.writeWorld(Editor.currentWorld, fc.selectedFile.toPath())
                 GarbageChunkCollector.unloadExcessChunks(Editor.currentWorld)
+                Operations.get(Editor.currentWorld).savePosition = Operations.get(Editor.currentWorld).position
             }
         }
         file.items.add(saveAs)

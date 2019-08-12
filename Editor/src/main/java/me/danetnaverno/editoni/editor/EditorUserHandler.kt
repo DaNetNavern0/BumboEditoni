@@ -12,7 +12,7 @@ import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.EntityLocation
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
-import java.nio.file.Paths
+import javax.swing.JFileChooser
 
 object EditorUserHandler
 {
@@ -101,9 +101,15 @@ object EditorUserHandler
 
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_S) && InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_CONTROL))
         {
-            operations.savePosition = operations.position
-            WorldIO.writeWorld(Editor.currentWorld, Paths.get("tests/output"))
-            GarbageChunkCollector.unloadExcessChunks(Editor.currentWorld)
+            val fc = JFileChooser()
+            fc.fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES
+            val state = fc.showOpenDialog(null)
+            if (state == JFileChooser.APPROVE_OPTION)
+            {
+                WorldIO.writeWorld(Editor.currentWorld, fc.selectedFile.toPath())
+                GarbageChunkCollector.unloadExcessChunks(Editor.currentWorld)
+                operations.savePosition = operations.position
+            }
             Editor.logger.info("Saved!")
         }
 
