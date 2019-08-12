@@ -1,5 +1,5 @@
 {
-	is_opaque: false,
+	opaque: false,
 	renderer: {
 		type: "minecraft:liquid",
 		texture: "minecraft:lava",

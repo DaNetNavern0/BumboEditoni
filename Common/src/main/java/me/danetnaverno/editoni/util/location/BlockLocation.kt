@@ -19,7 +19,17 @@ data class BlockLocation(@JvmField val globalX: Int, @JvmField val globalY: Int,
         return BlockLocation(this.globalX + x, this.globalY + y, this.globalZ + z)
     }
 
-    fun toChunkLocation() : ChunkLocation
+    fun add(location: BlockLocation): BlockLocation
+    {
+        return BlockLocation(this.globalX + location.globalX, this.globalY + location.localY, this.globalZ + location.localZ)
+    }
+
+    fun subtract(location: EntityLocation): EntityLocation
+    {
+        return EntityLocation(this.globalX - location.globalX, this.globalY - location.globalY, this.globalZ - location.globalZ)
+    }
+
+    fun toChunkLocation(): ChunkLocation
     {
         return ChunkLocation(globalX shr 4, globalZ shr 4)
     }

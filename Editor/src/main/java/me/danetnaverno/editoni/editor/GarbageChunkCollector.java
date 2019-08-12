@@ -4,7 +4,6 @@ import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.common.world.World;
 import me.danetnaverno.editoni.editor.operations.Operations;
 import me.danetnaverno.editoni.util.Camera;
-import me.danetnaverno.editoni.util.RobertoGarbagio;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 
@@ -16,9 +15,10 @@ public class GarbageChunkCollector
 {
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static List<Chunk> chunksToUnload = null;
+
     public static void unloadExcessChunks(World world)
     {
-        if (chunksToUnload==null)
+        if (chunksToUnload == null)
         {
             executor.submit(() -> {
                 Operations operations = Operations.get(world);
@@ -40,9 +40,7 @@ public class GarbageChunkCollector
         }
         else
         {
-            RobertoGarbagio.logger.info("total chunks:" + world.getLoadedChunks().size());
             world.unloadChunks(chunksToUnload);
-            RobertoGarbagio.logger.info("unloaded " + chunksToUnload.size() + " chunks");
             chunksToUnload = null;
         }
     }

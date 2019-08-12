@@ -12,18 +12,12 @@ import java.nio.file.Path
 
 class MinecraftLevelDatIO : IMinecraftWorldIOProvider
 {
-    override fun isAppropriateToRead(ogPath: Path): Boolean
+    override fun isAppropriateToRead(path: Path): Boolean
     {
-        var path = ogPath
         try
         {
-            if (path.fileName.toString().equals("level.dat", ignoreCase = true))
-                path = path.parent
 
-            if (!Files.isDirectory(path))
-                return false
-
-            val levelDatFile = path.resolve("level.dat")
+            val levelDatFile = (if (path.endsWith("level.dat")) path else path.resolve("level.dat")) ?: return false
             if (Files.exists(levelDatFile))
             {
                 val levelDat = NBTUtil.readTag(levelDatFile.toFile()) as CompoundTag

@@ -5,9 +5,7 @@ import me.danetnaverno.editoni.minecraft.util.location.RegionLocation;
 import me.danetnaverno.editoni.minecraft.world.MinecraftWorld;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-
 public interface IMinecraftWorldIOProvider extends IWorldIOProvider
 {
-    void loadRegion(@NotNull MinecraftWorld world, @NotNull RegionLocation location) throws IOException;
+    void loadRegion(@NotNull MinecraftWorld world, @NotNull RegionLocation location);
 }

@@ -4,7 +4,7 @@ import org.joml.Math
 
 data class ChunkLocation(@JvmField val x: Int, @JvmField val z: Int)
 {
-    fun isBlockLocationBelongs(pos: BlockLocation) : Boolean
+    fun isBlockLocationBelongs(pos: BlockLocation): Boolean
     {
         return pos.globalX shr 4 == x && pos.globalZ shr 4 == z
     }
@@ -12,6 +12,16 @@ data class ChunkLocation(@JvmField val x: Int, @JvmField val z: Int)
     fun add(x: Int, z: Int): ChunkLocation
     {
         return ChunkLocation(this.x + x, this.z + z)
+    }
+
+    fun add(location: ChunkLocation): ChunkLocation
+    {
+        return ChunkLocation(this.x + location.x, this.z + location.z)
+    }
+
+    fun subtract(location: ChunkLocation): ChunkLocation
+    {
+        return ChunkLocation(this.x - location.x, this.z - location.z)
     }
 
     fun distance(other: ChunkLocation): Double

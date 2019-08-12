@@ -46,7 +46,7 @@ object Editor : AbstractEditor()
         }
     }
 
-    fun loadWorld(worldPath: Path) : World
+    fun loadWorld(worldPath: Path): World
     {
         val loadedWorld = worlds[worldPath]
         if (loadedWorld == null)
@@ -61,7 +61,7 @@ object Editor : AbstractEditor()
         return loadedWorld
     }
 
-    var lastChunkUnload = System.currentTimeMillis()
+    var lastChunkUnload = System.currentTimeMillis() //todo move to the proper place
 
     fun displayLoop()
     {
@@ -105,7 +105,7 @@ object Editor : AbstractEditor()
                     if (distance < min)
                     {
                         val block = world.getLoadedBlockAt(BlockLocation(x, y, z))
-                        if (block != null && !isHidden(block))
+                        if (block != null && !block.type.isHidden && !hiddenBlocks.contains(block.location))
                         {
                             closest = block
                             min = distance
@@ -153,10 +153,5 @@ object Editor : AbstractEditor()
     fun getHiddenBlocks(): List<BlockLocation>
     {
         return hiddenBlocks.toList()
-    }
-
-    private fun isHidden(block: Block): Boolean
-    {
-        return block.type.id.path.contains("air") || hiddenBlocks.contains(block.location) //todo magic value
     }
 }

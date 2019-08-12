@@ -1,5 +1,4 @@
 {
-	is_opaque: true,
 	renderer: {
 		type: "minecraft:cube",
 		top: "minecraft:grass_block_top",

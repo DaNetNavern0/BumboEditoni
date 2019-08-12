@@ -13,11 +13,15 @@ import java.util.Map;
 public class Operations
 {
     private static Map<World, Operations> operationManagers = new HashMap<>();
-
+    public int savePosition = 0;
     private List<Operation> operationList = new ArrayList<>();
     private int position = 0;
-    public int savePosition = 0;
     private World world;
+
+    private Operations(World world)
+    {
+        this.world = world;
+    }
 
     public static Operations get(World world)
     {
@@ -30,11 +34,6 @@ public class Operations
             operationManagers.put(world, new Operations(world));
     }
 
-    private Operations(World world)
-    {
-        this.world = world;
-    }
-
     public void apply(Operation operation)
     {
         if (position >= operationList.size() - 1)
@@ -42,7 +41,7 @@ public class Operations
             operationList.add(operation);
             position = operationList.size() - 1;
             operation.apply();
-            world.worldRenderer.refreshRenderCache();
+            world.getWorldRenderer().refreshRenderCache();
         }
         else
         {
@@ -104,7 +103,7 @@ public class Operations
             for (int i = position + 1; i <= newPosition; i++)
                 operationList.get(i).apply();
         }
-        world.worldRenderer.refreshRenderCache();
+        world.getWorldRenderer().refreshRenderCache();
         position = newPosition;
     }
 }

@@ -7,8 +7,7 @@ import me.danetnaverno.editoni.util.location.BlockLocation
 abstract class BlockRenderer
 {
     abstract fun fromJson(data: JSONObject)
-
-    abstract fun draw(world: World, location: BlockLocation) : Boolean
+    abstract fun draw(world: World, location: BlockLocation): Boolean
 
     open fun shouldRenderSideAgainst(world: World, location: BlockLocation): Boolean
     {

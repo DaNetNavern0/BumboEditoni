@@ -28,9 +28,9 @@ object EntityDictionary
         }
     }
 
-    fun getAllEntityTypes(): Map<ResourceLocation, EntityType>
+    fun getEntityTypes(): Map<ResourceLocation, EntityType>
     {
-        return entityTypes.toMutableMap()
+        return entityTypes.toMap()
     }
 
     @JvmStatic

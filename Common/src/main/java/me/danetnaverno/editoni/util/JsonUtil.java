@@ -50,9 +50,7 @@ public class JsonUtil
     {
         try
         {
-            return JSON.parseObject(
-                    new String(Files.readAllBytes(path), StandardCharsets.UTF_8),
-                    Feature.AllowComment);
+            return JSON.parseObject(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), Feature.AllowComment);
         }
         catch (ClassCastException notAJsonObject)
         {
@@ -64,9 +62,7 @@ public class JsonUtil
     {
         try
         {
-            return (JSONArray) JSON.parse(
-                    new String(Files.readAllBytes(path), StandardCharsets.UTF_8),
-                    Feature.AllowComment);
+            return (JSONArray) JSON.parse(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), Feature.AllowComment);
         }
         catch (ClassCastException notAJsonObject)
         {

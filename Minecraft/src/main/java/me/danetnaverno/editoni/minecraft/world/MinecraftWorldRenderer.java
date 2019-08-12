@@ -2,7 +2,6 @@ package me.danetnaverno.editoni.minecraft.world;
 
 import me.danetnaverno.editoni.common.ResourceLocation;
 import me.danetnaverno.editoni.common.blocktype.BlockType;
-import me.danetnaverno.editoni.common.renderer.Renderer;
 import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.common.world.Entity;
 import me.danetnaverno.editoni.common.world.WorldRenderer;
@@ -114,8 +113,6 @@ public class MinecraftWorldRenderer extends WorldRenderer
                 }
                 for (Entity entity : chunk.getEntities())
                     entity.getType().getRenderer().draw(entity);
-
-                Renderer.draw();
             }
         }
     }

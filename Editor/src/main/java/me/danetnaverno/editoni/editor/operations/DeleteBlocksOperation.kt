@@ -8,9 +8,9 @@ import me.danetnaverno.editoni.util.Translation
 open class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
 {
     override val displayName = Translation.translate("operation.delete", area.min, area.max)
-    override val alteredChunks : Collection<Chunk> = area.mapNotNull { area.world.getChunk(it.toChunkLocation()) }.toSet()
+    override val alteredChunks: Collection<Chunk> = area.mapNotNull { area.world.getChunk(it.toChunkLocation()) }.toSet()
 
-    protected lateinit var deletedBlocks : Collection<Block>
+    protected lateinit var deletedBlocks: Collection<Block>
 
     override fun apply()
     {

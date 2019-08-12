@@ -10,6 +10,7 @@ import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 import me.danetnaverno.editoni.util.location.EntityLocation;
 import org.jetbrains.annotations.NotNull;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -19,32 +20,41 @@ public class MinecraftWorld extends World
 {
     public final String version;
     private final Map<RegionLocation, MinecraftRegion> regions = new HashMap<>();
+    private Path path;
 
     public MinecraftWorld(String version, IWorldIOProvider worldIOProvider, Path path)
     {
         this.version = version;
-        this.worldRenderer = new MinecraftWorldRenderer(this);
-        this.worldIOProvider = worldIOProvider;
-        this.path = path;
+        this.setWorldRenderer(new MinecraftWorldRenderer(this));
+        this.setWorldIOProvider(worldIOProvider);
+        this.setPath(path);
     }
 
-    @Override
-    public String toString()
+    //======================
+    // REGIONS
+    //======================
+    public Collection<MinecraftRegion> getRegions()
     {
-        try
-        {
-            if (path.getParent().getFileName().toString().contains("DIM1"))
-                return path.getParent().getParent().getFileName()+" (End; " + version + ")";
-            if (path.getParent().getFileName().toString().contains("DIM-1"))
-                return path.getParent().getParent().getFileName()+" (Nether; " + version + ")";
-            if (path.getFileName().toString().contains("region"))
-                return path.getParent().getFileName()+" (" + version + ")";
-        }
-        catch (Exception e)
-        {
-            return path.getFileName().toString() + " (" + version + ")";
-        }
-        return path.getFileName().toString() + " (" + version + ")";
+        return new ArrayList<>(regions.values());
+    }
+
+    public MinecraftRegion getRegion(RegionLocation location)
+    {
+        return regions.get(location);
+    }
+
+    public void addRegion(MinecraftRegion region)
+    {
+        regions.put(region.location, region);
+    }
+
+    //======================
+    // CHUNKS
+    //======================
+    @Override
+    public List<Chunk> getLoadedChunks()
+    {
+        return regions.values().stream().flatMap(it -> it.getLoadedChunks().stream()).collect(Collectors.toList());
     }
 
     @Override
@@ -54,13 +64,6 @@ public class MinecraftWorld extends World
         if (region == null)
             return null;
         return region.getChunkIfLoaded(location);
-    }
-
-    @NotNull
-    @Override
-    public List<Chunk> getLoadedChunks()
-    {
-        return regions.values().stream().flatMap(it -> it.getLoadedChunks().stream()).collect(Collectors.toList());
     }
 
     @Override
@@ -79,30 +82,26 @@ public class MinecraftWorld extends World
     }
 
     @Override
-    public void unloadChunks(List<Chunk> chunksToUnload)
+    public void unloadChunks(@NotNull List<? extends Chunk> chunksToUnload)
     {
         for (Chunk chunk : chunksToUnload)
-        {
             getRegion(LocationUtilsKt.toRegionLocation(chunk.location)).unloadChunk(chunk.location);
-        }
     }
 
-    @Override
-    public List<Entity> getEntitiesAt(EntityLocation location, float radius)
+    @NotNull
+    public MinecraftChunk createChunk(@NotNull ChunkLocation location)
     {
-        Chunk chunk = getChunk(location.toChunkLocation()); //todo radius can touch multiple chunks
+        throw new NotImplementedException();
+    }
+
+    //======================
+    // BLOCKS
+    //======================
+    @Override
+    public Block getBlockAt(@NotNull BlockLocation location)
+    {
+        Chunk chunk = getChunk(location.toChunkLocation());
         if (chunk == null)
-            return null;
-        return chunk.getEntitiesAt(location, radius).stream()
-                .sorted(Comparator.comparingDouble(it -> it.getLocation().distanceSquared(location)))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Block getLoadedBlockAt(@NotNull BlockLocation location)
-    {
-        Chunk chunk = getChunkIfLoaded(location.toChunkLocation());
-        if (chunk==null)
             return null;
         return chunk.getBlockAt(location);
     }
@@ -132,6 +131,15 @@ public class MinecraftWorld extends World
         if (chunk == null)
             return null;
         return chunk.getTileEntityAt(location);
+    }
+
+    @Override
+    public Block getLoadedBlockAt(@NotNull BlockLocation location)
+    {
+        Chunk chunk = getChunkIfLoaded(location.toChunkLocation());
+        if (chunk == null)
+            return null;
+        return chunk.getBlockAt(location);
     }
 
     @Override
@@ -165,10 +173,8 @@ public class MinecraftWorld extends World
     public void setBlock(Block block)
     {
         Chunk chunk = getChunk(block.getLocation().toChunkLocation());
-        if (chunk==null)
-        {
-
-        }
+        if (chunk == null)
+            chunk = createChunk(block.getLocation().toChunkLocation());
         chunk.setBlock(block);
     }
 
@@ -177,21 +183,55 @@ public class MinecraftWorld extends World
     {
         Chunk chunk = getChunk(location.toChunkLocation());
         if (chunk != null)
-            setBlock(new Block(chunk, location, MinecraftDictionaryFiller.AIR, null, null));
+            setBlock(new MinecraftBlock(chunk, location, MinecraftDictionaryFiller.AIR, null, null));
     }
 
-    public Collection<MinecraftRegion> getRegions()
+
+    //======================
+    // ENTITIES
+    //======================
+    @Override
+    public List<Entity> getEntitiesAt(EntityLocation location, float radius)
     {
-        return new ArrayList<>(regions.values());
+        return getLoadedChunks().stream()
+                .filter(chunk -> chunk.location.distance(location.toChunkLocation()) <= 1)
+                .flatMap(chunk -> chunk.getEntitiesAt(location, radius).stream())
+                .sorted(Comparator.comparingDouble(entity -> entity.getLocation().distanceSquared(location)))
+                .collect(Collectors.toList());
     }
 
-    public MinecraftRegion getRegion(RegionLocation location)
+    //======================
+    // UTIL
+    //======================
+    @NotNull
+    @Override
+    public Path getPath()
     {
-        return regions.get(location);
+        return path;
     }
 
-    public void addRegion(MinecraftRegion region)
+    @Override
+    protected void setPath(@NotNull Path path)
     {
-        regions.put(region.location, region);
+        this.path = path;
+    }
+
+    @Override
+    public String toString()
+    {
+        try
+        {
+            if (getPath().getParent().getFileName().toString().contains("DIM1"))
+                return getPath().getParent().getParent().getFileName() + " (End; " + version + ")";
+            if (getPath().getParent().getFileName().toString().contains("DIM-1"))
+                return getPath().getParent().getParent().getFileName() + " (Nether; " + version + ")";
+            if (getPath().getFileName().toString().contains("region"))
+                return getPath().getParent().getFileName() + " (" + version + ")";
+        }
+        catch (Exception e)
+        {
+            return getPath().getFileName().toString() + " (" + version + ")";
+        }
+        return getPath().getFileName().toString() + " (" + version + ")";
     }
 }

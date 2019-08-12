@@ -141,16 +141,6 @@ object EditorUserHandler
         }
     }
 
-    fun onMouseDragged(button: Int, x: Double, y: Double)
-    {
-        /*if (pressedMouseButton == 1)
-        {
-            Camera.yaw -= x - lastMousePos.first
-            Camera.pitch -= y - lastMousePos.second
-        }
-        RobertoGarbagio.logger.info("butt:$pressedMouseButton")*/
-    }
-
     private fun renderSelection(area: BlockArea)
     {
         Texture[ResourceLocation("common:select")].bind()
@@ -184,11 +174,10 @@ object EditorUserHandler
         GL11.glVertex3d(max.globalX, max.globalY, min.globalZ)
         GL11.glEnd()
 
+        val size = max.subtract(min)
         GL11.glEnable(GL11.GL_DEPTH_TEST)
-
         GL11.glBegin(GL11.GL_QUADS)
 
-        val size = max.substract(min)
         GL11.glTexCoord2d(size.globalX, 0.0)
         GL11.glVertex3d(max.globalX, min.globalY, min.globalZ)
         GL11.glTexCoord2d(size.globalX, size.globalZ)

@@ -3,7 +3,7 @@ package me.danetnaverno.editoni.editor
 import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.util.location.BlockLocation
 
-class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation): Iterable<BlockLocation>
+class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation) : Iterable<BlockLocation>
 {
     val min: BlockLocation = BlockLocation(
             Math.min(cornerA.globalX, cornerB.globalX),
@@ -15,7 +15,7 @@ class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation
             Math.max(cornerA.globalY, cornerB.globalY),
             Math.max(cornerA.globalZ, cornerB.globalZ))
 
-    fun getLocations() : Collection<BlockLocation>
+    fun getLocations(): Collection<BlockLocation>
     {
         val result = arrayListOf<BlockLocation>()
         for (x in min.globalX..max.globalX)

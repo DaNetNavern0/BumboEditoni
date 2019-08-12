@@ -10,7 +10,7 @@ open class SetBlocksOperation(protected val blocks: Collection<Block>) : Operati
 
     override val alteredChunks: Collection<Chunk> = blocks.map { it.chunk }.toSet()
 
-    protected lateinit var replacedBlocks : Collection<Block>
+    protected lateinit var replacedBlocks: Collection<Block>
 
     init
     {

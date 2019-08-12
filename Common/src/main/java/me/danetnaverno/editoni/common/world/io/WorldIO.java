@@ -13,17 +13,18 @@ public class WorldIO
 {
     private static List<IWorldIOProvider> providers = new ArrayList<>();
 
-    public static Collection<World> readWorlds(@NotNull Path path) throws IOException
+    @NotNull
+    public static Collection<? extends World> readWorlds(@NotNull Path path) throws IOException
     {
         for (IWorldIOProvider provider : providers)
             if (provider.isAppropriateToRead(path))
                 return provider.readWorlds(path);
-        throw new IllegalArgumentException("World Provider not found for folder or file '"+path+"'");
+        throw new IllegalArgumentException("World Provider not found for folder or file '" + path + "'");
     }
 
     public static void writeWorld(@NotNull World world, @NotNull Path path) throws IOException
     {
-        world.worldIOProvider.writeWorld(world, path);
+        world.getWorldIOProvider().writeWorld(world, path);
     }
 
     public static void registerProvider(IWorldIOProvider provider)

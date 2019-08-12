@@ -7,7 +7,7 @@ import me.danetnaverno.editoni.util.location.ChunkLocation
 import net.querz.nbt.mca.MCAFile
 import java.util.*
 
-class MinecraftRegion(@JvmField val mcaFile : MCAFile, @JvmField val world: MinecraftWorld, @JvmField val location: RegionLocation)
+class MinecraftRegion(@JvmField val mcaFile: MCAFile, @JvmField val world: MinecraftWorld, @JvmField val location: RegionLocation)
 {
     private val chunks = HashMap<ChunkLocation, MinecraftChunk>()
 

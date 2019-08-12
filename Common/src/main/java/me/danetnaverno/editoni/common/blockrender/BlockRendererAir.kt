@@ -10,7 +10,7 @@ class BlockRendererAir : BlockRenderer()
     {
     }
 
-    override fun draw(world: World, location: BlockLocation) : Boolean
+    override fun draw(world: World, location: BlockLocation): Boolean
     {
         return false
     }

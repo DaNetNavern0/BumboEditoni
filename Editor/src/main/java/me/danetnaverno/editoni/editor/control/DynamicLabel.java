@@ -8,14 +8,12 @@ import me.danetnaverno.editoni.editor.Editor;
 import java.lang.reflect.Field;
 import java.util.concurrent.Callable;
 
+/**
+ * A modification of {@link Label} that refreshes its own text once in a while with a supplied callable
+ */
 public class DynamicLabel extends Label
 {
     private static Field textField;
-
-    private Callable<String> callable;
-    private int frequency;
-
-    private long nextUpdate = System.currentTimeMillis();
 
     static
     {
@@ -29,6 +27,10 @@ public class DynamicLabel extends Label
             Editor.INSTANCE.getLogger().error("Failed to access field 'text'", e);
         }
     }
+
+    private Callable<String> callable;
+    private int frequency;
+    private long nextUpdate = System.currentTimeMillis();
 
     public DynamicLabel(int frequency, Callable<String> callable)
     {

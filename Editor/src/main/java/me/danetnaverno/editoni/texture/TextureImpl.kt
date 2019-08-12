@@ -10,12 +10,12 @@ import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.Path
 
-class TextureImpl constructor(path: Path) : Texture(path)
+class TextureImpl constructor(path: Path) : Texture()
 {
+    private var _id: Int = 0
     override val id: Int
         get() = _id
 
-    private var _id: Int = 0
     var width: Int = 0
         private set
     var height: Int = 0
@@ -56,7 +56,7 @@ class TextureImpl constructor(path: Path) : Texture(path)
     }
 
     @Throws(IOException::class)
-    fun ioResourceToByteBuffer(path: Path): ByteBuffer
+    private fun ioResourceToByteBuffer(path: Path): ByteBuffer
     {
         FileInputStream(path.toFile()).channel.use { fc ->
             return fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size())

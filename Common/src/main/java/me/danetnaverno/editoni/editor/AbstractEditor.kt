@@ -25,14 +25,14 @@ abstract class AbstractEditor
         INSTANCE = this
     }
 
-    fun getWorlds() : Collection<World>
+    fun getWorlds(): Collection<World>
     {
-        return worlds.values.toList()
+        return worlds.values.toSet()
     }
 
     companion object
     {
-        lateinit var INSTANCE : AbstractEditor
+        lateinit var INSTANCE: AbstractEditor
             protected set
     }
 }

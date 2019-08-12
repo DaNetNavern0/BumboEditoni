@@ -5,4 +5,4 @@ import me.danetnaverno.editoni.common.blockrender.BlockRendererCube
 import me.danetnaverno.editoni.texture.TextureDictionary
 
 class BlockTypeError(id: ResourceLocation)
-    : BlockType(id, BlockRendererCube(TextureDictionary[ResourceLocation("common:error")]), true)
+    : BlockType(id, BlockRendererCube(TextureDictionary[ResourceLocation("common:error")]), true, false)

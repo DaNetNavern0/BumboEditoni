@@ -9,22 +9,22 @@ data class EntityLocation(@JvmField val globalX: Double, @JvmField val globalY: 
         return EntityLocation(this.globalX + x, this.globalY + y, this.globalZ + z)
     }
 
-    fun add(other: EntityLocation): EntityLocation
+    fun add(location: EntityLocation): EntityLocation
     {
-        return EntityLocation(this.globalX + other.globalX, this.globalY + other.globalY, this.globalZ + other.globalZ)
+        return EntityLocation(this.globalX + location.globalX, this.globalY + location.globalY, this.globalZ + location.globalZ)
     }
 
-    fun substract(other: EntityLocation): EntityLocation
+    fun subtract(location: EntityLocation): EntityLocation
     {
-        return EntityLocation(this.globalX - other.globalX, this.globalY - other.globalY, this.globalZ - other.globalZ)
+        return EntityLocation(this.globalX - location.globalX, this.globalY - location.globalY, this.globalZ - location.globalZ)
     }
 
-    fun toBlockLocation() : BlockLocation
+    fun toBlockLocation(): BlockLocation
     {
         return BlockLocation(globalX.toInt(), globalY.toInt(), globalZ.toInt())
     }
 
-    fun toChunkLocation() : ChunkLocation
+    fun toChunkLocation(): ChunkLocation
     {
         return toBlockLocation().toChunkLocation()
     }

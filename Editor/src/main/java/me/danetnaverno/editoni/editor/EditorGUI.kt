@@ -2,7 +2,8 @@ package me.danetnaverno.editoni.editor
 
 import lwjgui.geometry.Insets
 import lwjgui.geometry.Pos
-import lwjgui.scene.Window
+import lwjgui.paint.Color
+import lwjgui.scene.Node
 import lwjgui.scene.control.*
 import lwjgui.scene.layout.BorderPane
 import lwjgui.scene.layout.HBox
@@ -10,11 +11,8 @@ import lwjgui.scene.layout.Pane
 import lwjgui.scene.layout.VBox
 import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.common.world.io.WorldIO
-import me.danetnaverno.editoni.editor.clipboard.ClipboardPrototype
 import me.danetnaverno.editoni.editor.control.DynamicLabel
-import me.danetnaverno.editoni.editor.operations.CutAreaOperation
 import me.danetnaverno.editoni.editor.operations.Operations
-import me.danetnaverno.editoni.editor.operations.PasteBlocksOperation
 import me.danetnaverno.editoni.util.Translation
 import net.querz.nbt.CompoundTag
 import java.nio.file.Paths
@@ -22,32 +20,44 @@ import javax.swing.JFileChooser
 
 object EditorGUI
 {
-    private lateinit var root : BorderPane
-    private lateinit var selectInfoBox : VBox
-    private lateinit var operationHistory : ScrollPane
-    private lateinit var worldList : ComboBox<World>
+    private lateinit var selectInfoBox: VBox
+    private lateinit var operationHistory: ScrollPane
+    private lateinit var worldList: ComboBox<World>
 
-    fun init(window: Window): Pane
+    fun init(): Pane
     {
-        root = BorderPane()
+        val root = BorderPane()
         root.alignment = Pos.TOP_CENTER
         root.background = null
 
+        root.setCenter(workArea())
+        root.setTop(menuBar())
+        root.setLeft(leftPanel())
+        root.setRight(rightPanel())
+
+        return root
+    }
+
+    private fun workArea(): Node
+    {
         val workArea = Pane()
-        root.setCenter(workArea)
         workArea.isFillToParentHeight = true
         workArea.isFillToParentWidth = true
         workArea.background = null
-        window.focus()
         workArea.setOnMousePressed { InputHandler.registerMousePress(it); }
         workArea.setOnMouseReleased { InputHandler.registerMouseRelease(it); }
         workArea.setOnMouseDragged { InputHandler.registerMouseDrag(it); }
+        return workArea
+    }
 
+    private fun menuBar(): Node
+    {
         val bar = MenuBar()
         bar.minWidth = EditorApplication.WIDTH.toDouble()
-        root.setTop(bar)
 
+        // "File"
         val file = Menu(Translation.translate("top_bar.file"))
+
         val open = MenuItem(Translation.translate("top_bar.file.open"))
         open.setOnAction {
             val fc = JFileChooser()
@@ -57,6 +67,7 @@ object EditorGUI
                 Editor.currentWorld = Editor.loadWorld(fc.selectedFile.toPath())
         }
         file.items.add(open)
+
         val save = MenuItem(Translation.translate("top_bar.file.save"))
         save.setOnAction {
             WorldIO.writeWorld(Editor.currentWorld, Paths.get("data/output"))
@@ -76,33 +87,20 @@ object EditorGUI
             }
         }
         file.items.add(saveAs)
+
         bar.items.add(file)
+        return bar
+    }
 
-        val edit = Menu("Edit")
-        edit.items.add(MenuItem("Undo"))
-        edit.items.add(MenuItem("Redo"))
-        edit.items.add(SeparatorMenuItem())
-        val cut = MenuItem("Cut")
-        cut.setOnAction {
-            if (Editor.selectedArea!=null)
-                Operations.get(Editor.currentWorld).apply(CutAreaOperation(Editor.selectedArea!!))
-        }
-        edit.items.add(cut)
-        edit.items.add(MenuItem("Copy"))
-        val paste = MenuItem("Paste")
-        paste.setOnAction {
-            if (Editor.selectedArea != null)
-                Operations.get(Editor.currentWorld).apply(PasteBlocksOperation(ClipboardPrototype.get(ClipboardPrototype.size() - 1)))
-        }
-        edit.items.add(paste)
-        bar.items.add(edit)
 
+    private fun leftPanel(): Node
+    {
         val leftPanelBcg = VBox()
         leftPanelBcg.padding = Insets(7.0)
         leftPanelBcg.prefWidth = EditorApplication.PANEL_WIDTH
         leftPanelBcg.isFillToParentWidth = true
         leftPanelBcg.isFillToParentHeight = true
-        root.setLeft(leftPanelBcg)
+
         val leftPanel = VBox()
         leftPanel.minWidth = EditorApplication.PANEL_WIDTH - 14
         leftPanel.maxWidth = EditorApplication.PANEL_WIDTH - 14
@@ -122,13 +120,16 @@ object EditorGUI
         statusBar.children.add(chunkLabel)
 
         leftPanel.children.add(statusBar)
+        return leftPanelBcg
+    }
 
+    private fun rightPanel(): Node
+    {
         val rightPanelBcg = VBox()
         rightPanelBcg.padding = Insets(7.0)
         rightPanelBcg.prefWidth = EditorApplication.PANEL_WIDTH
         rightPanelBcg.isFillToParentWidth = true
         rightPanelBcg.isFillToParentHeight = true
-        root.setRight(rightPanelBcg)
         val rightPanel = VBox()
         rightPanel.maxWidth = EditorApplication.PANEL_WIDTH - 14
         rightPanelBcg.children.add(rightPanel)
@@ -138,7 +139,7 @@ object EditorGUI
         worldList = ComboBox()
         worldList.prefWidth = EditorApplication.PANEL_WIDTH - 20
         worldList.alignment = Pos.CENTER
-        worldList.setOnAction { action ->
+        worldList.setOnAction {
             if (Editor.currentWorld != worldList.value)
                 Editor.currentWorld = worldList.value
         }
@@ -149,8 +150,7 @@ object EditorGUI
         operationHistory.prefHeight = 500.0
         operationHistory.isFillToParentWidth = true
         rightPanel.children.add(operationHistory)
-
-        return root
+        return rightPanelBcg
     }
 
     //Buttons don't update for some reason, had to re-create the entire UI section
@@ -158,13 +158,13 @@ object EditorGUI
     {
         selectInfoBox.children.clear()
 
-        if (Editor.selectedEntity !=null)
+        if (Editor.selectedEntity != null)
         {
             refreshEntityInfoLabel()
             return
         }
         val selectedArea = Editor.selectedArea
-        if (selectedArea!=null)
+        if (selectedArea != null)
         {
             if (selectedArea.min != selectedArea.max)
             {
@@ -175,7 +175,7 @@ object EditorGUI
         refreshBlockInfoLabel()
     }
 
-    fun refreshBlockInfoLabel()
+    private fun refreshBlockInfoLabel()
     {
         val selectedBlock = Editor.selectedArea?.world?.getLoadedBlockAt(Editor.selectedArea!!.min)
 
@@ -183,12 +183,12 @@ object EditorGUI
         blockInfoLabel.isFillToParentWidth = true
         blockInfoLabel.alignment = Pos.TOP_LEFT
 
-        val blockGlobalLocLabel = if (selectedBlock==null)
+        val blockGlobalLocLabel = if (selectedBlock == null)
             Label(Translation.translate("gui.block_info.location.global", "-", "-", "-"))
         else
             Label(Translation.translate("gui.block_info.location.global", selectedBlock.location.globalX, selectedBlock.location.globalY, selectedBlock.location.globalZ))
 
-        val blockChunkLocLabel = if (selectedBlock==null)
+        val blockChunkLocLabel = if (selectedBlock == null)
             Label(Translation.translate("gui.block_info.location.local", "-", "-", "-"))
         else
             Label(Translation.translate("gui.block_info.location.local", selectedBlock.location.localX, selectedBlock.location.localY, selectedBlock.location.localZ))
@@ -208,7 +208,7 @@ object EditorGUI
         selectInfoBox.children.add(tileEntityPane)
     }
 
-    fun refreshAreaInfoLabel()
+    private fun refreshAreaInfoLabel()
     {
         val selectedArea = Editor.selectedArea!!
 
@@ -232,7 +232,7 @@ object EditorGUI
         selectInfoBox.children.add(tagPane)
     }
 
-    fun refreshEntityInfoLabel()
+    private fun refreshEntityInfoLabel()
     {
         val selectedEntity = Editor.selectedEntity!!
 
@@ -268,7 +268,7 @@ object EditorGUI
         operationHistory.content = ohContainer
     }
 
-    fun buildPane(compoundTag: CompoundTag?, height: Double) : ScrollPane
+    private fun buildPane(compoundTag: CompoundTag?, height: Double): ScrollPane
     {
         val mainPane = ScrollPane()
         mainPane.isFillToParentWidth = true
@@ -312,21 +312,5 @@ object EditorGUI
         Editor.selectArea(null)
         Editor.selectEntity(null)
         refreshOperationHistory()
-    }
-
-    fun buildTree(base: TreeBase<String>, compoundTag: CompoundTag?)
-    {
-        if (compoundTag != null)
-        {
-            for (entry in compoundTag.entrySet())
-            {
-                val node = TreeItem(entry.key)
-                base.items.add(node)
-                if (entry.value.id == 10.toByte()) //todo magic value: compound
-                    buildTree(node, entry.value as CompoundTag)
-                else
-                    node.items.add(TreeItem(entry.value.toTagString()))
-            }
-        }
     }
 }

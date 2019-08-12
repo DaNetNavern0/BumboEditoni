@@ -5,8 +5,6 @@ import me.danetnaverno.editoni.common.ResourceLocation
 
 object EntityRendererDictionary
 {
-    val DEFAULT: EntityRenderer = EntityRendererDefault()
-
     private val renderers = mutableMapOf<ResourceLocation, Class<out EntityRenderer>>()
 
     @JvmStatic

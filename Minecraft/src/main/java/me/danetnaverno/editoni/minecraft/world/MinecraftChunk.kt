@@ -11,9 +11,9 @@ import me.danetnaverno.editoni.util.location.ChunkLocation
 class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
     : Chunk(world, location)
 {
-    private lateinit var blockTypes : Array<Array<BlockType?>?>
-    private lateinit var blockStates : MutableMap<Int, BlockState?>
-    private lateinit var tileEntities : MutableMap<Int, TileEntity?>
+    private lateinit var blockTypes: Array<Array<BlockType?>?>
+    private lateinit var blockStates: MutableMap<Int, BlockState?>
+    private lateinit var tileEntities: MutableMap<Int, TileEntity?>
 
     fun load(blockTypes: Array<Array<BlockType?>?>, blockStates: MutableMap<Int, BlockState?>, tileEntities: MutableMap<Int, TileEntity?>)
     {
@@ -50,7 +50,7 @@ class MinecraftChunk(world: MinecraftWorld, location: ChunkLocation, val extras:
         val index = (location.localY % 16) * 256 + location.localZ * 16 + location.localX
         val section = location.localY / 16
         val array = blockTypes[section]
-        if (array==null || array[index]==null)
+        if (array == null || array[index] == null)
             return null
         return MinecraftBlock(this, location, array[index]!!, getBlockStateAt(location), getTileEntityAt(location))
     }

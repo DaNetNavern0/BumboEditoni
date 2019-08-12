@@ -12,15 +12,8 @@ public final class InputHandler
     private static final int KEYBOARD_SIZE = 512;
     private static final int MOUSE_SIZE = 16;
     private static final int NO_STATE = -1;
-
-    private static int[] keyStates = new int[KEYBOARD_SIZE];
-
-    private static int[] mouseStates = new int[MOUSE_SIZE];
-
     public static Pair<Double, Double> lastMousePos = new Pair<>(0.0, 0.0);
-
-    private static long windowId;
-
+    private static int[] keyStates = new int[KEYBOARD_SIZE];
     protected static GLFWKeyCallback keyboard = new GLFWKeyCallback()
     {
         @Override
@@ -29,6 +22,8 @@ public final class InputHandler
             keyStates[key] = action;
         }
     };
+    private static int[] mouseStates = new int[MOUSE_SIZE];
+    private static long windowId;
 
     public static void init(long window)
     {
@@ -106,7 +101,7 @@ public final class InputHandler
         return mouseStates[button] != NO_STATE;
     }
 
-    public static Pair<Double,Double> getMouseCoords()
+    public static Pair<Double, Double> getMouseCoords()
     {
         double[] posX = new double[1];
         double[] posY = new double[1];

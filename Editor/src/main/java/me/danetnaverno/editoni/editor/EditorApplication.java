@@ -10,21 +10,25 @@ import org.lwjgl.opengl.GL11;
 
 public class EditorApplication extends LWJGUIApplication
 {
-    public static final int WIDTH = 1024;
+    public static final int WIDTH = 1500;
     public static final int HEIGHT = 768;
     public static final double PANEL_WIDTH = 250;
 
-    private static long handleId;
-    public static Context context;
-    public static Runnable afterStart;
-
     public static int fps = 0;
+
+    private static long handleId;
+    private static Runnable doAfterStart;
 
     public static void main(String[] args, Runnable function)
     {
         ModernOpenGL = false;
-        afterStart = function;
+        doAfterStart = function;
         launch(args);
+    }
+
+    public static long getWindowId()
+    {
+        return handleId;
     }
 
     @Override
@@ -32,20 +36,14 @@ public class EditorApplication extends LWJGUIApplication
     {
         handleId = window.getContext().getWindowHandle();
         window.setTitle("Bumbo Editoni");
-        window.setScene(new Scene(EditorGUI.INSTANCE.init(window), WIDTH, HEIGHT));
-        context = window.getContext();
+        window.setScene(new Scene(EditorGUI.INSTANCE.init(), WIDTH, HEIGHT));
         GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
         GLFW.glfwSwapInterval(1);
         GLFW.glfwSetWindowPos(handleId, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
         window.show();
         window.setRenderingCallback(new Renderer());
 
-        afterStart.run();
-    }
-
-    public static long getWindowId()
-    {
-        return handleId;
+        doAfterStart.run();
     }
 
     static class Renderer implements lwjgui.gl.Renderer
