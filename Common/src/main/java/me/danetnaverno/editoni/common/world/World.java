@@ -40,7 +40,7 @@ public abstract class World
     public abstract List<Entity> getEntitiesAt(@NotNull EntityLocation location, float radius);
 
     @Nullable
-    public abstract Block getBlockAt(@NotNull BlockLocation location);
+    public abstract Block getLoadedBlockAt(@NotNull BlockLocation location);
 
     @Nullable
     public abstract BlockType getBlockTypeAt(@NotNull BlockLocation location);

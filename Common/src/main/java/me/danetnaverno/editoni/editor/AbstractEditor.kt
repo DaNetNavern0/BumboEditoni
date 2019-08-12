@@ -18,7 +18,7 @@ abstract class AbstractEditor
     var selectedEntity: Entity? = null
         protected set
 
-    var renderDistance = 2
+    var renderDistance = 3
 
     init
     {

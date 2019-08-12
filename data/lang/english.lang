@@ -1,11 +1,13 @@
 {
-	"langauge": "English",
+	"language": "English",
 	
 	"top_bar.file": "File",
-	"top_bar.file.open": "Open",
+	"top_bar.file.open": "Open...",
 	"top_bar.file.save": "Save",
+	"top_bar.file.save_as": "Save As...",
 	
 	"status_bar.fps": "{0} FPS",
+	"status_bar.loaded_chunks": "Chunks: {0} visible, {1} loaded",
 	
 	"gui.block_info.type": "Type: {0}",
 	"gui.block_info.location.global": "Global: x: {0}, y: {1}, z:{2}",
@@ -15,6 +17,8 @@
 	
 	"operation.set": "Set: {0} to {1}",
 	"operation.delete": "Delete: {0} to {1}",
+	"operation.select": "Select: {0} to {1}",
+	"operation.cut": "Cut: {0} to {1}",
 	"operation.confirm_forced_operation": "You're about to overwrite {0} changes. Continue?",
 	"operation.confirm_unsaved": "You have {0} unsaved changes.",
 	"operation.loaded": "Loaded"

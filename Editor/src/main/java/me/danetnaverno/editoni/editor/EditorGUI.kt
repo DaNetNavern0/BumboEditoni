@@ -9,10 +9,15 @@ import lwjgui.scene.layout.HBox
 import lwjgui.scene.layout.Pane
 import lwjgui.scene.layout.VBox
 import me.danetnaverno.editoni.common.world.World
+import me.danetnaverno.editoni.common.world.io.WorldIO
+import me.danetnaverno.editoni.editor.clipboard.ClipboardPrototype
 import me.danetnaverno.editoni.editor.control.DynamicLabel
+import me.danetnaverno.editoni.editor.operations.CutAreaOperation
 import me.danetnaverno.editoni.editor.operations.Operations
+import me.danetnaverno.editoni.editor.operations.PasteBlocksOperation
 import me.danetnaverno.editoni.util.Translation
 import net.querz.nbt.CompoundTag
+import java.nio.file.Paths
 import javax.swing.JFileChooser
 
 object EditorGUI
@@ -33,7 +38,10 @@ object EditorGUI
         workArea.isFillToParentHeight = true
         workArea.isFillToParentWidth = true
         workArea.background = null
-        workArea.setOnMouseClicked { EditorUserHandler.onMouseClick(it.mouseX.toInt(), it.mouseY.toInt()); }
+        window.focus()
+        workArea.setOnMousePressed { InputHandler.registerMousePress(it); }
+        workArea.setOnMouseReleased { InputHandler.registerMouseRelease(it); }
+        workArea.setOnMouseDragged { InputHandler.registerMouseDrag(it); }
 
         val bar = MenuBar()
         bar.minWidth = EditorApplication.WIDTH.toDouble()
@@ -49,12 +57,44 @@ object EditorGUI
                 Editor.currentWorld = Editor.loadWorld(fc.selectedFile.toPath())
         }
         file.items.add(open)
-        file.items.add(MenuItem(Translation.translate("top_bar.file.save")))
+        val save = MenuItem(Translation.translate("top_bar.file.save"))
+        save.setOnAction {
+            WorldIO.writeWorld(Editor.currentWorld, Paths.get("data/output"))
+            GarbageChunkCollector.unloadExcessChunks(Editor.currentWorld)
+        }
+        file.items.add(save)
+
+        val saveAs = MenuItem(Translation.translate("top_bar.file.save_as"))
+        saveAs.setOnAction {
+            val fc = JFileChooser()
+            fc.fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES
+            val state = fc.showOpenDialog(null)
+            if (state == JFileChooser.APPROVE_OPTION)
+            {
+                WorldIO.writeWorld(Editor.currentWorld, fc.selectedFile.toPath())
+                GarbageChunkCollector.unloadExcessChunks(Editor.currentWorld)
+            }
+        }
+        file.items.add(saveAs)
         bar.items.add(file)
 
         val edit = Menu("Edit")
         edit.items.add(MenuItem("Undo"))
         edit.items.add(MenuItem("Redo"))
+        edit.items.add(SeparatorMenuItem())
+        val cut = MenuItem("Cut")
+        cut.setOnAction {
+            if (Editor.selectedArea!=null)
+                Operations.get(Editor.currentWorld).apply(CutAreaOperation(Editor.selectedArea!!))
+        }
+        edit.items.add(cut)
+        edit.items.add(MenuItem("Copy"))
+        val paste = MenuItem("Paste")
+        paste.setOnAction {
+            if (Editor.selectedArea != null)
+                Operations.get(Editor.currentWorld).apply(PasteBlocksOperation(ClipboardPrototype.get(ClipboardPrototype.size() - 1)))
+        }
+        edit.items.add(paste)
         bar.items.add(edit)
 
         val leftPanelBcg = VBox()
@@ -70,7 +110,6 @@ object EditorGUI
 
         selectInfoBox = VBox()
         selectInfoBox.isFillToParentWidth = true
-        selectInfoBox.setOnMouseClicked { EditorUserHandler.onMouseClick(it.mouseX.toInt(),it.mouseY.toInt()) }
         leftPanel.children.add(selectInfoBox)
 
         refreshSelectInfoLabel()
@@ -79,6 +118,9 @@ object EditorGUI
         statusBar.alignment = Pos.TOP_LEFT
         val fpsLabel = DynamicLabel(500) { Translation.translate("status_bar.fps", EditorApplication.fps) }
         statusBar.children.add(fpsLabel)
+        val chunkLabel = DynamicLabel(500) { Translation.translate("status_bar.loaded_chunks", "?", Editor.currentWorld.loadedChunks.size) }
+        statusBar.children.add(chunkLabel)
+
         leftPanel.children.add(statusBar)
 
         val rightPanelBcg = VBox()
@@ -135,7 +177,7 @@ object EditorGUI
 
     fun refreshBlockInfoLabel()
     {
-        val selectedBlock = Editor.selectedArea?.world?.getBlockAt(Editor.selectedArea!!.min)
+        val selectedBlock = Editor.selectedArea?.world?.getLoadedBlockAt(Editor.selectedArea!!.min)
 
         val blockInfoLabel = Label(Translation.translate("gui.block_info.type", selectedBlock?.type ?: "-"))
         blockInfoLabel.isFillToParentWidth = true

@@ -1,8 +1,9 @@
 package me.danetnaverno.editoni.editor;
 
-import javafx.util.Pair;
+import kotlin.Pair;
+import lwjgui.event.MouseEvent;
+import me.danetnaverno.editoni.util.Camera;
 import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -10,16 +11,14 @@ public final class InputHandler
 {
     private static final int KEYBOARD_SIZE = 512;
     private static final int MOUSE_SIZE = 16;
+    private static final int NO_STATE = -1;
 
     private static int[] keyStates = new int[KEYBOARD_SIZE];
-    private static boolean[] activeKeys = new boolean[KEYBOARD_SIZE];
 
-    private static int[] mouseButtonStates = new int[MOUSE_SIZE];
-    private static boolean[] activeMouseButtons = new boolean[MOUSE_SIZE];
-    private static long lastMouseNS = 0;
-    private static long mouseDoubleClickPeriodNS = 1000000000 / 5; //5th of a second for double click.
+    private static int[] mouseStates = new int[MOUSE_SIZE];
 
-    private static int NO_STATE = -1;
+    public static Pair<Double, Double> lastMousePos = new Pair<>(0.0, 0.0);
+
     private static long windowId;
 
     protected static GLFWKeyCallback keyboard = new GLFWKeyCallback()
@@ -27,61 +26,64 @@ public final class InputHandler
         @Override
         public void invoke(long window, int key, int scancode, int action, int mods)
         {
-            activeKeys[key] = action != GLFW_RELEASE;
             keyStates[key] = action;
-        }
-    };
-
-    protected static GLFWMouseButtonCallback mouse = new GLFWMouseButtonCallback()
-    {
-        @Override
-        public void invoke(long window, int button, int action, int mods)
-        {
-            activeMouseButtons[button] = action != GLFW_RELEASE;
-            mouseButtonStates[button] = action;
         }
     };
 
     public static void init(long window)
     {
         resetKeyboard();
-        resetMouse();
+        for (int i = 0; i < mouseStates.length; i++)
+            mouseStates[i] = NO_STATE;
         glfwSetKeyCallback(window, keyboard);
         windowId = window;
-        //glfwSetMouseButtonCallback(window, mouse);
     }
 
     public static void update()
     {
+        lastMousePos = InputHandler.getMouseCoords();
         resetKeyboard();
-        resetMouse();
+
+        for (int i = 0; i < mouseStates.length; i++)
+        {
+            if (mouseStates[i] == GLFW_PRESS)
+                mouseStates[i] = GLFW_REPEAT;
+            else if (mouseStates[i] == GLFW_RELEASE)
+                mouseStates[i] = NO_STATE;
+        }
         glfwPollEvents();
     }
 
     private static void resetKeyboard()
     {
         for (int i = 0; i < keyStates.length; i++)
-        {
-            keyStates[i] = NO_STATE;
-        }
+            if (keyStates[i] == GLFW_RELEASE)
+                keyStates[i] = NO_STATE;
     }
 
-    private static void resetMouse()
+    public static void registerMousePress(MouseEvent event)
     {
-        for (int i = 0; i < mouseButtonStates.length; i++)
+        mouseStates[event.button] = 1;
+    }
+
+    public static void registerMouseRelease(MouseEvent event)
+    {
+        mouseStates[event.button] = 2;
+    }
+
+    public static void registerMouseDrag(MouseEvent it)
+    {
+        //todo move to the proper place
+        if (mouseButtonDown(1))
         {
-            mouseButtonStates[i] = NO_STATE;
+            Camera.yaw -= it.mouseX - lastMousePos.getFirst();
+            Camera.pitch -= it.mouseY - lastMousePos.getSecond();
         }
-
-        long now = System.nanoTime();
-
-        if (now - lastMouseNS > mouseDoubleClickPeriodNS)
-            lastMouseNS = 0;
     }
 
     public static boolean keyDown(int key)
     {
-        return activeKeys[key];
+        return keyStates[key] != NO_STATE;
     }
 
     public static boolean keyPressed(int key)
@@ -94,39 +96,14 @@ public final class InputHandler
         return keyStates[key] == GLFW_RELEASE;
     }
 
-    public static boolean mouseButtonDown(int button)
-    {
-        return activeMouseButtons[button];
-    }
-
     public static boolean mouseButtonPressed(int button)
     {
-        return mouseButtonStates[button] == GLFW_RELEASE;
+        return mouseStates[button] == 1;
     }
 
-    public static boolean mouseButtonReleased(int button)
+    public static boolean mouseButtonDown(int button)
     {
-        boolean flag = mouseButtonStates[button] == GLFW_RELEASE;
-
-        if (flag)
-            lastMouseNS = System.nanoTime();
-
-        return flag;
-    }
-
-    public static boolean mouseButtonDoubleClicked(int button)
-    {
-        long last = lastMouseNS;
-        boolean flag = mouseButtonReleased(button);
-
-        long now = System.nanoTime();
-
-        if (flag && now - last < mouseDoubleClickPeriodNS)
-        {
-            lastMouseNS = 0;
-            return true;
-        }
-        return false;
+        return mouseStates[button] != NO_STATE;
     }
 
     public static Pair<Double,Double> getMouseCoords()

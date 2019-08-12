@@ -5,7 +5,7 @@ import me.danetnaverno.editoni.common.world.Chunk
 import me.danetnaverno.editoni.editor.BlockArea
 import me.danetnaverno.editoni.util.Translation
 
-class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
+open class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
 {
     override val displayName = Translation.translate("operation.delete", area.min, area.max)
     override val alteredChunks : Collection<Chunk> = area.mapNotNull { area.world.getChunk(it.toChunkLocation()) }.toSet()
@@ -14,7 +14,7 @@ class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
 
     override fun apply()
     {
-        deletedBlocks = area.mapNotNull { area.world.getBlockAt(it) }.toList()
+        deletedBlocks = area.mapNotNull { area.world.getLoadedBlockAt(it) }
         for (location in area)
             area.world.deleteBlock(location)
     }

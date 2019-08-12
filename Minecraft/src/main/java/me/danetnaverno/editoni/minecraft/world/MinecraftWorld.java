@@ -31,6 +31,19 @@ public class MinecraftWorld extends World
     @Override
     public String toString()
     {
+        try
+        {
+            if (path.getParent().getFileName().toString().contains("DIM1"))
+                return path.getParent().getParent().getFileName()+" (End; " + version + ")";
+            if (path.getParent().getFileName().toString().contains("DIM-1"))
+                return path.getParent().getParent().getFileName()+" (Nether; " + version + ")";
+            if (path.getFileName().toString().contains("region"))
+                return path.getParent().getFileName()+" (" + version + ")";
+        }
+        catch (Exception e)
+        {
+            return path.getFileName().toString() + " (" + version + ")";
+        }
         return path.getFileName().toString() + " (" + version + ")";
     }
 
@@ -86,9 +99,9 @@ public class MinecraftWorld extends World
     }
 
     @Override
-    public Block getBlockAt(@NotNull BlockLocation location)
+    public Block getLoadedBlockAt(@NotNull BlockLocation location)
     {
-        Chunk chunk = getChunk(location.toChunkLocation());
+        Chunk chunk = getChunkIfLoaded(location.toChunkLocation());
         if (chunk==null)
             return null;
         return chunk.getBlockAt(location);

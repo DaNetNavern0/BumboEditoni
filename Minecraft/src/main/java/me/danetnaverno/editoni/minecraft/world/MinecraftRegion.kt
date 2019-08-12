@@ -4,10 +4,10 @@ import me.danetnaverno.editoni.minecraft.util.location.RegionLocation
 import me.danetnaverno.editoni.minecraft.world.io.IMinecraftWorldIOProvider
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
-import java.nio.file.Path
+import net.querz.nbt.mca.MCAFile
 import java.util.*
 
-class MinecraftRegion(@JvmField val world: MinecraftWorld, @JvmField val regionFile: Path, @JvmField val location: RegionLocation)
+class MinecraftRegion(@JvmField val mcaFile : MCAFile, @JvmField val world: MinecraftWorld, @JvmField val location: RegionLocation)
 {
     private val chunks = HashMap<ChunkLocation, MinecraftChunk>()
 

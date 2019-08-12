@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
 {
     private static Pattern mcaRegex = Pattern.compile("r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca");
-    private Map<Path, MCAFile> mcaCache = new HashMap<>(); //todo tmp
 
     @Override
     public boolean isAppropriateToRead(@NotNull Path path)
@@ -80,7 +79,7 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     }
 
     @Override
-    public Collection<World> readWorlds(@NotNull Path path)
+    public Collection<World> readWorlds(@NotNull Path path) throws IOException
     {
         if (path.getFileName().toString().equalsIgnoreCase("level.dat"))
             path = path.getParent();
@@ -99,20 +98,19 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
         return Collections.singletonList(world);
     }
 
-    private static MinecraftRegion readRegion(MinecraftWorld world, Path regionFile, int x, int z)
+    private static MinecraftRegion readRegion(MinecraftWorld world, Path regionFile, int x, int z) throws IOException
     {
-        return new MinecraftRegion(world, regionFile, new RegionLocation(x, z));
+        return new MinecraftRegion(MCAUtil.readMCAFile(regionFile.toFile()), world, new RegionLocation(x, z));
     }
 
     @Override
     public void loadRegion(@NotNull MinecraftWorld world, @NotNull RegionLocation location) throws IOException
     {
         MinecraftRegion region = world.getRegion(location);
-        MCAFile mcaFile = MCAUtil.readMCAFile(region.regionFile.toFile());
         for (int offsetX = 0; offsetX < 32; offsetX++)
             for (int offsetZ = 0; offsetZ < 32; offsetZ++)
             {
-                net.querz.nbt.mca.Chunk mcaChunk = mcaFile.getChunk(offsetX, offsetZ);
+                net.querz.nbt.mca.Chunk mcaChunk = region.mcaFile.getChunk(offsetX, offsetZ);
                 if (mcaChunk != null)
                 {
                     if (region.getChunkIfLoaded(LocationUtilsKt.toChunkLocation(
@@ -130,19 +128,8 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     {
         MinecraftWorld mcWorld = (MinecraftWorld) world;
         MinecraftRegion region = mcWorld.getRegion(LocationUtilsKt.toRegionLocation(location));
-        MCAFile mcaFile = mcaCache.computeIfAbsent(region.regionFile, it -> {
-            try
-            {
-                return MCAUtil.readMCAFile(region.regionFile.toFile());
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            return null;
-        });
         ChunkRegionOffset offset = LocationUtilsKt.toRegionOffset(location);
-        net.querz.nbt.mca.Chunk mcaChunk = mcaFile.getChunk(offset.x, offset.z);
+        net.querz.nbt.mca.Chunk mcaChunk = region.mcaFile.getChunk(offset.x, offset.z);
         if (mcaChunk != null)
             region.setChunk(readChunk(mcWorld, mcaChunk));
     }
@@ -215,40 +202,47 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
     @Override
     public void writeWorld(@NotNull World world, @NotNull Path path) throws IOException
     {
+        ForkJoinPool executor = new ForkJoinPool();
         long now = System.currentTimeMillis();
         Path regionFolder = path.resolve("region");
         Files.createDirectories(regionFolder);
         MinecraftWorld mcWorld = (MinecraftWorld) world;
         for (MinecraftRegion region : mcWorld.getRegions())
-            writeRegion(region, regionFolder.resolve("r." + region.location.x + "." + region.location.z + ".mca"));
+            executor.execute(() -> {
+                try
+                {
+                    writeRegion(region, regionFolder.resolve("r." + region.location.x + "." + region.location.z + ".mca"));
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            });
+            try
+            {
+                executor.shutdown();
+                executor.awaitTermination(9999, TimeUnit.SECONDS);
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
         RobertoGarbagio.logger.info("Saved in " + (System.currentTimeMillis() - now));
     }
 
     private void writeRegion(@NotNull MinecraftRegion region, @NotNull Path regionFile) throws IOException
     {
-        MCAFile result = new MCAFile(region.location.x, region.location.z);
-        ForkJoinPool executor = new ForkJoinPool();
-        for (MinecraftChunk chunk : region.getAllChunks())
+        for (MinecraftChunk chunk : region.getLoadedChunks())
         {
-            executor.execute(() -> {
-                ChunkRegionOffset offset = LocationUtilsKt.toRegionOffset(chunk.location);
-                result.setChunk(offset.x, offset.z, writeChunk(chunk));
-            });
+            ChunkRegionOffset offset = LocationUtilsKt.toRegionOffset(chunk.location);
+            region.mcaFile.setChunk(offset.x, offset.z, writeChunk(chunk));
         }
-        try
-        {
-            executor.shutdown();
-            executor.awaitTermination(9999, TimeUnit.SECONDS);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-        MCAUtil.writeMCAFile(result, regionFile.toFile());
+        MCAUtil.writeMCAFile(region.mcaFile, regionFile.toFile());
     }
 
     private static Chunk writeChunk(@NotNull MinecraftChunk chunk)
     {
+        RobertoGarbagio.logger.info("Write chunk "+chunk.location);
         ListTag<CompoundTag> tileEntities = new ListTag<>(CompoundTag.class);
         ListTag<CompoundTag> entities = new ListTag<>(CompoundTag.class);
         Chunk mcaChunk = new Chunk(chunk.getExtras().getData());

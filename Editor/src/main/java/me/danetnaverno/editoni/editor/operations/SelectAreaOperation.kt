@@ -7,7 +7,7 @@ import me.danetnaverno.editoni.util.Translation
 
 class SelectAreaOperation(protected var area: BlockArea?) : Operation()
 {
-    override val displayName: String = Translation.translate("operation.set", area?.min, area?.max)
+    override val displayName: String = Translation.translate("operation.select", area?.min, area?.max)
     override val alteredChunks: Collection<Chunk> =
             if (area != null) area!!.mapNotNull { area!!.world.getChunk(it.toChunkLocation()) }.toSet() else emptySet()
 

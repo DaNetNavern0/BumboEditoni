@@ -7,7 +7,7 @@ import me.danetnaverno.editoni.util.Translation
 
 class SelectEntityOperation(protected var entity: Entity) : Operation()
 {
-    override val displayName = Translation.translate("operation.set", entity)
+    override val displayName = Translation.translate("operation.select", entity)
     override val alteredChunks: Collection<Chunk> = listOf(entity.chunk)
 
     override fun apply()

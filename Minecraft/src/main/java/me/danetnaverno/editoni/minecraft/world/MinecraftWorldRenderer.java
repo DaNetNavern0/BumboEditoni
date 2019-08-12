@@ -39,15 +39,16 @@ public class MinecraftWorldRenderer extends WorldRenderer
         for (MinecraftRegion region : visibleRegions)
         {
             int renderDistance = AbstractEditor.Companion.getINSTANCE().getRenderDistance();
-            for(int x=-renderDistance; x<=renderDistance;x++)
-                for(int z=-renderDistance; z<=renderDistance;z++)
+            for (int x = -renderDistance; x <= renderDistance; x++)
+                for (int z = -renderDistance; z <= renderDistance; z++)
                 {
                     if (LocationUtilsKt.toRegionLocation(cameraLocation.add(x, z)).equals(region.location))
                         region.loadChunkAt(cameraLocation.add(x, z));
                 }
 
             List<Chunk> visibleChunks = region.getLoadedChunks().stream()
-                    .filter(it -> it.location.distance(cameraLocation) <= AbstractEditor.Companion.getINSTANCE().getRenderDistance())
+                    .filter(it -> Math.abs(it.location.x - cameraLocation.x) <= renderDistance
+                            || Math.abs(it.location.z - cameraLocation.z) <= renderDistance)
                     .collect(Collectors.toList());
 
             for (Chunk chunk : visibleChunks)

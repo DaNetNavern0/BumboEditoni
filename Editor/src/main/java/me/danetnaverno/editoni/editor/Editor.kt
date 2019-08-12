@@ -19,7 +19,7 @@ object Editor : AbstractEditor()
 {
     val logger = LogManager.getLogger("Editor")!!
 
-    var _currentWorld: World? = null
+    private var _currentWorld: World? = null
 
     override var currentWorld: World
         get() = _currentWorld!!
@@ -61,7 +61,8 @@ object Editor : AbstractEditor()
         return loadedWorld
     }
 
-    var tick = 0;
+    var lastChunkUnload = System.currentTimeMillis()
+
     fun displayLoop()
     {
         GL11.glRotated(Camera.pitch, -1.0, 0.0, 0.0)
@@ -70,15 +71,15 @@ object Editor : AbstractEditor()
 
         currentWorld.worldRenderer.render()
 
-        tick++;
-        if (tick==100)
+        if (lastChunkUnload < System.currentTimeMillis())
         {
-            tick = 0;
+            lastChunkUnload = System.currentTimeMillis() + 10_000
             GarbageChunkCollector.unloadExcessChunks(currentWorld)
         }
 
-        EditorUserHandler.controls()
         EditorUserHandler.selections()
+        EditorUserHandler.controls()
+        InputHandler.update()
     }
 
     fun findEntity(world: World, location: EntityLocation): Entity?
@@ -88,6 +89,8 @@ object Editor : AbstractEditor()
 
     fun findBlock(world: World, point: Vector3d): Block?
     {
+        if (point.y < 0 || point.y > 255)
+            return null
         val floor = Vector3i(Math.floor(point.x).toInt() - 1, Math.floor(point.y).toInt() - 1, Math.floor(point.z).toInt() - 1)
         val ceiling = Vector3i(Math.ceil(point.x).toInt() + 1, Math.ceil(point.y).toInt() + 1, Math.ceil(point.z).toInt() + 1)
 
@@ -101,7 +104,7 @@ object Editor : AbstractEditor()
                     val distance = point.distanceSquared(x + 0.5, y + 0.5, z + 0.5)
                     if (distance < min)
                     {
-                        val block = world.getBlockAt(BlockLocation(x, y, z))
+                        val block = world.getLoadedBlockAt(BlockLocation(x, y, z))
                         if (block != null && !isHidden(block))
                         {
                             closest = block
