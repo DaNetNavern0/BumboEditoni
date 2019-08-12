@@ -3,3 +3,13 @@ dependencies {
     compile project(':Editor')
     compile project(':Minecraft')
 }
+
+jar.baseName = "BumboEditoni"
+jar.destinationDir = artifactsDir
+jar.version = null
+
+afterEvaluate {
+    jar.from(configurations.compile.collect { zipTree(it) }) //todo exclude
+}
+
+jar.manifest.attributes(["Main-Class": "me.danetnaverno.editoni.Main", "Created-By": "DaNetNavern0"])

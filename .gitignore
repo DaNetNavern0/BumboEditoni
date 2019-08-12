@@ -1,7 +1,9 @@
 /.gradle/
 /.idea/
 *.iml
-/Prototype/artifacts/
-/Prototype/out/
+*.log
+artifacts/
+out/
 /gradle/
-/out/
+/tests/
+build/kotlin/

@@ -3,9 +3,9 @@ package me.danetnaverno.editoni.common.blocktype
 import me.danetnaverno.editoni.common.ResourceLocation
 import me.danetnaverno.editoni.common.blockrender.BlockRendererDictionary
 import me.danetnaverno.editoni.util.JsonUtil
+import me.danetnaverno.editoni.util.ResourceUtil
 import org.apache.logging.log4j.LogManager
 import java.nio.file.Files
-import java.nio.file.Paths
 
 object BlockDictionary
 {
@@ -14,13 +14,13 @@ object BlockDictionary
 
     init
     {
-        for (domainFolder in Files.list(Paths.get("data/blocks")))
+        for (domainFolder in Files.list(ResourceUtil.getBuiltInResourcePath("/assets/blocks")))
         {
             if (Files.isDirectory(domainFolder))
             {
                 for (file in Files.list(domainFolder))
                 {
-                    val resource = ResourceLocation(domainFolder.fileName.toString(),
+                    val resource = ResourceLocation(domainFolder.fileName.toString().removeSuffix("/"),
                             file.fileName.toString().substringBeforeLast("."))
                     val json = JsonUtil.fromFile(file)
                     val renderer = BlockRendererDictionary.create(json.getJSONObject("renderer"))

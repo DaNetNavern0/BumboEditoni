@@ -61,7 +61,7 @@ object Editor : AbstractEditor()
         return loadedWorld
     }
 
-    var lastChunkUnload = System.currentTimeMillis() //todo move to the proper place
+    var lastChunkUnload = System.currentTimeMillis() + 10_000 //todo move to the proper place
 
     fun displayLoop()
     {

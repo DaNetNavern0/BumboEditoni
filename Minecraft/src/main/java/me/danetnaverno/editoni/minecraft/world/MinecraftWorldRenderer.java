@@ -103,7 +103,7 @@ public class MinecraftWorldRenderer extends WorldRenderer
                             if (sectionCache[index])
                             {
                                 BlockType blockType = blockTypes[index];
-                                if (blockType == null)
+                                if (blockType == null || blockType.isHidden())
                                     continue;
                                 BlockLocation location = LocationUtilsKt.blockLocationFromSectionIndex(chunk, section, index);
                                 blockType.getRenderer().draw(world, location);

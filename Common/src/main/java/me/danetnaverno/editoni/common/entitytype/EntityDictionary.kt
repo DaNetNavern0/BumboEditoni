@@ -3,8 +3,9 @@ package me.danetnaverno.editoni.common.entitytype
 import me.danetnaverno.editoni.common.ResourceLocation
 import me.danetnaverno.editoni.common.blockrender.EntityRendererDictionary
 import me.danetnaverno.editoni.util.JsonUtil
+import me.danetnaverno.editoni.util.ResourceUtil
 import org.apache.logging.log4j.LogManager
-import java.io.File
+import java.nio.file.Files
 
 object EntityDictionary
 {
@@ -13,14 +14,14 @@ object EntityDictionary
 
     init
     {
-        for (domainFolder in File("data/entities").listFiles())
+        for (domainFolder in Files.list(ResourceUtil.getBuiltInResourcePath("/assets/entities/")))
         {
-            if (domainFolder.isDirectory)
+            if (Files.isDirectory(domainFolder))
             {
-                for (file in domainFolder.listFiles())
+                for (file in Files.list(domainFolder))
                 {
-                    val resource = ResourceLocation(domainFolder.name, file.nameWithoutExtension)
-                    val json = JsonUtil.fromFile(file.toPath())
+                    val resource = ResourceLocation(domainFolder.fileName.toString().removeSuffix("/"), file.fileName.toString().substringBeforeLast("."))
+                    val json = JsonUtil.fromFile(file)
                     val renderer = EntityRendererDictionary.create(json.getJSONObject("renderer"))
                     entityTypes[resource] = EntityType(resource, renderer)
                 }

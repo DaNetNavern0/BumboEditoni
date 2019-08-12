@@ -2,7 +2,6 @@ package me.danetnaverno.editoni.editor
 
 import lwjgui.geometry.Insets
 import lwjgui.geometry.Pos
-import lwjgui.paint.Color
 import lwjgui.scene.Node
 import lwjgui.scene.control.*
 import lwjgui.scene.layout.BorderPane
@@ -70,7 +69,7 @@ object EditorGUI
 
         val save = MenuItem(Translation.translate("top_bar.file.save"))
         save.setOnAction {
-            WorldIO.writeWorld(Editor.currentWorld, Paths.get("data/output"))
+            WorldIO.writeWorld(Editor.currentWorld, Paths.get("tests/output"))
             GarbageChunkCollector.unloadExcessChunks(Editor.currentWorld)
         }
         file.items.add(save)
@@ -112,7 +111,7 @@ object EditorGUI
 
         refreshSelectInfoLabel()
 
-        val statusBar = HBox()
+        val statusBar = VBox()
         statusBar.alignment = Pos.TOP_LEFT
         val fpsLabel = DynamicLabel(500) { Translation.translate("status_bar.fps", EditorApplication.fps) }
         statusBar.children.add(fpsLabel)

@@ -18,8 +18,8 @@ object Main
             TextureDictionary.textureProvider = TextureProvider
             MinecraftDictionaryFiller.init()
 
-            Editor.currentWorld = Editor.loadWorld(Paths.get("data/1.14.2 survival world"))
+            Editor.currentWorld = Editor.loadWorld(Paths.get("tests/1.14.2 survival world"))
             EditorGUI.refreshWorldList()
-        };
+        }
     }
 }

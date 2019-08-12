@@ -1,16 +1,16 @@
 package me.danetnaverno.editoni.texture
 
+import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL30
 import org.lwjgl.stb.STBImage
 import org.lwjgl.system.MemoryStack
-import java.io.FileInputStream
-import java.io.IOException
 import java.nio.ByteBuffer
-import java.nio.channels.FileChannel
+import java.nio.file.Files
 import java.nio.file.Path
 
-class TextureImpl constructor(path: Path) : Texture()
+
+class TextureImpl(path: Path) : Texture()
 {
     private var _id: Int = 0
     override val id: Int
@@ -55,11 +55,12 @@ class TextureImpl constructor(path: Path) : Texture()
         glBindTexture(GL_TEXTURE_2D, id)
     }
 
-    @Throws(IOException::class)
-    private fun ioResourceToByteBuffer(path: Path): ByteBuffer
+    fun ioResourceToByteBuffer(path: Path): ByteBuffer
     {
-        FileInputStream(path.toFile()).channel.use { fc ->
-            return fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size())
-        }
+        val bytes = Files.readAllBytes(path)
+        val buffer = BufferUtils.createByteBuffer(bytes.size)
+        buffer.put(bytes, 0, bytes.size)
+        buffer.flip()
+        return buffer
     }
 }

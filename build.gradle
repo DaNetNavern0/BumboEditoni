@@ -64,14 +64,6 @@ subprojects {
     artifactsDir.mkdirs()
     ext.artifactsDir = artifactsDir
 
-    jar.baseName = name
-    jar.destinationDir = artifactsDir
-    jar.version = null
-
-    afterEvaluate {
-        jar.from(configurations.shade.collect { zipTree(it) })
-    }
-
     for (def task in tasks.withType(JavaCompile))
     {
         task.sourceCompatibility = "1.8"

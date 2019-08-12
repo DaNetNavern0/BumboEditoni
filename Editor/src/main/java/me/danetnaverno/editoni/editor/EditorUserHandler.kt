@@ -102,7 +102,7 @@ object EditorUserHandler
         if (InputHandler.keyPressed(GLFW.GLFW_KEY_S) && InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_CONTROL))
         {
             operations.savePosition = operations.position
-            WorldIO.writeWorld(Editor.currentWorld, Paths.get("data/output"))
+            WorldIO.writeWorld(Editor.currentWorld, Paths.get("tests/output"))
             GarbageChunkCollector.unloadExcessChunks(Editor.currentWorld)
             Editor.logger.info("Saved!")
         }
