@@ -1,8 +1,7 @@
 package me.danetnaverno.editoni.blockrender
 
 import com.alibaba.fastjson.JSONObject
-import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.common.blockrender.BlockRenderer
+import me.danetnaverno.editoni.util.ResourceLocation
 
 object BlockRendererDictionary
 {

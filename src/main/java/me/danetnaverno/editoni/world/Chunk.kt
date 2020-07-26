@@ -1,12 +1,11 @@
 package me.danetnaverno.editoni.world
 
-import me.danetnaverno.editoni.common.blocktype.BlockType
+import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.MCAExtraInfo
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
 import me.danetnaverno.editoni.util.location.toChunkBlockIndex
 import me.danetnaverno.editoni.util.location.toSectionBlockIndex
-import net.querz.nbt.tag.CompoundTag
 
 class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
 {

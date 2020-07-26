@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.util.location
 
+import com.sun.javafx.geom.Vec3f
 import org.joml.Math
 
 data class EntityLocation(@JvmField val globalX: Double, @JvmField val globalY: Double, @JvmField val globalZ: Double)

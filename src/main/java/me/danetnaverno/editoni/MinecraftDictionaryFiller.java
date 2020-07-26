@@ -3,9 +3,9 @@ package me.danetnaverno.editoni;
 import me.danetnaverno.editoni.blockrender.BlockRendererAir;
 import me.danetnaverno.editoni.blockrender.BlockRendererCube;
 import me.danetnaverno.editoni.blockrender.BlockRendererDictionary;
-import me.danetnaverno.editoni.common.ResourceLocation;
+import me.danetnaverno.editoni.util.ResourceLocation;
 import me.danetnaverno.editoni.blocktype.BlockDictionary;
-import me.danetnaverno.editoni.common.blocktype.BlockType;
+import me.danetnaverno.editoni.blocktype.BlockType;
 
 public class MinecraftDictionaryFiller
 {

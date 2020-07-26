@@ -38,7 +38,7 @@ public class EditorApplication extends LWJGUIApplication
         window.setTitle("Bumbo Editoni");
         window.setScene(new Scene(EditorGUI.INSTANCE.init(), WIDTH, HEIGHT));
         GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-        GLFW.glfwSwapInterval(1);
+        GLFW.glfwSwapInterval(0);
         GLFW.glfwSetWindowPos(handleId, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
         window.show();
         window.setRenderingCallback(new Renderer());
@@ -82,6 +82,7 @@ public class EditorApplication extends LWJGUIApplication
                 Editor.INSTANCE.displayLoop();
                 long deltaTime = System.currentTimeMillis() - frameStamp;
                 fps = (int) (1000f / deltaTime);
+                System.out.println("fps="+fps);
                 frameStamp = System.currentTimeMillis();
             }
             catch (Throwable e)

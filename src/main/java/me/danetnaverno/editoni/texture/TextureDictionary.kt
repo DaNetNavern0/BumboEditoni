@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.texture
 
-import me.danetnaverno.editoni.common.ResourceLocation
+import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.ResourceUtil
 import org.apache.logging.log4j.LogManager
 

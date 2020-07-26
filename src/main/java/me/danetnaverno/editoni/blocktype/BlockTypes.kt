@@ -1,6 +1,6 @@
-package me.danetnaverno.editoni.common.blocktype
+package me.danetnaverno.editoni.blocktype
 
-import me.danetnaverno.editoni.common.ResourceLocation
+import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.blockrender.BlockRendererCube
 import me.danetnaverno.editoni.texture.TextureDictionary
 

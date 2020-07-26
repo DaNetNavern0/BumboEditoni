@@ -1,7 +1,7 @@
-package me.danetnaverno.editoni.common.blocktype
+package me.danetnaverno.editoni.blocktype
 
-import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.common.blockrender.BlockRenderer
+import me.danetnaverno.editoni.util.ResourceLocation
+import me.danetnaverno.editoni.blockrender.BlockRenderer
 
 open class BlockType(val id: ResourceLocation, val renderer: BlockRenderer, val isOpaque: Boolean, val isHidden: Boolean)
 {

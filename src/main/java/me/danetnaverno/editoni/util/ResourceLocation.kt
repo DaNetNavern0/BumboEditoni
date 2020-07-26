@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.common
+package me.danetnaverno.editoni.util
 
 class ResourceLocation : Comparable<ResourceLocation>
 {

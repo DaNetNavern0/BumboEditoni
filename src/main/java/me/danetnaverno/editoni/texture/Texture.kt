@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.texture
 
-import me.danetnaverno.editoni.common.ResourceLocation
+import me.danetnaverno.editoni.util.ResourceLocation
 
 abstract class Texture
 {

@@ -1,9 +1,7 @@
 package me.danetnaverno.editoni.blocktype
 
 import me.danetnaverno.editoni.blockrender.BlockRendererDictionary
-import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.common.blocktype.BlockType
-import me.danetnaverno.editoni.common.blocktype.BlockTypeError
+import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.JsonUtil
 import me.danetnaverno.editoni.util.ResourceUtil
 import org.apache.logging.log4j.LogManager

@@ -1,12 +1,15 @@
 package me.danetnaverno.editoni.util.location
 
 import me.danetnaverno.editoni.world.Chunk
-import me.danetnaverno.editoni.util.location.ChunkRegionOffset
-import me.danetnaverno.editoni.world.util.location.RegionLocation
 
 fun BlockLocation.toSectionBlockIndex(): Int
 {
     return (localY % 16) * 256 + localZ * 16 + localX
+}
+
+fun BlockLocation.getSection(): Int
+{
+    return localY / 16
 }
 
 fun BlockLocation.toChunkBlockIndex(): Int

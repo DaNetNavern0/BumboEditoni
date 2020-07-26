@@ -1,8 +1,7 @@
 package me.danetnaverno.editoni.blockrender
 
 import com.alibaba.fastjson.JSONObject
-import me.danetnaverno.editoni.common.ResourceLocation
-import me.danetnaverno.editoni.common.blockrender.BlockRenderer
+import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.world.World
 import me.danetnaverno.editoni.texture.Texture
 import me.danetnaverno.editoni.util.location.BlockLocation
@@ -91,108 +90,115 @@ open class BlockRendererCube : BlockRenderer
         return 1.0f
     }
 
-    override fun draw(world: World, location: BlockLocation): Boolean
+    override fun isVisible(world: World, location: BlockLocation.Mutable): Boolean
+    {
+        return shouldRenderSideAgainst(world, location.addMutable(0, 1, 0)) ||
+                shouldRenderSideAgainst(world, location.addMutable(0, -2, 0)) ||
+                shouldRenderSideAgainst(world, location.addMutable(0, 1, 1)) ||
+                shouldRenderSideAgainst(world, location.addMutable(0, 0, -2)) ||
+                shouldRenderSideAgainst(world, location.addMutable(1, 0, 1)) ||
+                shouldRenderSideAgainst(world, location.addMutable(1, 0, -2))
+    }
+
+    override fun draw(world: World, location: BlockLocation)
     {
         val size = getSize()
-        var isVisible = false
+        val x1 = location.globalX.toFloat()
+        val y1 = location.globalY.toFloat()
+        val z1 = location.globalZ.toFloat()
+
+        val x2 = location.globalX + size
+        val y2 = location.globalY + size
+        val z2 = location.globalZ + size
 
         if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
         {
-            isVisible = true
-
             top.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + size, location.globalZ + 0.0f)
+            GL11.glVertex3f(x1, y2, z1)
             GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + size, location.globalZ + size)
+            GL11.glVertex3f(x1, y2, z2)
             GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + size, location.globalZ + size)
+            GL11.glVertex3f(x2, y2, z2)
             GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + size, location.globalZ + 0.0f)
+            GL11.glVertex3f(x2, y2, z1)
             GL11.glEnd()
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, -1, 0)))
         {
-            isVisible = true
             bottom.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f)
+            GL11.glVertex3f(x1, y1, z1)
             GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f)
+            GL11.glVertex3f(x2, y1, z1)
             GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + 0.0f, location.globalZ + size)
+            GL11.glVertex3f(x2, y1, z2)
             GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size)
+            GL11.glVertex3f(x1, y1, z2)
             GL11.glEnd()
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, 1)))
         {
-            isVisible = true
             south.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + size, location.globalZ + size)
+            GL11.glVertex3f(x2, y2, z2)
             GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + size, location.globalZ + size)
+            GL11.glVertex3f(x1, y2, z2)
             GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size)
+            GL11.glVertex3f(x1, y1, z2)
             GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + 0.0f, location.globalZ + size)
+            GL11.glVertex3f(x2, y1, z2)
             GL11.glEnd()
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, -1)))
         {
-            isVisible = true
             north.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f)
+            GL11.glVertex3f(x2, y1, z1)
             GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f)
+            GL11.glVertex3f(x1, y1, z1)
             GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + size, location.globalZ + 0.0f)
+            GL11.glVertex3f(x1, y2, z1)
             GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + size, location.globalZ + 0.0f)
+            GL11.glVertex3f(x2, y2, z1)
             GL11.glEnd()
         }
 
         if (shouldRenderSideAgainst(world, location.add(-1, 0, 0)))
         {
-            isVisible = true
             west.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + size, location.globalZ + size)
+            GL11.glVertex3f(x1, y2, z2)
             GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + size, location.globalZ + 0.0f)
+            GL11.glVertex3f(x1, y2, z1)
             GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + 0.0f)
+            GL11.glVertex3f(x1, y1, z1)
             GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + 0.0f, location.globalY + 0.0f, location.globalZ + size)
+            GL11.glVertex3f(x1, y1, z2)
             GL11.glEnd()
         }
 
         if (shouldRenderSideAgainst(world, location.add(1, 0, 0)))
         {
-            isVisible = true
             east.bind()
             GL11.glBegin(GL11.GL_QUADS)
             GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + size, location.globalZ + 0.0f)
+            GL11.glVertex3f(x2, y2, z1)
             GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + size, location.globalZ + size)
+            GL11.glVertex3f(x2, y2, z2)
             GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + 0.0f, location.globalZ + size)
+            GL11.glVertex3f(x2, y1, z2)
             GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(location.globalX + size, location.globalY + 0.0f, location.globalZ + 0.0f)
+            GL11.glVertex3f(x2, y1, z1)
             GL11.glEnd()
         }
-
-        return isVisible
     }
 }

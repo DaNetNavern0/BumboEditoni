@@ -9,13 +9,12 @@ import me.danetnaverno.editoni.world.Chunk
 import me.danetnaverno.editoni.world.Region
 import me.danetnaverno.editoni.world.World
 import me.danetnaverno.editoni.world.WorldRenderer
-import me.danetnaverno.editoni.world.util.location.RegionLocation
+import me.danetnaverno.editoni.util.location.RegionLocation
 import net.querz.mca.MCAFile
 import net.querz.nbt.tag.CompoundTag
 import org.apache.logging.log4j.LogManager
 import org.lwjgl.opengl.GL11
 import java.nio.file.Path
-import java.nio.file.Paths
 
 object Editor
 {
@@ -32,7 +31,7 @@ object Editor
         try
         {
             Camera.x = 0.0
-            Camera.y = 20.0
+            Camera.y = 80.0
             Camera.z = 0.0
             Camera.yaw = -150.0
             Camera.pitch = -20.0

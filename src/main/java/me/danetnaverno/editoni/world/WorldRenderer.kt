@@ -1,15 +1,15 @@
 package me.danetnaverno.editoni.world
 
-import me.danetnaverno.editoni.common.ResourceLocation
+import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.editor.Editor.renderDistance
 import me.danetnaverno.editoni.texture.Texture.Companion.get
 import me.danetnaverno.editoni.util.Camera
 import me.danetnaverno.editoni.util.location.BlockLocation
-import me.danetnaverno.editoni.util.location.blockLocationFromSectionIndex
 import me.danetnaverno.editoni.util.location.toRegionLocation
 import org.lwjgl.opengl.GL11
 import java.util.*
 import java.util.stream.Collectors
+import kotlin.math.abs
 
 class WorldRenderer(private val world: World)
 {
@@ -27,9 +27,9 @@ class WorldRenderer(private val world: World)
                 if (cameraLocation.add(x, z).toRegionLocation() == region.location) region.loadChunkAt(cameraLocation.add(x, z))
             }
             val visibleChunks = region.getLoadedChunks().stream()
-                    .filter { it: Chunk ->
-                        (Math.abs(it.location.x - cameraLocation.x) <= renderDistance
-                                || Math.abs(it.location.z - cameraLocation.z) <= renderDistance)
+                    .filter {
+                        (abs(it.location.x - cameraLocation.x) <= renderDistance
+                                || abs(it.location.z - cameraLocation.z) <= renderDistance)
                     }
                     .collect(Collectors.toList())
             for (chunk in visibleChunks)
@@ -41,21 +41,11 @@ class WorldRenderer(private val world: World)
                 GL11.glVertex3i((chunk.location.x + 1) * 16, 0, (chunk.location.z + 1) * 16)
                 GL11.glVertex3i((chunk.location.x + 1) * 16, 0, chunk.location.z * 16)
                 GL11.glEnd()
-                val sections = chunk.blockTypes;
+                val sections = chunk.blockTypes
 
-                for (section in 0..15)
-                {
-                    val blockTypes = sections[section] ?: continue
-                    for (index in 0..15)
-                    {
-                        val blockType = blockTypes[index]
-                        if (blockType == null || blockType.isHidden) continue
-                        val location = blockLocationFromSectionIndex(chunk, section, index)
-                        blockType.renderer.draw(world, location)
-                    }
-                }
+                val mutableLocation = BlockLocation.Mutable(0, 0, 0)
 
-                /*var chunkCache = renderCache[chunk]
+                var chunkCache = renderCache[chunk]
                 if (chunkCache == null)
                 {
                     chunkCache = arrayOfNulls(16)
@@ -67,8 +57,8 @@ class WorldRenderer(private val world: World)
                         for (index in 0..4095)
                         {
                             val blockType = blockTypes[index] ?: continue
-                            val location = blockLocationFromSectionIndex(chunk, section, index)
-                            sectionCache[index] = blockType.renderer.draw(world, location)
+                            mutableLocation.blockLocationFromSectionIndex(chunk, section, index)
+                            sectionCache[index] = blockType.renderer.isVisible(world, mutableLocation)
                         }
                     }
                     renderCache[chunk] = chunkCache
@@ -78,21 +68,21 @@ class WorldRenderer(private val world: World)
                     for (section in 0..15)
                     {
                         val blockTypes = sections[section] ?: continue
-                        val sectionCache = chunkCache[section]
+                        val sectionCache = chunkCache[section]!!
                         for (index in 0..4095)
                         {
-                            if (sectionCache!![index])
+                            if (sectionCache[index])
                             {
                                 val blockType = blockTypes[index]
                                 if (blockType == null || blockType.isHidden) continue
-                                val location = blockLocationFromSectionIndex(chunk, section, index)
-                                blockType.renderer.draw(world, location)
+                                mutableLocation.blockLocationFromSectionIndex(chunk, section, index)
+                                blockType.renderer.draw(world, mutableLocation)
                             }
                         }
                     }
-                }*/
+                }
                 //for (Entity entity : chunk.getEntities())
-//    entity.getType().getRenderer().draw(entity);
+                //    entity.getType().getRenderer().draw(entity);
             }
         }
     }
@@ -101,5 +91,4 @@ class WorldRenderer(private val world: World)
     {
         renderCache.clear()
     }
-
 }

@@ -2,7 +2,7 @@ package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
-import me.danetnaverno.editoni.world.util.location.RegionLocation
+import me.danetnaverno.editoni.util.location.RegionLocation
 import net.querz.mca.MCAFile
 
 

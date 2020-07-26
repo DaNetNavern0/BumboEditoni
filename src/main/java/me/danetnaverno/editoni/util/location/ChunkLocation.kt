@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.util.location
 
-import java.lang.Math.sqrt
+import kotlin.math.sqrt
 
 data class ChunkLocation(@JvmField val x: Int, @JvmField val z: Int)
 {

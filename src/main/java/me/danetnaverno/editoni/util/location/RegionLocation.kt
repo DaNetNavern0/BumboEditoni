@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.world.util.location
+package me.danetnaverno.editoni.util.location
 
 import org.joml.Math
 
