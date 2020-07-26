@@ -1,8 +1,8 @@
-dependencies {
+/*dependencies {
     compile project(':Common')
     compile files('../LWJGUI/LWJGUI.jar')
 
     compile group: 'org.jogamp.jogl', name: 'jogl-all-main', version:'2.3.2'
     compile group: 'org.jogamp.gluegen', name: 'gluegen-rt-main', version:'2.3.2'
 
-}
+}*/

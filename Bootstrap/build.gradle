@@ -1,4 +1,4 @@
-dependencies {
+/*dependencies {
     compile project(':Common')
     compile project(':Editor')
     compile project(':Minecraft')
@@ -13,3 +13,4 @@ afterEvaluate {
 }
 
 jar.manifest.attributes(["Main-Class": "me.danetnaverno.editoni.Main", "Created-By": "DaNetNavern0"])
+*/

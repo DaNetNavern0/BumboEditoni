@@ -1,20 +1,19 @@
-package me.danetnaverno.editoni.minecraft;
+package me.danetnaverno.editoni.world;
 
 import me.danetnaverno.editoni.common.ResourceLocation;
-import me.danetnaverno.editoni.common.blockrender.*;
 import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
 import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.entitytype.EntityDictionary;
 import me.danetnaverno.editoni.common.entitytype.EntityType;
 import me.danetnaverno.editoni.common.world.BlockStateDictionary;
 import me.danetnaverno.editoni.common.world.io.WorldIO;
-import me.danetnaverno.editoni.minecraft.blockrender.BlockRendererMinecraftChest;
-import me.danetnaverno.editoni.minecraft.blockrender.BlockRendererMinecraftLiquid;
-import me.danetnaverno.editoni.minecraft.blockstate.MinecraftChestBlockState;
-import me.danetnaverno.editoni.minecraft.blockstate.MinecraftLiquidState;
-import me.danetnaverno.editoni.minecraft.blockstate.MinecraftSignBlockState;
-import me.danetnaverno.editoni.minecraft.world.io.Minecraft114WorldIO;
-import me.danetnaverno.editoni.minecraft.world.io.MinecraftLevelDatIO;
+import me.danetnaverno.editoni.world.blockrender.BlockRendererMinecraftChest;
+import me.danetnaverno.editoni.world.blockrender.BlockRendererMinecraftLiquid;
+import me.danetnaverno.editoni.world.blockstate.MinecraftChestBlockState;
+import me.danetnaverno.editoni.world.blockstate.MinecraftLiquidState;
+import me.danetnaverno.editoni.world.blockstate.MinecraftSignBlockState;
+import me.danetnaverno.editoni.world.world.io.Minecraft114WorldIO;
+import me.danetnaverno.editoni.world.world.io.MinecraftLevelDatIO;
 
 public class MinecraftDictionaryFiller
 {

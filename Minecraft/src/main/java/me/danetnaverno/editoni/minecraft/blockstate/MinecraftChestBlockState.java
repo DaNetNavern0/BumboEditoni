@@ -1,6 +1,6 @@
-package me.danetnaverno.editoni.minecraft.blockstate;
+package me.danetnaverno.editoni.world.blockstate;
 
-import me.danetnaverno.editoni.minecraft.world.MinecraftBlockState;
+import me.danetnaverno.editoni.world.world.MinecraftBlockState;
 import net.querz.nbt.CompoundTag;
 
 public class MinecraftChestBlockState extends MinecraftBlockState

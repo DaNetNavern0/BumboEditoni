@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.minecraft.world;
+package me.danetnaverno.editoni.world.world;
 
 import me.danetnaverno.editoni.common.ResourceLocation;
 import me.danetnaverno.editoni.common.blocktype.BlockType;
@@ -6,11 +6,11 @@ import me.danetnaverno.editoni.common.world.Chunk;
 import me.danetnaverno.editoni.common.world.Entity;
 import me.danetnaverno.editoni.common.world.WorldRenderer;
 import me.danetnaverno.editoni.editor.AbstractEditor;
-import me.danetnaverno.editoni.minecraft.util.location.LocationUtilsKt;
 import me.danetnaverno.editoni.texture.Texture;
 import me.danetnaverno.editoni.util.Camera;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
+import me.danetnaverno.editoni.world.util.location.LocationUtilsKt;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;

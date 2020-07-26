@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.minecraft.world.io;
+package me.danetnaverno.editoni.world.world.io;
 
 import me.danetnaverno.editoni.common.ResourceLocation;
 import me.danetnaverno.editoni.common.blocktype.BlockDictionary;
@@ -6,14 +6,14 @@ import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.entitytype.EntityDictionary;
 import me.danetnaverno.editoni.common.entitytype.EntityType;
 import me.danetnaverno.editoni.common.world.*;
-import me.danetnaverno.editoni.minecraft.util.location.ChunkRegionOffset;
-import me.danetnaverno.editoni.minecraft.util.location.LocationUtilsKt;
-import me.danetnaverno.editoni.minecraft.util.location.RegionLocation;
-import me.danetnaverno.editoni.minecraft.world.*;
 import me.danetnaverno.editoni.util.RobertoGarbagio;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 import me.danetnaverno.editoni.util.location.EntityLocation;
+import me.danetnaverno.editoni.world.util.location.ChunkRegionOffset;
+import me.danetnaverno.editoni.world.util.location.LocationUtilsKt;
+import me.danetnaverno.editoni.world.util.location.RegionLocation;
+import me.danetnaverno.editoni.world.world.*;
 import net.querz.nbt.CompoundTag;
 import net.querz.nbt.DoubleTag;
 import net.querz.nbt.ListTag;
@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -183,7 +182,7 @@ public class Minecraft114WorldIO implements IMinecraftWorldIOProvider
         int posX = data.getCompoundTag("Level").getInt("xPos");
         int posZ = data.getCompoundTag("Level").getInt("zPos");
 
-        BlockType[][] blockTypes = new BlockType[16][];
+        BlockType[][] blockTypes = new BlockType[16][16];
         Map<Integer, BlockState> blockStates = new HashMap<>();
         Map<Integer, TileEntity> tileEntities = new HashMap<>();
         List<Entity> entities = new ArrayList<>();

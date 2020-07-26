@@ -1,19 +1,18 @@
-package me.danetnaverno.editoni.minecraft.world;
+package me.danetnaverno.editoni.world.world;
 
 import me.danetnaverno.editoni.common.blocktype.BlockType;
 import me.danetnaverno.editoni.common.world.*;
 import me.danetnaverno.editoni.common.world.io.IWorldIOProvider;
-import me.danetnaverno.editoni.minecraft.MinecraftDictionaryFiller;
-import me.danetnaverno.editoni.minecraft.util.location.LocationUtilsKt;
-import me.danetnaverno.editoni.minecraft.util.location.RegionLocation;
 import me.danetnaverno.editoni.util.location.BlockLocation;
 import me.danetnaverno.editoni.util.location.ChunkLocation;
 import me.danetnaverno.editoni.util.location.EntityLocation;
+import me.danetnaverno.editoni.world.MinecraftDictionaryFiller;
+import me.danetnaverno.editoni.world.util.location.LocationUtilsKt;
+import me.danetnaverno.editoni.world.util.location.RegionLocation;
 import org.jetbrains.annotations.NotNull;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.nio.file.Path;
-import java.util.*;
 import java.util.stream.Collectors;
 
 public class MinecraftWorld extends World

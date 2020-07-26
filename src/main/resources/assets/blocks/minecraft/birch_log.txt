@@ -1,0 +1,8 @@
+{
+	renderer: {
+		type: "minecraft:cube",
+        side: "minecraft:birch_log",
+		top: "minecraft:birch_log_top",
+		bottom: "minecraft:birch_log_top"
+	}
+}

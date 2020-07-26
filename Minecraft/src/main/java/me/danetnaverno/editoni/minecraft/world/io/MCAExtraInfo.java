@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.minecraft.world.io;
+package me.danetnaverno.editoni.world.world.io;
 
 import net.querz.nbt.CompoundTag;
 

@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.minecraft.world;
+package me.danetnaverno.editoni.world.world;
 
 import me.danetnaverno.editoni.common.entitytype.EntityType;
 import me.danetnaverno.editoni.common.world.Chunk;
