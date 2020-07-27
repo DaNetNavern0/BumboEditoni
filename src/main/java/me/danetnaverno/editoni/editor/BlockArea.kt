@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.editor
 
-import me.danetnaverno.editoni.common.world.World
 import me.danetnaverno.editoni.util.location.BlockLocation
+import me.danetnaverno.editoni.world.World
 
 class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation) : Iterable<BlockLocation>
 {

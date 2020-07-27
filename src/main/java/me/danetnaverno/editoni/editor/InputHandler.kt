@@ -1,111 +1,100 @@
-package me.danetnaverno.editoni.editor;
+package me.danetnaverno.editoni.editor
 
-import kotlin.Pair;
-import lwjgui.event.MouseEvent;
-import me.danetnaverno.editoni.util.Camera;
-import org.lwjgl.glfw.GLFWKeyCallback;
+import lwjgui.event.MouseEvent
+import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFWKeyCallback
 
-import static org.lwjgl.glfw.GLFW.*;
-
-public final class InputHandler
+object InputHandler
 {
-    private static final int KEYBOARD_SIZE = 512;
-    private static final int MOUSE_SIZE = 16;
-    private static final int NO_STATE = -1;
-    public static Pair<Double, Double> lastMousePos = new Pair<>(0.0, 0.0);
-    private static int[] keyStates = new int[KEYBOARD_SIZE];
-    protected static GLFWKeyCallback keyboard = new GLFWKeyCallback()
+    private const val KEYBOARD_SIZE = 512
+    private const val MOUSE_SIZE = 16
+    private const val NO_STATE = -1
+    var lastMousePos = Pair(0.0, 0.0)
+    private val keyStates = IntArray(KEYBOARD_SIZE)
+    internal var keyboard: GLFWKeyCallback = object : GLFWKeyCallback()
     {
-        @Override
-        public void invoke(long window, int key, int scancode, int action, int mods)
+        override fun invoke(window: Long, key: Int, scancode: Int, action: Int, mods: Int)
         {
-            keyStates[key] = action;
+            keyStates[key] = action
         }
-    };
-    private static int[] mouseStates = new int[MOUSE_SIZE];
-    private static long windowId;
-
-    public static void init(long window)
+    }
+    private val mouseStates = IntArray(MOUSE_SIZE)
+    private var windowId: Long = 0
+    fun init(window: Long)
     {
-        resetKeyboard();
-        for (int i = 0; i < mouseStates.length; i++)
-            mouseStates[i] = NO_STATE;
-        glfwSetKeyCallback(window, keyboard);
-        windowId = window;
+        resetKeyboard()
+        for (i in mouseStates.indices) mouseStates[i] = NO_STATE
+        GLFW.glfwSetKeyCallback(window, keyboard)
+        windowId = window
     }
 
-    public static void update()
+    fun update()
     {
-        lastMousePos = InputHandler.getMouseCoords();
-        resetKeyboard();
-
-        for (int i = 0; i < mouseStates.length; i++)
+        lastMousePos = mouseCoords
+        resetKeyboard()
+        for (i in mouseStates.indices)
         {
-            if (mouseStates[i] == GLFW_PRESS)
-                mouseStates[i] = GLFW_REPEAT;
-            else if (mouseStates[i] == GLFW_RELEASE)
-                mouseStates[i] = NO_STATE;
+            if (mouseStates[i] == GLFW.GLFW_PRESS) mouseStates[i] = GLFW.GLFW_REPEAT else if (mouseStates[i] == GLFW.GLFW_RELEASE) mouseStates[i] = NO_STATE
         }
-        glfwPollEvents();
+        GLFW.glfwPollEvents()
     }
 
-    private static void resetKeyboard()
+    private fun resetKeyboard()
     {
-        for (int i = 0; i < keyStates.length; i++)
-            if (keyStates[i] == GLFW_RELEASE)
-                keyStates[i] = NO_STATE;
+        for (i in keyStates.indices) if (keyStates[i] == GLFW.GLFW_RELEASE) keyStates[i] = NO_STATE
     }
 
-    public static void registerMousePress(MouseEvent event)
+    fun registerMousePress(event: MouseEvent)
     {
-        mouseStates[event.button] = 1;
+        mouseStates[event.button] = 1
     }
 
-    public static void registerMouseRelease(MouseEvent event)
+    fun registerMouseRelease(event: MouseEvent)
     {
-        mouseStates[event.button] = 2;
+        mouseStates[event.button] = 2
     }
 
-    public static void registerMouseDrag(MouseEvent it)
+    fun registerMouseDrag(it: MouseEvent)
     {
         //todo move to the proper place
         if (mouseButtonDown(1))
         {
-            Camera.yaw -= it.mouseX - lastMousePos.getFirst();
-            Camera.pitch -= it.mouseY - lastMousePos.getSecond();
+            Editor.currentTab.camera.yaw -= it.mouseX - lastMousePos.first
+            Editor.currentTab.camera.pitch -= it.mouseY - lastMousePos.second
         }
     }
 
-    public static boolean keyDown(int key)
+    fun keyDown(key: Int): Boolean
     {
-        return keyStates[key] != NO_STATE;
+        return keyStates[key] != NO_STATE
     }
 
-    public static boolean keyPressed(int key)
+    fun keyPressed(key: Int): Boolean
     {
-        return keyStates[key] == GLFW_PRESS;
+        return keyStates[key] == GLFW.GLFW_PRESS
     }
 
-    public static boolean keyReleased(int key)
+    fun keyReleased(key: Int): Boolean
     {
-        return keyStates[key] == GLFW_RELEASE;
+        return keyStates[key] == GLFW.GLFW_RELEASE
     }
 
-    public static boolean mouseButtonPressed(int button)
+    fun mouseButtonPressed(button: Int): Boolean
     {
-        return mouseStates[button] == 1;
+        return mouseStates[button] == 1
     }
 
-    public static boolean mouseButtonDown(int button)
+    fun mouseButtonDown(button: Int): Boolean
     {
-        return mouseStates[button] != NO_STATE;
+        return mouseStates[button] != NO_STATE
     }
 
-    public static Pair<Double, Double> getMouseCoords()
-    {
-        double[] posX = new double[1];
-        double[] posY = new double[1];
-        glfwGetCursorPos(windowId, posX, posY);
-        return new Pair<>(posX[0], posY[0]);
-    }
+    val mouseCoords: Pair<Double, Double>
+        get()
+        {
+            val posX = DoubleArray(1)
+            val posY = DoubleArray(1)
+            GLFW.glfwGetCursorPos(windowId, posX, posY)
+            return Pair(posX[0], posY[0])
+        }
 }

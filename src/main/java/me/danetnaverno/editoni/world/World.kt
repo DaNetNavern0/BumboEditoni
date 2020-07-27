@@ -3,20 +3,14 @@ package me.danetnaverno.editoni.world
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.Minecraft114WorldIO
-import me.danetnaverno.editoni.util.location.BlockLocation
-import me.danetnaverno.editoni.util.location.ChunkLocation
-import me.danetnaverno.editoni.util.location.EntityLocation
-import me.danetnaverno.editoni.util.location.toRegionLocation
-import me.danetnaverno.editoni.util.location.RegionLocation
+import me.danetnaverno.editoni.util.location.*
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.nio.file.Path
 import java.util.*
 import kotlin.collections.ArrayList
 
-class World public constructor(var version: String, var worldIOProvider: Minecraft114WorldIO, var path: Path)
+class World constructor(var version: String, var worldIOProvider: Minecraft114WorldIO, var path: Path)
 {
-    lateinit var worldRenderer: WorldRenderer
-
     private val regions = HashMap<RegionLocation, Region>()
 
     //======================

@@ -1,8 +1,0 @@
-{
-	renderer: {
-		type: "minecraft:cube",
-        side: "minecraft:spruce_log",
-		top: "minecraft:spruce_log_top",
-		bottom: "minecraft:spruce_log_top"
-	}
-}

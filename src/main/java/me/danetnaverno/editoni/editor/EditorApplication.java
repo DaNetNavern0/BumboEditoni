@@ -7,6 +7,7 @@ import lwjgui.scene.Window;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 public class EditorApplication extends LWJGUIApplication
 {
@@ -38,7 +39,7 @@ public class EditorApplication extends LWJGUIApplication
         window.setTitle("Bumbo Editoni");
         window.setScene(new Scene(EditorGUI.INSTANCE.init(), WIDTH, HEIGHT));
         GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-        GLFW.glfwSwapInterval(0);
+        GLFW.glfwSwapInterval(1);
         GLFW.glfwSetWindowPos(handleId, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
         window.show();
         window.setRenderingCallback(new Renderer());
@@ -59,6 +60,7 @@ public class EditorApplication extends LWJGUIApplication
                 GL11.glViewport((int) PANEL_WIDTH, 0, width - (int) PANEL_WIDTH * 2, height);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
                 GL11.glEnable(GL11.GL_TEXTURE_2D);
+                GL11.glEnable(GL12.GL_TEXTURE_3D);
                 GL11.glEnable(GL11.GL_BLEND);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GL11.glEnable(GL11.GL_CULL_FACE);
@@ -82,7 +84,6 @@ public class EditorApplication extends LWJGUIApplication
                 Editor.INSTANCE.displayLoop();
                 long deltaTime = System.currentTimeMillis() - frameStamp;
                 fps = (int) (1000f / deltaTime);
-                System.out.println("fps="+fps);
                 frameStamp = System.currentTimeMillis();
             }
             catch (Throwable e)

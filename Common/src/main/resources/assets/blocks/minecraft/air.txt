@@ -1,7 +1,0 @@
-{
-	opaque: false,
-	hidden: true,
-	renderer: {
-		type: "minecraft:air"
-	}
-}

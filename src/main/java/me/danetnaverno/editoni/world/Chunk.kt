@@ -2,16 +2,23 @@ package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.MCAExtraInfo
+import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
 import me.danetnaverno.editoni.util.location.toChunkBlockIndex
 import me.danetnaverno.editoni.util.location.toSectionBlockIndex
+import org.lwjgl.BufferUtils
+import org.lwjgl.opengl.GL15.*
 
 class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
 {
     lateinit var blockTypes: Array<Array<BlockType?>?>
     lateinit var blockStates: MutableMap<Int, BlockState>
     lateinit var tileEntities: MutableMap<Int, TileEntity>
+
+    var vboVertexes : Int = 0
+    var vboTexCoords : Int = 0
+    var vertexCount = 0
 
     fun load(blockTypes: Array<Array<BlockType?>?>, blockStates: MutableMap<Int, BlockState>, tileEntities: MutableMap<Int, TileEntity>)
     {
@@ -79,5 +86,63 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
     fun getEntities(): Collection<Entity>
     {
         return entities.toList()
+    }
+
+    fun updateVertexes()
+    {
+        glDeleteBuffers(vboVertexes)
+        glDeleteBuffers(vboTexCoords)
+
+        val mutableLocation = BlockLocation.Mutable(0, 0, 0)
+        val vertexes = arrayListOf<Float>()
+        val texCoords = arrayListOf<Float>()
+
+        for (section in 0..15)
+        {
+            val blockTypes = blockTypes[section] ?: continue
+            for (index in 0..4095)
+            {
+                val blockType = blockTypes[index] ?: continue
+                mutableLocation.blockLocationFromSectionIndex(this, section, index)
+                if (blockType.renderer.isVisible(world, mutableLocation))
+                    blockType.renderer.draw(world, mutableLocation, vertexes, texCoords)
+            }
+        }
+
+        val vertexData = BufferUtils.createFloatBuffer(vertexes.size)
+        val textureCoordData = BufferUtils.createFloatBuffer(texCoords.size)
+        for (vertex in vertexes)
+            vertexData.put(vertex)
+        for (color in texCoords)
+            textureCoordData.put(color)
+        vertexData.flip()
+        textureCoordData.flip()
+        vertexCount = vertexes.size
+
+        vboVertexes = glGenBuffers()
+        glBindBuffer(GL_ARRAY_BUFFER, vboVertexes)
+        glBufferData(GL_ARRAY_BUFFER, vertexData, GL_STATIC_DRAW)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+        vboTexCoords = glGenBuffers()
+        glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords)
+        glBufferData(GL_ARRAY_BUFFER, textureCoordData, GL_STATIC_DRAW)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+    }
+
+    fun draw()
+    {
+        glBindTexture(GL_TEXTURE_3D, TextureAtlas.todoInstance.atlasTexture)
+        glBindBuffer(GL_ARRAY_BUFFER, vboVertexes)
+        glVertexPointer(3, GL_FLOAT, 0, 0)
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords)
+        glTexCoordPointer(3, GL_FLOAT, 0, 0)
+
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+        glDrawArrays(GL_QUADS, 0, vertexCount)
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
     }
 }

@@ -1,14 +1,13 @@
 package me.danetnaverno.editoni.io
 
+
 import me.danetnaverno.editoni.blockstate.BlockStateDictionary
-import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.blocktype.BlockDictionary.getBlockType
 import me.danetnaverno.editoni.blocktype.BlockType
+import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.RobertoGarbagio
 import me.danetnaverno.editoni.util.location.*
-import me.danetnaverno.editoni.util.location.ChunkRegionOffset
 import me.danetnaverno.editoni.world.*
-import me.danetnaverno.editoni.util.location.RegionLocation
 import net.querz.mca.MCAFile
 import net.querz.mca.MCAUtil
 import net.querz.nbt.tag.CompoundTag
@@ -21,9 +20,7 @@ import java.util.*
 import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
-
-
-import net.querz.mca.Chunk as QuerzChunk;
+import net.querz.mca.Chunk as QuerzChunk
 
 class Minecraft114WorldIO
 {
@@ -34,7 +31,7 @@ class Minecraft114WorldIO
             if (!Files.isDirectory(path)) return false
             val minVersion = intArrayOf(Int.MAX_VALUE)
             val maxVersion = intArrayOf(0)
-            Files.list(path).forEach { it: Path ->
+            Files.list(path).forEach {
                 try
                 {
                     val mcaFile: MCAFile = MCAUtil.read(it.toFile())
@@ -147,7 +144,6 @@ class Minecraft114WorldIO
 
     companion object
     {
-        private val logger = LogManager.getLogger("Minecraft114WorldIO")
         private val mcaRegex = Pattern.compile("r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca")
         private val dataField = QuerzChunk::class.java.getDeclaredField("data")
 

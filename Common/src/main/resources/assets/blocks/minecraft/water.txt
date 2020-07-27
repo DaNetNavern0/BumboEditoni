@@ -1,7 +1,0 @@
-{
-	opaque: false,
-	renderer: {
-		type: "minecraft:liquid",
-		texture: "minecraft:water",
-	}
-}

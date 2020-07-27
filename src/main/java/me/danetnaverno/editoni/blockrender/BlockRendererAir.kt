@@ -3,6 +3,7 @@ package me.danetnaverno.editoni.blockrender
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.world.World
 import me.danetnaverno.editoni.util.location.BlockLocation
+import java.nio.FloatBuffer
 
 class BlockRendererAir : BlockRenderer()
 {
@@ -15,7 +16,7 @@ class BlockRendererAir : BlockRenderer()
         return false
     }
 
-    override fun draw(world: World, location: BlockLocation)
+    override fun draw(world: World, location: BlockLocation, vertexBuffer: ArrayList<Float>, textureBuffer: ArrayList<Float>)
     {
     }
 

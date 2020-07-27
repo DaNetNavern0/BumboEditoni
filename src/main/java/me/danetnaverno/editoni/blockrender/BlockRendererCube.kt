@@ -1,11 +1,11 @@
 package me.danetnaverno.editoni.blockrender
 
 import com.alibaba.fastjson.JSONObject
-import me.danetnaverno.editoni.util.ResourceLocation
-import me.danetnaverno.editoni.world.World
 import me.danetnaverno.editoni.texture.Texture
+import me.danetnaverno.editoni.texture.TextureAtlas
+import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.location.BlockLocation
-import org.lwjgl.opengl.GL11
+import me.danetnaverno.editoni.world.World
 
 open class BlockRendererCube : BlockRenderer
 {
@@ -92,15 +92,22 @@ open class BlockRendererCube : BlockRenderer
 
     override fun isVisible(world: World, location: BlockLocation.Mutable): Boolean
     {
-        return shouldRenderSideAgainst(world, location.addMutable(0, 1, 0)) ||
+        /*return shouldRenderSideAgainst(world, location.addMutable(0, 1, 0)) ||
                 shouldRenderSideAgainst(world, location.addMutable(0, -2, 0)) ||
                 shouldRenderSideAgainst(world, location.addMutable(0, 1, 1)) ||
                 shouldRenderSideAgainst(world, location.addMutable(0, 0, -2)) ||
                 shouldRenderSideAgainst(world, location.addMutable(1, 0, 1)) ||
-                shouldRenderSideAgainst(world, location.addMutable(1, 0, -2))
+                shouldRenderSideAgainst(world, location.addMutable(-2, 0, 0))*/ //todo ???
+        return shouldRenderSideAgainst(world, location.add(0, 1, 0)) ||
+                shouldRenderSideAgainst(world, location.add(0, -1, 0)) ||
+                shouldRenderSideAgainst(world, location.add(0, 0, 1)) ||
+                shouldRenderSideAgainst(world, location.add(0, 0, -1)) ||
+                shouldRenderSideAgainst(world, location.add(1, 0, 0)) ||
+                shouldRenderSideAgainst(world, location.add(-1, 0, 0))
     }
 
-    override fun draw(world: World, location: BlockLocation)
+
+    override fun draw(world: World, location: BlockLocation, vertexBuffer: ArrayList<Float>, textureBuffer: ArrayList<Float>)
     {
         val size = getSize()
         val x1 = location.globalX.toFloat()
@@ -113,92 +120,222 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
         {
-            top.bind()
-            GL11.glBegin(GL11.GL_QUADS)
-            GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(x1, y2, z1)
-            GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(x1, y2, z2)
-            GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(x2, y2, z2)
-            GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(x2, y2, z1)
-            GL11.glEnd()
+            val tIndex = TextureAtlas.todoInstance.getZLayer(top)
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z1)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z2)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z2)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z1)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, -1, 0)))
         {
-            bottom.bind()
-            GL11.glBegin(GL11.GL_QUADS)
-            GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(x1, y1, z1)
-            GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(x2, y1, z1)
-            GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(x2, y1, z2)
-            GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(x1, y1, z2)
-            GL11.glEnd()
+            val tIndex = TextureAtlas.todoInstance.getZLayer(bottom)
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z1)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z1)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z2)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z2)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, 1)))
         {
-            south.bind()
-            GL11.glBegin(GL11.GL_QUADS)
-            GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(x2, y2, z2)
-            GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(x1, y2, z2)
-            GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(x1, y1, z2)
-            GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(x2, y1, z2)
-            GL11.glEnd()
+            val tIndex = TextureAtlas.todoInstance.getZLayer(south)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z2)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z2)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z2)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z2)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, -1)))
         {
-            north.bind()
-            GL11.glBegin(GL11.GL_QUADS)
-            GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(x2, y1, z1)
-            GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(x1, y1, z1)
-            GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(x1, y2, z1)
-            GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(x2, y2, z1)
-            GL11.glEnd()
+            val tIndex = TextureAtlas.todoInstance.getZLayer(north)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z1)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z1)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z1)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z1)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(-1, 0, 0)))
         {
-            west.bind()
-            GL11.glBegin(GL11.GL_QUADS)
-            GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(x1, y2, z2)
-            GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(x1, y2, z1)
-            GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(x1, y1, z1)
-            GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(x1, y1, z2)
-            GL11.glEnd()
+            val tIndex = TextureAtlas.todoInstance.getZLayer(west)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z2)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z1)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z1)
+
+            vertexBuffer.add(x1)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z2)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(1, 0, 0)))
         {
-            east.bind()
-            GL11.glBegin(GL11.GL_QUADS)
-            GL11.glTexCoord2f(0.0f, 0.0f)
-            GL11.glVertex3f(x2, y2, z1)
-            GL11.glTexCoord2f(1.0f, 0.0f)
-            GL11.glVertex3f(x2, y2, z2)
-            GL11.glTexCoord2f(1.0f, 1.0f)
-            GL11.glVertex3f(x2, y1, z2)
-            GL11.glTexCoord2f(0.0f, 1.0f)
-            GL11.glVertex3f(x2, y1, z1)
-            GL11.glEnd()
+            val tIndex = TextureAtlas.todoInstance.getZLayer(east)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z1)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y2)
+            vertexBuffer.add(z2)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z2)
+
+            vertexBuffer.add(x2)
+            vertexBuffer.add(y1)
+            vertexBuffer.add(z1)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
+            textureBuffer.add(0f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
         }
     }
 }

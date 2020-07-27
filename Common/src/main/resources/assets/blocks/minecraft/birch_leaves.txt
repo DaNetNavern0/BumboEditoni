@@ -1,6 +1,0 @@
-{
-	renderer: {
-		type: "minecraft:cube",
-		texture: "minecraft:birch_leaves"
-	}
-}

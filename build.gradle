@@ -48,6 +48,7 @@ dependencies {
     compile group: 'org.lwjgl', name: 'lwjgl-nanovg', version:'3.2.2'
     compile group: 'org.lwjgl', name: 'lwjgl-jemalloc', version:'3.2.2'
     compile group: 'org.lwjgl', name: 'lwjgl-tinyfd', version:'3.2.2'
+    compile group: 'org.lwjgl', name: 'lwjgl-util', version:'2.7.1'
     compile group: 'org.lwjgl', name: 'lwjgl', version:'3.2.2', classifier:'natives-windows'
     compile group: 'org.lwjgl', name: 'lwjgl-opengl', version:'3.2.2', classifier:'natives-windows'
     compile group: 'org.lwjgl', name: 'lwjgl-glfw', version:'3.2.2', classifier:'natives-windows'

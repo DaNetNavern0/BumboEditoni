@@ -1,14 +1,14 @@
 package me.danetnaverno.editoni.editor
 
-import me.danetnaverno.editoni.util.Camera
-import me.danetnaverno.editoni.util.location.BlockLocation
+import me.danetnaverno.editoni.util.location.EntityLocation
+import me.danetnaverno.editoni.world.Block
 import org.lwjgl.glfw.GLFW
 import kotlin.math.cos
 import kotlin.math.sin
 
 object EditorUserHandler
 {
-    var selectedCorner: BlockLocation? = null
+    var selectedCorner: Block? = null
 
     fun selections()
     {
@@ -16,39 +16,68 @@ object EditorUserHandler
 
     fun controls()
     {
+        val camera = Editor.currentTab.camera
         if (InputHandler.keyDown(GLFW.GLFW_KEY_W))
         {
-            Camera.x -= 20.0 / EditorApplication.fps * sin(Math.toRadians(Camera.yaw)) * cos(Math.toRadians(Camera.pitch))
-            Camera.y += 20.0 / EditorApplication.fps * sin(Math.toRadians(Camera.pitch))
-            Camera.z -= 20.0 / EditorApplication.fps * cos(Math.toRadians(Camera.yaw)) * cos(Math.toRadians(Camera.pitch))
+            camera.x -= 20.0 / EditorApplication.fps * sin(Math.toRadians(camera.yaw)) * cos(Math.toRadians(camera.pitch))
+            camera.y += 20.0 / EditorApplication.fps * sin(Math.toRadians(camera.pitch))
+            camera.z -= 20.0 / EditorApplication.fps * cos(Math.toRadians(camera.yaw)) * cos(Math.toRadians(camera.pitch))
         }
         if (InputHandler.keyDown(GLFW.GLFW_KEY_S))
         {
-            Camera.x += 20.0 / EditorApplication.fps * sin(Math.toRadians(Camera.yaw)) * cos(Math.toRadians(Camera.pitch))
-            Camera.y -= 20.0 / EditorApplication.fps * sin(Math.toRadians(Camera.pitch))
-            Camera.z += 20.0 / EditorApplication.fps * cos(Math.toRadians(Camera.yaw)) * cos(Math.toRadians(Camera.pitch))
+            camera.x += 20.0 / EditorApplication.fps * sin(Math.toRadians(camera.yaw)) * cos(Math.toRadians(camera.pitch))
+            camera.y -= 20.0 / EditorApplication.fps * sin(Math.toRadians(camera.pitch))
+            camera.z += 20.0 / EditorApplication.fps * cos(Math.toRadians(camera.yaw)) * cos(Math.toRadians(camera.pitch))
         }
         if (InputHandler.keyDown(GLFW.GLFW_KEY_A))
         {
-            Camera.x -= 20.0 / EditorApplication.fps * cos(Math.toRadians(Camera.yaw))
-            Camera.z += 20.0 / EditorApplication.fps * sin(Math.toRadians(Camera.yaw))
+            camera.x -= 20.0 / EditorApplication.fps * cos(Math.toRadians(camera.yaw))
+            camera.z += 20.0 / EditorApplication.fps * sin(Math.toRadians(camera.yaw))
         }
         if (InputHandler.keyDown(GLFW.GLFW_KEY_D))
         {
-            Camera.x += 20.0 / EditorApplication.fps * cos(Math.toRadians(Camera.yaw))
-            Camera.z -= 20.0 / EditorApplication.fps * sin(Math.toRadians(Camera.yaw))
+            camera.x += 20.0 / EditorApplication.fps * cos(Math.toRadians(camera.yaw))
+            camera.z -= 20.0 / EditorApplication.fps * sin(Math.toRadians(camera.yaw))
         }
         if (InputHandler.keyDown(GLFW.GLFW_KEY_LEFT_SHIFT))
-            Camera.y -= 20.0 / EditorApplication.fps
+            camera.y -= 20.0 / EditorApplication.fps
         if (InputHandler.keyDown(GLFW.GLFW_KEY_SPACE))
-            Camera.y += 20.0 / EditorApplication.fps
+            camera.y += 20.0 / EditorApplication.fps
         if (InputHandler.keyDown(GLFW.GLFW_KEY_1))
-            Camera.yaw += 4.2f
+            camera.yaw += 4.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_2))
-            Camera.yaw -= 4.2f
+            camera.yaw -= 4.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_3))
-            Camera.pitch += 4.2f
+            camera.pitch += 4.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_4))
-            Camera.pitch -= 4.2f
+            camera.pitch -= 4.2f
+
+        if (InputHandler.keyDown(GLFW.GLFW_KEY_5) || InputHandler.mouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_LEFT))
+        {
+            val mouseCoords = InputHandler.mouseCoords
+            val x = mouseCoords.first.toInt()
+            val y = mouseCoords.second.toInt()
+            val raycast = Editor.raycast(x, y)
+            val entity = Editor.findEntity(Editor.currentTab.world, EntityLocation(raycast.x, raycast.y, raycast.z))
+            if (entity != null)
+            {
+
+            }
+            else
+            {
+                if (selectedCorner == null)
+                    selectedCorner = Editor.findBlock(Editor.currentTab.world, Editor.raycast(x, y))
+                else
+                {
+                    val secondCorner = Editor.findBlock(Editor.currentTab.world, Editor.raycast(x, y))
+                    if (secondCorner != null)
+                    {
+                        //operations.apply(SelectAreaOperation(BlockArea(Editor.currentWorld, secondCorner.location, selectedCorner!!)))
+                        Editor.currentTab.selectedArea = BlockArea(Editor.currentTab.world, selectedCorner!!.location, secondCorner.location)
+                        selectedCorner = null
+                    }
+                }
+            }
+        }
     }
 }
