@@ -2,7 +2,6 @@ package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.MCAExtraInfo
-import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.ChunkLocation
 import me.danetnaverno.editoni.util.location.toChunkBlockIndex
@@ -29,6 +28,8 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
 
     fun getBlockAt(location: BlockLocation): Block?
     {
+        if (!location.isValid())
+            return null
         require(this.location.isBlockLocationBelongs(location)) {
             "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
         }
@@ -88,6 +89,15 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
         return entities.toList()
     }
 
+    fun invalidateVertexes()
+    {
+        glDeleteBuffers(vboVertexes)
+        glDeleteBuffers(vboTexCoords)
+        vboVertexes = 0
+        vboTexCoords = 0
+        vertexCount = 0
+    }
+
     fun updateVertexes()
     {
         glDeleteBuffers(vboVertexes)
@@ -132,7 +142,6 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
 
     fun draw()
     {
-        glBindTexture(GL_TEXTURE_3D, TextureAtlas.todoInstance.atlasTexture)
         glBindBuffer(GL_ARRAY_BUFFER, vboVertexes)
         glVertexPointer(3, GL_FLOAT, 0, 0)
 

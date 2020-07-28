@@ -1,13 +1,35 @@
 package me.danetnaverno.editoni.editor
 
+import me.danetnaverno.editoni.operations.OperationList
+import me.danetnaverno.editoni.world.Entity
 import me.danetnaverno.editoni.world.World
 import me.danetnaverno.editoni.world.WorldRenderer
 
 class EditorTab(var world: World)
 {
     val worldRenderer = WorldRenderer(this)
+    var selectedEntity: Entity? = null
+        private set
     var selectedArea: BlockArea? = null
+        private set
     var camera = Camera()
+    val operationList = OperationList(this)
+
+    fun selectEntity(entity: Entity?)
+    {
+        selectedArea = null
+        selectedEntity = entity
+        EditorUserHandler.selectedCorner = null
+        EditorGUI.refreshSelectInfoLabel()
+    }
+
+    fun selectArea(area: BlockArea?)
+    {
+        selectedEntity = null
+        selectedArea = area
+        EditorUserHandler.selectedCorner = null
+        EditorGUI.refreshSelectInfoLabel()
+    }
 
     override fun toString(): String
     {

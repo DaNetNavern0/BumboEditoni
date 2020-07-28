@@ -24,6 +24,7 @@
 	"operation.set": "Set: {0} to {1}",
 	"operation.delete": "Delete: {0} to {1}",
 	"operation.select": "Select: {0} to {1}",
+	"operation.deselect": "Clean Select",
 	"operation.cut": "Cut: {0} to {1}",
 	"operation.confirm_forced_operation": "You're about to override {0} changes. Continue?",
 	"operation.confirm_unsaved": "You have {0} unsaved changes.",

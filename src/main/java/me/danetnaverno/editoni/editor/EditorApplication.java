@@ -59,7 +59,6 @@ public class EditorApplication extends LWJGUIApplication
                 GL11.glClearColor(0.8f, 0.9f, 1.0f, 1.0f);
                 GL11.glViewport((int) PANEL_WIDTH, 0, width - (int) PANEL_WIDTH * 2, height);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-                GL11.glEnable(GL11.GL_TEXTURE_2D);
                 GL11.glEnable(GL12.GL_TEXTURE_3D);
                 GL11.glEnable(GL11.GL_BLEND);
                 GL11.glEnable(GL11.GL_DEPTH_TEST);

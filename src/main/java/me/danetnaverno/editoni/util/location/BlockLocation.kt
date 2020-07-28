@@ -48,6 +48,11 @@ open class BlockLocation
         return ChunkLocation(globalX shr 4, globalZ shr 4)
     }
 
+    fun isValid(): Boolean
+    {
+        return globalY in 0..255
+    }
+
     override fun toString(): String
     {
         return "{$globalX, $globalY, $globalZ}"

@@ -1,9 +1,7 @@
 package me.danetnaverno.editoni.texture
 
 import me.danetnaverno.editoni.util.ResourceLocation
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL12
-import org.lwjgl.opengl.GL15
+import org.lwjgl.opengl.GL30.*
 import java.io.IOException
 
 typealias TextureId = Int
@@ -21,21 +19,21 @@ class TextureAtlas constructor(textures: Collection<Texture>)
 
     init
     {
-        val texId = GL15.glGenTextures()
-        GL15.glBindTexture(GL15.GL_TEXTURE_3D, texId)
+        val texId = glGenTextures()
+        glBindTexture(GL_TEXTURE_3D, texId)
 
-        GL15.glPixelStorei(GL15.GL_UNPACK_ALIGNMENT, 1)
-        GL15.glTexParameteri(GL15.GL_TEXTURE_3D, GL15.GL_TEXTURE_MIN_FILTER, GL15.GL_NEAREST)
-        GL15.glTexParameteri(GL15.GL_TEXTURE_3D, GL15.GL_TEXTURE_MAG_FILTER, GL15.GL_NEAREST)
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
 
-        GL12.glTexImage3D(GL15.GL_TEXTURE_3D, 0, GL15.GL_RGBA, 16, 16, textures.size, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, 0)
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, 16, 16, textures.size, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0)
         for ((i, texture) in textures.withIndex())
         {
             zLayerMap[texture.location] = i
             try
             {
                 if (texture.decodedImage != null)
-                    GL12.glTexSubImage3D(GL15.GL_TEXTURE_3D, 0, 0, 0, i, 16, 16, 1, GL15.GL_RGBA, GL15.GL_UNSIGNED_BYTE, texture.decodedImage)
+                    glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, i, 16, 16, 1, GL_RGBA, GL_UNSIGNED_BYTE, texture.decodedImage)
             }
             catch (e: IOException)
             {
@@ -43,9 +41,9 @@ class TextureAtlas constructor(textures: Collection<Texture>)
             }
         }
 
-        GL15.glTexParameteri(GL15.GL_TEXTURE_3D, GL15.GL_TEXTURE_WRAP_S, GL15.GL_CLAMP_TO_EDGE)
-        GL15.glTexParameteri(GL15.GL_TEXTURE_3D, GL15.GL_TEXTURE_WRAP_T, GL15.GL_CLAMP_TO_EDGE)
-        GL15.glTexParameteri(GL15.GL_TEXTURE_3D, GL15.GL_TEXTURE_WRAP_R, GL15.GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE)
 
         atlasTexture = texId
     }

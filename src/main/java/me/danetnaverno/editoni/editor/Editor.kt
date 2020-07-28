@@ -19,7 +19,7 @@ import kotlin.math.floor
 object Editor
 {
     val logger = LogManager.getLogger("Editor")!!
-    var renderDistance = 3
+    var renderDistance = 10
 
     lateinit var currentTab: EditorTab
         private set
