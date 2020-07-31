@@ -7,16 +7,18 @@ import me.danetnaverno.editoni.util.location.ChunkLocation
 import me.danetnaverno.editoni.util.location.toChunkBlockIndex
 import me.danetnaverno.editoni.util.location.toSectionBlockIndex
 import org.lwjgl.BufferUtils
-import org.lwjgl.opengl.GL15.*
+import org.lwjgl.opengl.GL30.*
+import java.nio.FloatBuffer
 
 class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
 {
+    private lateinit var textureCoordData: FloatBuffer
     lateinit var blockTypes: Array<Array<BlockType?>?>
     lateinit var blockStates: MutableMap<Int, BlockState>
     lateinit var tileEntities: MutableMap<Int, TileEntity>
 
-    var vboVertexes : Int = 0
-    var vboTexCoords : Int = 0
+    var vboVertexes: Int = 0
+    var vboTexCoords: Int = 0
     var vertexCount = 0
 
     fun load(blockTypes: Array<Array<BlockType?>?>, blockStates: MutableMap<Int, BlockState>, tileEntities: MutableMap<Int, TileEntity>)
@@ -120,7 +122,7 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
         }
 
         val vertexData = BufferUtils.createFloatBuffer(vertexes.size)
-        val textureCoordData = BufferUtils.createFloatBuffer(texCoords.size)
+        textureCoordData = BufferUtils.createFloatBuffer(texCoords.size)
         for (vertex in vertexes)
             vertexData.put(vertex)
         for (color in texCoords)
@@ -137,6 +139,7 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
         vboTexCoords = glGenBuffers()
         glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords)
         glBufferData(GL_ARRAY_BUFFER, textureCoordData, GL_STATIC_DRAW)
+        glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, textureCoordData)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
     }
 
@@ -150,6 +153,7 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+
         glDrawArrays(GL_QUADS, 0, vertexCount)
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_TEXTURE_COORD_ARRAY)

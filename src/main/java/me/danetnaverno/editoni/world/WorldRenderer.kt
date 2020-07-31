@@ -2,12 +2,9 @@ package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.editor.Editor.renderDistance
 import me.danetnaverno.editoni.editor.EditorTab
-import me.danetnaverno.editoni.texture.FreeTexture
-import me.danetnaverno.editoni.texture.TextureAtlas
-import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.toRegionLocation
-import org.lwjgl.opengl.GL15.*
+import org.lwjgl.opengl.GL30.*
 import java.util.stream.Collectors
 import kotlin.math.abs
 
@@ -29,23 +26,23 @@ class WorldRenderer(private val tab: EditorTab)
                     .filter { abs(it.location.x - cameraLocation.x) <= renderDistance || abs(it.location.z - cameraLocation.z) <= renderDistance }
             for (chunk in visibleChunks)
             {
-                if ((chunk.location.x + chunk.location.z) % 2 == 0)
+                /*if ((chunk.location.x + chunk.location.z) % 2 == 0)
                     FreeTexture[ResourceLocation("common", "chunk_a")].bind()
                 else
-                    FreeTexture[ResourceLocation("common", "chunk_b")].bind()
+                    FreeTexture[ResourceLocation("common", "chunk_b")].bind()*/
 
                 glBegin(GL_QUADS)
                 glVertex3i(chunk.location.x * 16, 0, chunk.location.z * 16)
-                glTexCoord3f(0.0f, 0.0f, 0.0f)
+                glTexCoord2f(0.0f, 0.0f)
                 glVertex3i(chunk.location.x * 16, 0, (chunk.location.z + 1) * 16)
-                glTexCoord3f(0.0f, 1.0f, 0.0f)
+                glTexCoord2f(0.0f, 1.0f)
                 glVertex3i((chunk.location.x + 1) * 16, 0, (chunk.location.z + 1) * 16)
-                glTexCoord3f(1.0f, 1.0f, 0.0f)
+                glTexCoord2f(1.0f, 1.0f)
                 glVertex3i((chunk.location.x + 1) * 16, 0, chunk.location.z * 16)
-                glTexCoord3f(1.0f, 0.0f, 0.0f)
+                glTexCoord2f(1.0f, 0.0f)
                 glEnd()
             }
-            glBindTexture(GL_TEXTURE_3D, TextureAtlas.todoInstance.atlasTexture)
+            //glBindTexture(GL_TEXTURE_2D_ARRAY, TextureAtlas.todoInstance.atlasTexture)
             for (chunk in visibleChunks)
             {
                 if (chunk.vertexCount == 0)

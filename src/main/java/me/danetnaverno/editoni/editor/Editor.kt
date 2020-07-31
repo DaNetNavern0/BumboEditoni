@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.editor
 
+import me.danetnaverno.editoni.blockrender.Shader
 import me.danetnaverno.editoni.io.Minecraft114WorldIO
 import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.util.location.EntityLocation
@@ -10,7 +11,7 @@ import org.apache.logging.log4j.LogManager
 import org.joml.Vector3d
 import org.joml.Vector3i
 import org.lwjgl.BufferUtils
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL44.*
 import org.lwjgl.util.glu.GLU
 import java.nio.file.Path
 import kotlin.math.ceil
@@ -49,10 +50,11 @@ object Editor
 
     fun displayLoop()
     {
-        GL11.glRotated(currentTab.camera.pitch, -1.0, 0.0, 0.0)
-        GL11.glRotated(currentTab.camera.yaw, 0.0, -1.0, 0.0)
-        GL11.glTranslated(-currentTab.camera.x, -currentTab.camera.y, -currentTab.camera.z)
+        glRotated(currentTab.camera.pitch, -1.0, 0.0, 0.0)
+        glRotated(currentTab.camera.yaw, 0.0, -1.0, 0.0)
+        glTranslated(-currentTab.camera.x, -currentTab.camera.y, -currentTab.camera.z)
 
+        Shader.bind()
         currentTab.worldRenderer.render()
 
         EditorUserHandler.selections()
@@ -100,13 +102,13 @@ object Editor
         val projmatrix = BufferUtils.createFloatBuffer(16)
         val output = BufferUtils.createFloatBuffer(4)
 
-        GL11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, mvmatrix)
-        GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, projmatrix)
-        GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport)
+        glGetFloatv(GL_MODELVIEW_MATRIX, mvmatrix)
+        glGetFloatv(GL_PROJECTION_MATRIX, projmatrix)
+        glGetIntegerv(GL_VIEWPORT, viewport)
 
         val reverseY = viewport.get(3) - screenY
         val winZ = BufferUtils.createFloatBuffer(1)
-        GL11.glReadPixels(screenX, reverseY, 1, 1, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, winZ)
+        glReadPixels(screenX, reverseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, winZ)
         val z = winZ.get(0)
         //Yes, GLU is dated, but it does the job and it's not like we run it so often its performance matter
         GLU.gluUnProject(screenX.toFloat(), reverseY.toFloat(), z, mvmatrix, projmatrix, viewport, output)

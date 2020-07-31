@@ -6,8 +6,8 @@ import lwjgui.scene.Scene;
 import lwjgui.scene.Window;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
+import static org.lwjgl.opengl.GL44.*;
+
 
 public class EditorApplication extends LWJGUIApplication
 {
@@ -42,6 +42,7 @@ public class EditorApplication extends LWJGUIApplication
         GLFW.glfwSwapInterval(1);
         GLFW.glfwSetWindowPos(handleId, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
         window.show();
+        window.setWindowAutoClear(false);
         window.setRenderingCallback(new Renderer());
 
         doAfterStart.run();
@@ -56,18 +57,18 @@ public class EditorApplication extends LWJGUIApplication
         {
             try
             {
-                GL11.glClearColor(0.8f, 0.9f, 1.0f, 1.0f);
-                GL11.glViewport((int) PANEL_WIDTH, 0, width - (int) PANEL_WIDTH * 2, height);
-                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-                GL11.glEnable(GL12.GL_TEXTURE_3D);
-                GL11.glEnable(GL11.GL_BLEND);
-                GL11.glEnable(GL11.GL_DEPTH_TEST);
-                GL11.glEnable(GL11.GL_CULL_FACE);
-                GL11.glCullFace(GL11.GL_NONE);
-                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                glClearColor(0.8f, 0.9f, 1.0f, 1.0f);
+                glViewport((int) PANEL_WIDTH, 0, width - (int) PANEL_WIDTH * 2, height);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glEnable(GL_TEXTURE_2D);
+                glEnable(GL_BLEND);
+                glEnable(GL_DEPTH_TEST);
+                glEnable(GL_CULL_FACE);
+                glCullFace(GL_NONE);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                GL11.glMatrixMode(GL11.GL_PROJECTION);
-                GL11.glLoadIdentity();
+                glMatrixMode(GL_PROJECTION);
+                glLoadIdentity();
 
                 double fovY = 90.0;
                 double zNear = 0.01;
@@ -75,10 +76,10 @@ public class EditorApplication extends LWJGUIApplication
                 double aspect = (width - PANEL_WIDTH * 2) / (double) height;
                 double fH = Math.tan(fovY / 360 * Math.PI) * zNear;
                 double fW = fH * aspect;
-                GL11.glFrustum(-fW, fW, -fH, fH, zNear, zFar);
+                glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 
-                GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                GL11.glLoadIdentity();
+                glMatrixMode(GL_MODELVIEW);
+                glLoadIdentity();
 
                 Editor.INSTANCE.displayLoop();
                 long deltaTime = System.currentTimeMillis() - frameStamp;

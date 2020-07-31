@@ -125,29 +125,29 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.add(y2)
             vertexBuffer.add(z1)
 
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x1)
             vertexBuffer.add(y2)
             vertexBuffer.add(z2)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x2)
             vertexBuffer.add(y2)
             vertexBuffer.add(z2)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x2)
             vertexBuffer.add(y2)
             vertexBuffer.add(z1)
-
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
 
             textureBuffer.add(0f)
             textureBuffer.add(1f)
@@ -161,29 +161,29 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.add(y1)
             vertexBuffer.add(z1)
 
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x2)
             vertexBuffer.add(y1)
             vertexBuffer.add(z1)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x2)
             vertexBuffer.add(y1)
             vertexBuffer.add(z2)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x1)
             vertexBuffer.add(y1)
             vertexBuffer.add(z2)
-
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
 
             textureBuffer.add(0f)
             textureBuffer.add(1f)
@@ -198,29 +198,29 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.add(y2)
             vertexBuffer.add(z2)
 
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x1)
             vertexBuffer.add(y2)
             vertexBuffer.add(z2)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x1)
             vertexBuffer.add(y1)
             vertexBuffer.add(z2)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x2)
             vertexBuffer.add(y1)
             vertexBuffer.add(z2)
-
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
 
             textureBuffer.add(0f)
             textureBuffer.add(1f)
@@ -235,29 +235,29 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.add(y1)
             vertexBuffer.add(z1)
 
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x1)
             vertexBuffer.add(y1)
             vertexBuffer.add(z1)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x1)
             vertexBuffer.add(y2)
             vertexBuffer.add(z1)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x2)
             vertexBuffer.add(y2)
             vertexBuffer.add(z1)
-
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
 
             textureBuffer.add(0f)
             textureBuffer.add(1f)
@@ -272,29 +272,29 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.add(y2)
             vertexBuffer.add(z2)
 
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x1)
             vertexBuffer.add(y2)
             vertexBuffer.add(z1)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x1)
             vertexBuffer.add(y1)
             vertexBuffer.add(z1)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x1)
             vertexBuffer.add(y1)
             vertexBuffer.add(z2)
-
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
 
             textureBuffer.add(0f)
             textureBuffer.add(1f)
@@ -309,29 +309,29 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.add(y2)
             vertexBuffer.add(z1)
 
+            textureBuffer.add(0f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x2)
             vertexBuffer.add(y2)
             vertexBuffer.add(z2)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(0f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x2)
             vertexBuffer.add(y1)
             vertexBuffer.add(z2)
 
+            textureBuffer.add(1f)
+            textureBuffer.add(1f)
+            textureBuffer.add(tIndex)
+
             vertexBuffer.add(x2)
             vertexBuffer.add(y1)
             vertexBuffer.add(z1)
-
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
-
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
 
             textureBuffer.add(0f)
             textureBuffer.add(1f)

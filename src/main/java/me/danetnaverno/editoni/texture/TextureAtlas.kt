@@ -1,6 +1,7 @@
 package me.danetnaverno.editoni.texture
 
 import me.danetnaverno.editoni.util.ResourceLocation
+import org.lwjgl.opengl.ARBTextureStorage.glTexStorage3D
 import org.lwjgl.opengl.GL30.*
 import java.io.IOException
 
@@ -15,25 +16,28 @@ class TextureAtlas constructor(textures: Collection<Texture>)
 {
     var atlasTexture : TextureId = 0
         private set
-    private var zLayerMap = mutableMapOf<ResourceLocation, Int>()
+    var zLayerMap = mutableMapOf<ResourceLocation, Int>()
 
     init
     {
+        glActiveTexture(GL_TEXTURE0)
         val texId = glGenTextures()
-        glBindTexture(GL_TEXTURE_3D, texId)
+        glBindTexture(GL_TEXTURE_2D_ARRAY, texId)
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT)
 
-        glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, 16, 16, textures.size, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0)
+        glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, 16, 16, textures.size)
         for ((i, texture) in textures.withIndex())
         {
             zLayerMap[texture.location] = i
             try
             {
                 if (texture.decodedImage != null)
-                    glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, i, 16, 16, 1, GL_RGBA, GL_UNSIGNED_BYTE, texture.decodedImage)
+                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, 16, 16, 1, GL_RGBA, GL_UNSIGNED_BYTE, texture.decodedImage)
             }
             catch (e: IOException)
             {
@@ -41,16 +45,12 @@ class TextureAtlas constructor(textures: Collection<Texture>)
             }
         }
 
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE)
-
         atlasTexture = texId
     }
 
     fun getZLayer(texture: Texture) : Float
     {
-        return zLayerMap.getOrDefault(texture.location, 0).toFloat() / zLayerMap.size.toFloat() + 0.001f
+        return zLayerMap.getOrDefault(texture.location, 0).toFloat()
     }
 
     companion object

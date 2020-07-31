@@ -36,16 +36,16 @@ class FreeTexture(path: Path)
 
             id = glGenTextures()
 
-            glBindTexture(GL_TEXTURE_3D, id)
+            glBindTexture(GL_TEXTURE_2D, id)
 
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-            glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
 
-            glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, 16, 16, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, decodedImage)
-            glGenerateMipmap(GL_TEXTURE_3D)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, decodedImage)
+            glGenerateMipmap(GL_TEXTURE_2D)
         }
         finally
         {
@@ -55,7 +55,7 @@ class FreeTexture(path: Path)
 
     fun bind()
     {
-        glBindTexture(GL_TEXTURE_3D, id)
+        glBindTexture(GL_TEXTURE_2D, id)
     }
 
     fun ioResourceToByteBuffer(path: Path): ByteBuffer
