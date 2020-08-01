@@ -23,7 +23,7 @@ object TextureDictionary
             val resourceLocation = ResourceLocation(path.getName(path.nameCount - 2).toString(), ass.substring(0, ass.length - 4))
             Texture(resourceLocation, path)
         }.collect(Collectors.toList())
-        TextureAtlas.todoInstance = TextureAtlas(textures)
+        TextureAtlas.mainAtlas = TextureAtlas(textures)
     }
 
     operator fun get(name: ResourceLocation): Texture

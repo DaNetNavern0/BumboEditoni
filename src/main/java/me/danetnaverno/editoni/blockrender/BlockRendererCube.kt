@@ -120,7 +120,7 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
         {
-            val tIndex = TextureAtlas.todoInstance.getZLayer(top)
+            val tIndex = TextureAtlas.mainAtlas.getZLayer(top)
             vertexBuffer.add(x1)
             vertexBuffer.add(y2)
             vertexBuffer.add(z1)
@@ -156,7 +156,7 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(0, -1, 0)))
         {
-            val tIndex = TextureAtlas.todoInstance.getZLayer(bottom)
+            val tIndex = TextureAtlas.mainAtlas.getZLayer(bottom)
             vertexBuffer.add(x1)
             vertexBuffer.add(y1)
             vertexBuffer.add(z1)
@@ -192,7 +192,7 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, 1)))
         {
-            val tIndex = TextureAtlas.todoInstance.getZLayer(south)
+            val tIndex = TextureAtlas.mainAtlas.getZLayer(south)
 
             vertexBuffer.add(x2)
             vertexBuffer.add(y2)
@@ -229,7 +229,7 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, -1)))
         {
-            val tIndex = TextureAtlas.todoInstance.getZLayer(north)
+            val tIndex = TextureAtlas.mainAtlas.getZLayer(north)
 
             vertexBuffer.add(x2)
             vertexBuffer.add(y1)
@@ -266,7 +266,7 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(-1, 0, 0)))
         {
-            val tIndex = TextureAtlas.todoInstance.getZLayer(west)
+            val tIndex = TextureAtlas.mainAtlas.getZLayer(west)
 
             vertexBuffer.add(x1)
             vertexBuffer.add(y2)
@@ -303,7 +303,7 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(1, 0, 0)))
         {
-            val tIndex = TextureAtlas.todoInstance.getZLayer(east)
+            val tIndex = TextureAtlas.mainAtlas.getZLayer(east)
 
             vertexBuffer.add(x2)
             vertexBuffer.add(y2)

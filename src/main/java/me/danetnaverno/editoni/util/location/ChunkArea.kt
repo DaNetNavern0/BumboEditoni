@@ -1,0 +1,46 @@
+package me.danetnaverno.editoni.util.location
+
+import me.danetnaverno.editoni.world.World
+
+class ChunkArea(val world: World, cornerA: ChunkLocation, cornerB: ChunkLocation)
+{
+    val min = ChunkLocation(
+            Math.min(cornerA.x, cornerB.x),
+            Math.min(cornerA.z, cornerB.z))
+
+    val max = ChunkLocation(
+            Math.max(cornerA.x, cornerB.x),
+            Math.max(cornerA.z, cornerB.z))
+
+    fun iterator(): Iterator<ChunkLocation>
+    {
+        return ChunkAreaIterator(min, max)
+    }
+}
+
+class ChunkAreaIterator(min: ChunkLocation, max: ChunkLocation) : Iterator<ChunkLocation>
+{
+    private val minX = min.x
+
+    private val maxX = max.x
+    private val maxZ = max.z
+
+    private var currentX = min.x - 1
+    private var currentZ = min.z
+
+    override fun hasNext(): Boolean
+    {
+        return !(currentX >= maxX && currentZ >= maxZ)
+    }
+
+    override fun next(): ChunkLocation
+    {
+        currentX++
+        if (currentX > maxX)
+        {
+            currentX = minX
+            currentZ++
+        }
+        return ChunkLocation(currentX, currentZ)
+    }
+}

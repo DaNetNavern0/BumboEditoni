@@ -128,7 +128,7 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
     fun deleteBlock(location: BlockLocation)
     {
         val chunk = getChunk(location.toChunkLocation())
-        if (chunk != null) setBlock(Block(chunk, location, MinecraftDictionaryFiller.AIR, null, null))
+        if (chunk != null) setBlock(Block(chunk, location.immutable(), MinecraftDictionaryFiller.AIR, null, null))
     }
 
 

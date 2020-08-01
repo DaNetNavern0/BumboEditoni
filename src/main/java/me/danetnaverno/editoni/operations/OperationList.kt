@@ -3,11 +3,10 @@ package me.danetnaverno.editoni.operations
 import me.danetnaverno.editoni.editor.EditorGUI.refreshOperationHistory
 import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.util.Translation.translate
-import me.danetnaverno.editoni.world.Chunk
+import me.danetnaverno.editoni.util.location.ChunkArea
 import java.lang.Integer.max
 import java.lang.Integer.min
 import java.util.*
-import java.util.function.Consumer
 import javax.swing.JOptionPane
 
 class OperationList constructor(val editorTab: EditorTab)
@@ -23,8 +22,13 @@ class OperationList constructor(val editorTab: EditorTab)
         {
             operationList.add(operation)
             currentPosition = operationList.size - 1
-            operation.apply()
-            operation.alteredChunks.forEach(Consumer { obj: Chunk -> obj.invalidateVertexes() }) //todo doesn't refresh _all_ potentially altered chunks
+            operation.initialApply()
+            val chunks = operation.alteredChunks
+            if (chunks != null)
+                ChunkArea(chunks.world, chunks.min.add(-1, -1), chunks.max.add(1, 1))
+                        .iterator().asSequence()
+                        .mapNotNull { editorTab.world.getChunk(it) }
+                        .forEach { it.invalidateVertexes() }
         }
         else
         {
@@ -37,14 +41,19 @@ class OperationList constructor(val editorTab: EditorTab)
     }
 
     /**
-     * Erases all operations after selected position and applies the operation
+     * Erases all operations after selected position and applies the new operation
      */
     fun applyForced(operation: Operation)
     {
         operationList.subList(currentPosition, operationList.size).clear()
         operationList.add(operation)
         currentPosition = operationList.size - 1
-        operation.alteredChunks.forEach(Consumer { obj: Chunk -> obj.invalidateVertexes() }) //todo doesn't refresh _all_ potentially altered chunks
+        val chunks = operation.alteredChunks
+        if (chunks != null)
+            ChunkArea(chunks.world, chunks.min.add(-1, -1), chunks.max.add(1, 1))
+                    .iterator().asSequence()
+                    .mapNotNull { editorTab.world.getChunk(it) }
+                    .forEach { it.invalidateVertexes() }
     }
 
     val all: List<Operation>
@@ -73,7 +82,7 @@ class OperationList constructor(val editorTab: EditorTab)
     fun setPosition(newPosition: Int)
     {
         var currentPosition = newPosition
-        val alteredChunks = mutableListOf<Chunk>()
+        val alteredChunks = mutableListOf<ChunkArea>()
         currentPosition = max(0, min(currentPosition, operationList.size - 1))
         if (currentPosition < this.currentPosition)
         {
@@ -81,20 +90,29 @@ class OperationList constructor(val editorTab: EditorTab)
             {
                 val operation = operationList[i]
                 operation.rollback()
-                alteredChunks.addAll(operation.alteredChunks)
+                val chunks = operation.alteredChunks
+                if (chunks != null)
+                    alteredChunks.add(chunks)
             }
-            operationList[currentPosition].apply()
+            operationList[currentPosition].reapply()
         }
         else
         {
             for (i in this.currentPosition + 1..currentPosition)
             {
                 val operation = operationList[i]
-                operation.apply()
-                alteredChunks.addAll(operation.alteredChunks)
+                operation.reapply()
+                val chunks = operation.alteredChunks
+                if (chunks != null)
+                    alteredChunks.add(chunks)
             }
         }
-        alteredChunks.forEach { it.invalidateVertexes() } //todo doesn't refresh _all_ potentially altered chunks
+        alteredChunks.forEach { chunkArea ->
+            ChunkArea(chunkArea.world, chunkArea.min.add(-1, -1), chunkArea.max.add(1, 1))
+                    .iterator().asSequence()
+                    .mapNotNull { chunkLoc -> editorTab.world.getChunk(chunkLoc) }
+                    .forEach { it.invalidateVertexes() }
+        }
         this.currentPosition = currentPosition
     }
 }

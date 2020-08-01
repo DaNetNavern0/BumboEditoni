@@ -2,7 +2,7 @@ package me.danetnaverno.editoni.util.location
 
 import me.danetnaverno.editoni.world.Chunk
 
-open class BlockLocation
+open class BlockLocation : Cloneable
 {
     var globalX: Int
         protected set
@@ -30,22 +30,27 @@ open class BlockLocation
 
     fun add(x: Int, y: Int, z: Int): BlockLocation
     {
-        return BlockLocation(this.globalX + x, this.globalY + y, this.globalZ + z)
+        return BlockLocation(globalX + x, globalY + y, globalZ + z)
     }
 
     fun add(location: BlockLocation): BlockLocation
     {
-        return BlockLocation(this.globalX + location.globalX, this.globalY + location.localY, this.globalZ + location.localZ)
+        return BlockLocation(globalX + location.globalX, globalY + location.localY, globalZ + location.localZ)
     }
 
     fun subtract(location: EntityLocation): EntityLocation
     {
-        return EntityLocation(this.globalX - location.globalX, this.globalY - location.globalY, this.globalZ - location.globalZ)
+        return EntityLocation(globalX - location.globalX, globalY - location.globalY, globalZ - location.globalZ)
     }
 
     fun toChunkLocation(): ChunkLocation
     {
         return ChunkLocation(globalX shr 4, globalZ shr 4)
+    }
+
+    open fun immutable(): BlockLocation
+    {
+        return this
     }
 
     fun isValid(): Boolean
@@ -63,6 +68,11 @@ open class BlockLocation
         return "{$localX, $localY, $localZ}"
     }
 
+    public override fun clone(): BlockLocation
+    {
+        return BlockLocation(globalX, globalY, globalZ)
+    }
+
     override fun equals(other: Any?): Boolean
     {
         if (other is BlockLocation)
@@ -77,26 +87,39 @@ open class BlockLocation
 
     override fun hashCode(): Int
     {
-        return (this.globalX * 31 + this.globalY) * 31 + this.globalZ
+        return (globalX * 31 + globalY) * 31 + globalZ
     }
 
     companion object
 
     class Mutable(globalX: Int, globalY: Int, globalZ: Int): BlockLocation(globalX, globalY, globalZ)
     {
+        override fun immutable(): BlockLocation
+        {
+            return BlockLocation(globalX, globalY, globalZ)
+        }
+
         fun blockLocationFromSectionIndex(chunk: Chunk, section: Int, index: Int): Mutable
         {
-            this.globalX = chunk.location.x shl 4 or ((index % 16) and 15)
-            this.globalY = index / 256 + section * 16
-            this.globalZ = chunk.location.z shl 4 or ((index % 256 / 16) and 15)
+            globalX = chunk.location.x shl 4 or ((index % 16) and 15)
+            globalY = index / 256 + section * 16
+            globalZ = chunk.location.z shl 4 or ((index % 256 / 16) and 15)
             return this;
         }
 
-        fun addMutable(x: Int, y: Int, z: Int): Mutable
+        fun addMutably(x: Int, y: Int, z: Int): Mutable
         {
-            this.globalX += x
-            this.globalY += y
-            this.globalZ += z
+            globalX += x
+            globalY += y
+            globalZ += z
+            return this
+        }
+
+        fun setMutably(x: Int, y: Int, z: Int): Mutable
+        {
+            globalX = x
+            globalY = y
+            globalZ = z
             return this
         }
     }

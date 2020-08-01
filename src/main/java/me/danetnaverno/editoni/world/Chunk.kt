@@ -40,7 +40,7 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
         val array = blockTypes[section]
         if (array == null || array[index] == null)
             return null
-        return Block(this, location, array[index]!!, getBlockStateAt(location), getTileEntityAt(location))
+        return Block(this, location.immutable(), array[index]!!, getBlockStateAt(location), getTileEntityAt(location))
     }
 
     fun getBlockTypeAt(location: BlockLocation): BlockType?

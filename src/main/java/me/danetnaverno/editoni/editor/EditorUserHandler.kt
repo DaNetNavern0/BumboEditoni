@@ -2,8 +2,10 @@ package me.danetnaverno.editoni.editor
 
 import me.danetnaverno.editoni.operations.DeleteBlocksOperation
 import me.danetnaverno.editoni.operations.SelectAreaOperation
-import me.danetnaverno.editoni.texture.FreeTexture
+import me.danetnaverno.editoni.texture.Texture
+import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.ResourceLocation
+import me.danetnaverno.editoni.util.location.BlockArea
 import me.danetnaverno.editoni.util.location.EntityLocation
 import me.danetnaverno.editoni.world.Block
 import org.lwjgl.glfw.GLFW
@@ -90,7 +92,6 @@ object EditorUserHandler
             val entity = Editor.findEntity(Editor.currentTab.world, EntityLocation(raycast.x, raycast.y, raycast.z))
             if (entity != null)
             {
-
             }
             else
             {
@@ -113,7 +114,7 @@ object EditorUserHandler
 
     private fun renderSelection(area: BlockArea)
     {
-        FreeTexture[ResourceLocation("common:select")].bind()
+        val tIndex = TextureAtlas.mainAtlas.getZLayer(Texture[ResourceLocation("common:select")]).toDouble()
 
         val min = EntityLocation(area.min.globalX - 0.01, area.min.globalY - 0.01, area.min.globalZ - 0.01)
         val max = EntityLocation(area.max.globalX + 1.01, area.max.globalY + 1.01, area.max.globalZ + 1.01)
@@ -150,56 +151,56 @@ object EditorUserHandler
 
         glTexCoord2d(size.globalX, 0.0)
         glVertex3d(max.globalX, min.globalY, min.globalZ)
-        glTexCoord2d(size.globalX, size.globalZ)
+        glTexCoord3d(size.globalX, size.globalZ, tIndex)
         glVertex3d(max.globalX, min.globalY, max.globalZ)
-        glTexCoord2d(0.0, size.globalZ)
+        glTexCoord3d(0.0, size.globalZ, tIndex)
         glVertex3d(min.globalX, min.globalY, max.globalZ)
-        glTexCoord2d(0.0, 0.0)
+        glTexCoord3d(0.0, 0.0, tIndex)
         glVertex3d(min.globalX, min.globalY, min.globalZ)
 
-        glTexCoord2d(0.0, 0.0)
+        glTexCoord3d(0.0, 0.0, tIndex)
         glVertex3d(min.globalX, max.globalY, min.globalZ)
-        glTexCoord2d(0.0, size.globalZ)
+        glTexCoord3d(0.0, size.globalZ, tIndex)
         glVertex3d(min.globalX, max.globalY, max.globalZ)
-        glTexCoord2d(size.globalX, size.globalZ)
+        glTexCoord3d(size.globalX, size.globalZ, tIndex)
         glVertex3d(max.globalX, max.globalY, max.globalZ)
-        glTexCoord2d(size.globalX, 0.0)
+        glTexCoord3d(size.globalX, 0.0, tIndex)
         glVertex3d(max.globalX, max.globalY, min.globalZ)
 
-        glTexCoord2d(0.0, 0.0)
+        glTexCoord3d(0.0, 0.0, tIndex)
         glVertex3d(min.globalX, min.globalY, min.globalZ)
-        glTexCoord2d(0.0, size.globalZ)
+        glTexCoord3d(0.0, size.globalZ, tIndex)
         glVertex3d(min.globalX, min.globalY, max.globalZ)
-        glTexCoord2d(size.globalX, size.globalZ)
+        glTexCoord3d(size.globalX, size.globalZ, tIndex)
         glVertex3d(min.globalX, max.globalY, max.globalZ)
-        glTexCoord2d(size.globalX, 0.0)
+        glTexCoord3d(size.globalX, 0.0, tIndex)
         glVertex3d(min.globalX, max.globalY, min.globalZ)
 
-        glTexCoord2d(0.0, size.globalZ)
+        glTexCoord3d(0.0, size.globalZ, tIndex)
         glVertex3d(min.globalX, max.globalY, min.globalZ)
-        glTexCoord2d(size.globalX, size.globalZ)
+        glTexCoord3d(size.globalX, size.globalZ, tIndex)
         glVertex3d(max.globalX, max.globalY, min.globalZ)
-        glTexCoord2d(size.globalX, 0.0)
+        glTexCoord3d(size.globalX, 0.0, tIndex)
         glVertex3d(max.globalX, min.globalY, min.globalZ)
-        glTexCoord2d(0.0, 0.0)
+        glTexCoord3d(0.0, 0.0, tIndex)
         glVertex3d(min.globalX, min.globalY, min.globalZ)
 
-        glTexCoord2d(0.0, 0.0)
+        glTexCoord3d(0.0, 0.0, tIndex)
         glVertex3d(min.globalX, min.globalY, max.globalZ)
-        glTexCoord2d(size.globalX, 0.0)
+        glTexCoord3d(size.globalX, 0.0, tIndex)
         glVertex3d(max.globalX, min.globalY, max.globalZ)
-        glTexCoord2d(size.globalX, size.globalZ)
+        glTexCoord3d(size.globalX, size.globalZ, tIndex)
         glVertex3d(max.globalX, max.globalY, max.globalZ)
-        glTexCoord2d(0.0, size.globalZ)
+        glTexCoord3d(0.0, size.globalZ, tIndex)
         glVertex3d(min.globalX, max.globalY, max.globalZ)
 
-        glTexCoord2d(size.globalX, 0.0)
+        glTexCoord3d(size.globalX, 0.0, tIndex)
         glVertex3d(max.globalX, max.globalY, min.globalZ)
-        glTexCoord2d(size.globalX, size.globalZ)
+        glTexCoord3d(size.globalX, size.globalZ, tIndex)
         glVertex3d(max.globalX, max.globalY, max.globalZ)
-        glTexCoord2d(0.0, size.globalZ)
+        glTexCoord3d(0.0, size.globalZ, tIndex)
         glVertex3d(max.globalX, min.globalY, max.globalZ)
-        glTexCoord2d(0.0, 0.0)
+        glTexCoord3d(0.0, 0.0, tIndex)
         glVertex3d(max.globalX, min.globalY, min.globalZ)
 
         glEnd()

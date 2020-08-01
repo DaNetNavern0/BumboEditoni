@@ -1,8 +1,7 @@
 package me.danetnaverno.editoni.operations
 
-import me.danetnaverno.editoni.editor.BlockArea
 import me.danetnaverno.editoni.util.Translation
-import me.danetnaverno.editoni.world.Chunk
+import me.danetnaverno.editoni.util.location.BlockArea
 
 class SelectAreaOperation(val area: BlockArea?) : Operation()
 {
@@ -11,14 +10,11 @@ class SelectAreaOperation(val area: BlockArea?) : Operation()
                 Translation.translate("operation.deselect")
             else
                 Translation.translate("operation.select", area.min, area.max)
-    override val alteredChunks: Collection<Chunk> =
-            if (area != null)
-                area.mapNotNull { area.world.getChunk(it.toChunkLocation()) }.toSet()
-            else
-                emptySet()
+    override val alteredChunks = area?.toChunkArea()
+
     private var previousArea: BlockArea? = null
 
-    override fun apply()
+    override fun initialApply()
     {
         val operations = operationList.all
         var lastSelect : SelectAreaOperation? = null
@@ -30,6 +26,11 @@ class SelectAreaOperation(val area: BlockArea?) : Operation()
                 lastSelect = operation
         }
         previousArea = lastSelect?.area
+        reapply()
+    }
+
+    override fun reapply()
+    {
         operationList.editorTab.selectArea(area)
     }
 

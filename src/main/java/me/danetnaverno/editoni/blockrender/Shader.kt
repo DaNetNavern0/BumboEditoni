@@ -1,9 +1,7 @@
 package me.danetnaverno.editoni.blockrender
 
 import me.danetnaverno.editoni.Main
-import me.danetnaverno.editoni.texture.FreeTexture
 import me.danetnaverno.editoni.texture.TextureAtlas
-import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.ResourceUtil.getBuiltInResourcePath
 import org.apache.logging.log4j.LogManager
 import org.lwjgl.opengl.GL44.*
@@ -69,11 +67,8 @@ object Shader
     {
         glUseProgram(program)
         glActiveTexture(GL_TEXTURE0)
-        val loc = glGetUniformLocation(program, "a_texture")
-        if (false)
-            FreeTexture[ResourceLocation("minecraft", "granite")].bind()
-        else
-            glBindTexture(GL_TEXTURE_2D_ARRAY, TextureAtlas.todoInstance.atlasTexture)
+        val loc = glGetUniformLocation(program, "in_texture")
+        glBindTexture(GL_TEXTURE_2D_ARRAY, TextureAtlas.mainAtlas.atlasTexture)
         glUniform1i(loc, 0)
     }
 }

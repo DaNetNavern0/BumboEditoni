@@ -55,6 +55,6 @@ class TextureAtlas constructor(textures: Collection<Texture>)
 
     companion object
     {
-        lateinit var todoInstance: TextureAtlas
+        lateinit var mainAtlas: TextureAtlas
     }
 }

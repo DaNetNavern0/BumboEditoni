@@ -3,6 +3,7 @@ package me.danetnaverno.editoni.clipboard;
 import me.danetnaverno.editoni.world.Block;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ClipboardPrototype
@@ -14,7 +15,12 @@ public class ClipboardPrototype
         clipboard = blocks;
     }
 
-    public static void add(List<Block> blocks)
+    public static void add(Block block)
+    {
+        clipboard.add(block);
+    }
+
+    public static void add(Collection<Block> blocks)
     {
         clipboard.addAll(blocks);
     }

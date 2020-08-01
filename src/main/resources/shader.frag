@@ -1,10 +1,10 @@
-#version 440 compatibility
+#version 330 compatibility
 
-uniform sampler2DArray a_texture;
+uniform sampler2DArray in_texture;
 
 in vec3 v_texcoord;
 
 void main()
 {
-    gl_FragColor = texture(a_texture, v_texcoord);
+    gl_FragColor = texture(in_texture, v_texcoord);
 }

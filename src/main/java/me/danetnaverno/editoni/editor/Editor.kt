@@ -55,6 +55,7 @@ object Editor
         glTranslated(-currentTab.camera.x, -currentTab.camera.y, -currentTab.camera.z)
 
         Shader.bind()
+        currentTab.worldRenderer.bake()
         currentTab.worldRenderer.render()
 
         EditorUserHandler.selections()
