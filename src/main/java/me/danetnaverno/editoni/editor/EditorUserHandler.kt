@@ -1,12 +1,12 @@
 package me.danetnaverno.editoni.editor
 
+import me.danetnaverno.editoni.location.BlockArea
+import me.danetnaverno.editoni.location.EntityLocation
 import me.danetnaverno.editoni.operations.DeleteBlocksOperation
 import me.danetnaverno.editoni.operations.SelectAreaOperation
 import me.danetnaverno.editoni.texture.Texture
 import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.ResourceLocation
-import me.danetnaverno.editoni.util.location.BlockArea
-import me.danetnaverno.editoni.util.location.EntityLocation
 import me.danetnaverno.editoni.world.Block
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL44.*
@@ -69,6 +69,14 @@ object EditorUserHandler
             camera.pitch += 4.2f
         if (InputHandler.keyDown(GLFW.GLFW_KEY_4))
             camera.pitch -= 4.2f
+        if (InputHandler.keyDown(GLFW.GLFW_KEY_R))
+        {
+            val world = Editor.currentTab.world
+            Editor.unloadWorld(world)
+            val newWorld = Editor.loadWorld(world.path)
+            val tab = Editor.createNewTab(newWorld)
+            Editor.openTab(tab)
+        }
 
         if (InputHandler.keyReleased(GLFW.GLFW_KEY_DELETE))
         {
@@ -122,6 +130,7 @@ object EditorUserHandler
         glDisable(GL_DEPTH_TEST)
         glLineWidth(2f)
 
+        //todo this isn't nice
         glBegin(GL_LINE_LOOP)
         glVertex3d(min.globalX, min.globalY, min.globalZ)
         glVertex3d(min.globalX, min.globalY, max.globalZ)

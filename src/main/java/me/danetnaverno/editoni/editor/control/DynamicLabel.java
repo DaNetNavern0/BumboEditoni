@@ -6,6 +6,7 @@ import lwjgui.scene.control.Labeled;
 import me.danetnaverno.editoni.editor.Editor;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 /**

@@ -1,11 +1,12 @@
 package me.danetnaverno.editoni.blockrender
 
 import com.alibaba.fastjson.JSONObject
+import me.danetnaverno.editoni.location.BlockLocation
 import me.danetnaverno.editoni.texture.Texture
 import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.ResourceLocation
-import me.danetnaverno.editoni.util.location.BlockLocation
 import me.danetnaverno.editoni.world.World
+import java.nio.FloatBuffer
 
 open class BlockRendererCube : BlockRenderer
 {
@@ -92,22 +93,22 @@ open class BlockRendererCube : BlockRenderer
 
     override fun isVisible(world: World, location: BlockLocation.Mutable): Boolean
     {
-        /*return shouldRenderSideAgainst(world, location.addMutable(0, 1, 0)) ||
-                shouldRenderSideAgainst(world, location.addMutable(0, -2, 0)) ||
-                shouldRenderSideAgainst(world, location.addMutable(0, 1, 1)) ||
-                shouldRenderSideAgainst(world, location.addMutable(0, 0, -2)) ||
-                shouldRenderSideAgainst(world, location.addMutable(1, 0, 1)) ||
-                shouldRenderSideAgainst(world, location.addMutable(-2, 0, 0))*/ //todo ???
-        return shouldRenderSideAgainst(world, location.add(0, 1, 0)) ||
-                shouldRenderSideAgainst(world, location.add(0, -1, 0)) ||
-                shouldRenderSideAgainst(world, location.add(0, 0, 1)) ||
-                shouldRenderSideAgainst(world, location.add(0, 0, -1)) ||
-                shouldRenderSideAgainst(world, location.add(1, 0, 0)) ||
-                shouldRenderSideAgainst(world, location.add(-1, 0, 0))
+        //A small trick to avoid creating new short-living BlockLocation instances
+        val x = location.globalX
+        val y = location.globalY
+        val z = location.globalZ
+        val result = shouldRenderSideAgainst(world, location.addMutably(0, 1, 0)) ||
+                shouldRenderSideAgainst(world, location.addMutably(0, -2, 0)) ||
+                shouldRenderSideAgainst(world, location.addMutably(0, 1, 1)) ||
+                shouldRenderSideAgainst(world, location.addMutably(0, 0, -2)) ||
+                shouldRenderSideAgainst(world, location.addMutably(1, 0, 1)) ||
+                shouldRenderSideAgainst(world, location.addMutably(-2, 0, 0))
+        location.setMutably(x, y, z)
+        return result
     }
 
 
-    override fun draw(world: World, location: BlockLocation, vertexBuffer: ArrayList<Float>, textureBuffer: ArrayList<Float>)
+    override fun draw(world: World, location: BlockLocation, vertexBuffer: FloatBuffer, uvBuffer: FloatBuffer)
     {
         val size = getSize()
         val x1 = location.globalX.toFloat()
@@ -121,221 +122,221 @@ open class BlockRendererCube : BlockRenderer
         if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(top)
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, -1, 0)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(bottom)
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, 1)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(south)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, -1)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(north)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(-1, 0, 0)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(west)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x1)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x1)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(1, 0, 0)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(east)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y2)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y2)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(0f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(0f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z2)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z2)
 
-            textureBuffer.add(1f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(1f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
 
-            vertexBuffer.add(x2)
-            vertexBuffer.add(y1)
-            vertexBuffer.add(z1)
+            vertexBuffer.put(x2)
+            vertexBuffer.put(y1)
+            vertexBuffer.put(z1)
 
-            textureBuffer.add(0f)
-            textureBuffer.add(1f)
-            textureBuffer.add(tIndex)
+            uvBuffer.put(0f)
+            uvBuffer.put(1f)
+            uvBuffer.put(tIndex)
         }
     }
 }

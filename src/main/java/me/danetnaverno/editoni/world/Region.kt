@@ -1,8 +1,8 @@
 package me.danetnaverno.editoni.world
 
-import me.danetnaverno.editoni.util.location.BlockLocation
-import me.danetnaverno.editoni.util.location.ChunkLocation
-import me.danetnaverno.editoni.util.location.RegionLocation
+import me.danetnaverno.editoni.location.BlockLocation
+import me.danetnaverno.editoni.location.ChunkLocation
+import me.danetnaverno.editoni.location.RegionLocation
 import net.querz.mca.MCAFile
 
 

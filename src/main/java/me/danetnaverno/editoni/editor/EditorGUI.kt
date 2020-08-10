@@ -22,14 +22,14 @@ object EditorGUI
     fun init(): Pane
     {
         val root = BorderPane()
-        root.alignment = Pos.TOP_CENTER
+        /*root.alignment = Pos.TOP_CENTER
         root.background = null
         root.isMouseTransparent = false
 
         root.setCenter(workArea())
         root.setTop(menuBar())
         root.setLeft(leftPanel())
-        root.setRight(rightPanel())
+        root.setRight(rightPanel())*/
 
         return root
     }
@@ -55,21 +55,33 @@ object EditorGUI
         // "File"
         val file = Menu(Translation.translate("top_bar.file"))
 
-        val open = MenuItem(Translation.translate("top_bar.file.open"))
-        open.setOnAction {
+        val fileOpen = MenuItem(Translation.translate("top_bar.file.open"))
+        fileOpen.setOnAction {
             val fc = JFileChooser()
             fc.fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES
             val state = fc.showOpenDialog(null)
             if (state == JFileChooser.APPROVE_OPTION)
             {
-                Editor.loadWorlds(fc.selectedFile.toPath()).forEach { Editor.createNewTab(it) }
+                val world = Editor.loadWorld(fc.selectedFile.toPath())
+                val tab = Editor.createNewTab(world)
+                Editor.openTab(tab)
                 refreshWorldList()
             }
         }
-        file.items.add(open)
+        file.items.add(fileOpen)
 
-        val saveAs = MenuItem(Translation.translate("top_bar.file.save_as"))
-        saveAs.setOnAction {
+        val fileReload = MenuItem(Translation.translate("top_bar.file.reload"))
+        fileReload.setOnAction {
+            val world = Editor.currentTab.world
+            Editor.unloadWorld(world)
+            val newWorld = Editor.loadWorld(world.path)
+            val tab = Editor.createNewTab(newWorld)
+            Editor.openTab(tab)
+        }
+        file.items.add(fileReload)
+
+        val fileSaveAs = MenuItem(Translation.translate("top_bar.file.save_as"))
+        fileSaveAs.setOnAction {
             val fc = JFileChooser()
             fc.fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES
             val state = fc.showOpenDialog(null)
@@ -80,7 +92,7 @@ object EditorGUI
                 Editor.currentTab.operationList.savePosition = Editor.currentTab.operationList.getPosition()
             }
         }
-        file.items.add(saveAs)
+        file.items.add(fileSaveAs)
 
         bar.items.add(file)
         return bar

@@ -2,24 +2,21 @@ package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.MCAExtraInfo
-import me.danetnaverno.editoni.util.location.BlockLocation
-import me.danetnaverno.editoni.util.location.ChunkLocation
-import me.danetnaverno.editoni.util.location.toChunkBlockIndex
-import me.danetnaverno.editoni.util.location.toSectionBlockIndex
-import org.lwjgl.BufferUtils
-import org.lwjgl.opengl.GL30.*
+import me.danetnaverno.editoni.location.BlockLocation
+import me.danetnaverno.editoni.location.ChunkLocation
+import me.danetnaverno.editoni.location.toChunkBlockIndex
+import me.danetnaverno.editoni.location.toSectionBlockIndex
+import org.lwjgl.opengl.GL44.*
+import org.lwjgl.system.MemoryUtil
 import java.nio.FloatBuffer
 
 class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
 {
-    private lateinit var textureCoordData: FloatBuffer
     lateinit var blockTypes: Array<Array<BlockType?>?>
     lateinit var blockStates: MutableMap<Int, BlockState>
     lateinit var tileEntities: MutableMap<Int, TileEntity>
 
-    var vboVertexes: Int = 0
-    var vboTexCoords: Int = 0
-    var vertexCount = 0
+    val vertexData = ChunkVertexData(this)
 
     fun load(blockTypes: Array<Array<BlockType?>?>, blockStates: MutableMap<Int, BlockState>, tileEntities: MutableMap<Int, TileEntity>)
     {
@@ -91,71 +88,101 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
         return entities.toList()
     }
 
-    fun invalidateVertexes()
-    {
-        glDeleteBuffers(vboVertexes)
-        glDeleteBuffers(vboTexCoords)
-        vboVertexes = 0
-        vboTexCoords = 0
-        vertexCount = 0
-    }
-
-    fun updateVertexes()
-    {
-        glDeleteBuffers(vboVertexes)
-        glDeleteBuffers(vboTexCoords)
-
-        val mutableLocation = BlockLocation.Mutable(0, 0, 0)
-        val vertexes = arrayListOf<Float>()
-        val texCoords = arrayListOf<Float>()
-
-        for (section in 0..15)
-        {
-            val blockTypes = blockTypes[section] ?: continue
-            for (index in 0..4095)
-            {
-                val blockType = blockTypes[index] ?: continue
-                mutableLocation.blockLocationFromSectionIndex(this, section, index)
-                if (blockType.renderer.isVisible(world, mutableLocation))
-                    blockType.renderer.draw(world, mutableLocation, vertexes, texCoords)
-            }
-        }
-
-        val vertexData = BufferUtils.createFloatBuffer(vertexes.size)
-        textureCoordData = BufferUtils.createFloatBuffer(texCoords.size)
-        for (vertex in vertexes)
-            vertexData.put(vertex)
-        for (color in texCoords)
-            textureCoordData.put(color)
-        vertexData.flip()
-        textureCoordData.flip()
-        vertexCount = vertexes.size
-
-        vboVertexes = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboVertexes)
-        glBufferData(GL_ARRAY_BUFFER, vertexData, GL_STATIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-        vboTexCoords = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords)
-        glBufferData(GL_ARRAY_BUFFER, textureCoordData, GL_STATIC_DRAW)
-        glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, textureCoordData)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-    }
-
     fun draw()
     {
-        glBindBuffer(GL_ARRAY_BUFFER, vboVertexes)
-        glVertexPointer(3, GL_FLOAT, 0, 0)
+        vertexData.draw()
+    }
 
-        glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords)
-        glTexCoordPointer(3, GL_FLOAT, 0, 0)
+    class ChunkVertexData(private val chunk: Chunk)
+    {
+        val isBuilt: Boolean
+            get() = vertexCount != -1
 
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+        private var vboVertexes: Int = -1
+        private var vboUV: Int = -1
+        private var vertexCount: Int = -1
 
-        glDrawArrays(GL_QUADS, 0, vertexCount)
-        glDisableClientState(GL_VERTEX_ARRAY)
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+        fun invalidate()
+        {
+            glDeleteBuffers(vboVertexes)
+            glDeleteBuffers(vboUV)
+            vertexCount = -1
+        }
+
+        fun updateVertexes()
+        {
+            glDeleteBuffers(vboVertexes)
+            glDeleteBuffers(vboUV)
+            var vertexBuffer = MemoryUtil.memAllocFloat(32768)
+            var uvBuffer = MemoryUtil.memAllocFloat(32768)
+            val mutableLocation = BlockLocation.Mutable(0, 0, 0)
+
+            for (section in 0..15)
+            {
+                val blockTypes = chunk.blockTypes[section] ?: continue
+                for (index in 0..4095)
+                {
+                    val blockType = blockTypes[index] ?: continue
+                    mutableLocation.blockLocationFromSectionIndex(chunk, section, index)
+                    if (blockType.renderer.isVisible(chunk.world, mutableLocation))
+                        blockType.renderer.draw(chunk.world, mutableLocation, vertexBuffer, uvBuffer)
+
+                    if (vertexBuffer.position() >= vertexBuffer.capacity() - 100)
+                    {
+                        val pair = growBuffers(vertexBuffer, uvBuffer)
+                        vertexBuffer = pair.first
+                        uvBuffer = pair.second
+                    }
+                }
+            }
+
+            vertexCount = vertexBuffer.position()
+
+            vertexBuffer.flip()
+            uvBuffer.flip()
+
+            vboVertexes = glGenBuffers()
+            glBindBuffer(GL_ARRAY_BUFFER, vboVertexes)
+            glBufferStorage(GL_ARRAY_BUFFER, vertexBuffer, 0)
+
+            vboUV = glGenBuffers()
+            glBindBuffer(GL_ARRAY_BUFFER, vboUV)
+            glBufferStorage(GL_ARRAY_BUFFER, uvBuffer, 0)
+
+            MemoryUtil.memFree(vertexBuffer)
+            MemoryUtil.memFree(uvBuffer)
+        }
+
+        private fun growBuffers(vertexBuffer: FloatBuffer, uvBuffer: FloatBuffer): Pair<FloatBuffer, FloatBuffer>
+        {
+            val newCapacity = vertexBuffer.capacity() + 32768
+            val newVertexBuffer = MemoryUtil.memAllocFloat(newCapacity)
+            MemoryUtil.memCopy(vertexBuffer, newVertexBuffer)
+            val newUvBuffer = MemoryUtil.memAllocFloat(newCapacity)
+            MemoryUtil.memCopy(uvBuffer, newUvBuffer)
+
+            MemoryUtil.memFree(vertexBuffer)
+            MemoryUtil.memFree(uvBuffer)
+            return Pair(newVertexBuffer, newUvBuffer)
+        }
+
+        fun draw()
+        {
+            if (vertexCount <= 0)
+                return
+
+            glBindBuffer(GL_ARRAY_BUFFER, vboVertexes)
+            glVertexPointer(3, GL_FLOAT, 0, 0)
+
+            glBindBuffer(GL_ARRAY_BUFFER, vboUV)
+            glTexCoordPointer(3, GL_FLOAT, 0, 0)
+
+            glEnableClientState(GL_VERTEX_ARRAY)
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+
+            glDrawArrays(GL_QUADS, 0, vertexCount)
+            glDisableClientState(GL_VERTEX_ARRAY)
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+        }
     }
 }

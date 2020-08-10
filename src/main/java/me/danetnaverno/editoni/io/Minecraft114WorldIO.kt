@@ -4,15 +4,14 @@ package me.danetnaverno.editoni.io
 import me.danetnaverno.editoni.blockstate.BlockStateDictionary
 import me.danetnaverno.editoni.blocktype.BlockDictionary.getBlockType
 import me.danetnaverno.editoni.blocktype.BlockType
+import me.danetnaverno.editoni.location.*
 import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.RobertoGarbagio
-import me.danetnaverno.editoni.util.location.*
 import me.danetnaverno.editoni.world.*
 import net.querz.mca.MCAFile
 import net.querz.mca.MCAUtil
 import net.querz.nbt.tag.CompoundTag
 import net.querz.nbt.tag.ListTag
-import org.apache.logging.log4j.LogManager
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -59,7 +58,7 @@ class Minecraft114WorldIO
     }
 
     @Throws(IOException::class)
-    fun readWorlds(path: Path): Collection<World>
+    fun readWorld(path: Path): World
     {
         val world = World("v.todo", this, path)
         for (regionFile in Objects.requireNonNull(path.toFile().listFiles()))
@@ -72,7 +71,7 @@ class Minecraft114WorldIO
                 world.addRegion(readRegion(world, regionFile.toPath(), x, z))
             }
         }
-        return listOf(world)
+        return world
     }
 
     fun loadRegion(world: World, location: RegionLocation)

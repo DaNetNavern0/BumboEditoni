@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.operations
 
 import me.danetnaverno.editoni.util.Translation
-import me.danetnaverno.editoni.util.location.BlockArea
+import me.danetnaverno.editoni.location.BlockArea
 import me.danetnaverno.editoni.world.Block
 
 open class DeleteBlocksOperation(protected val area: BlockArea) : Operation()

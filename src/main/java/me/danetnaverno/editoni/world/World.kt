@@ -3,7 +3,7 @@ package me.danetnaverno.editoni.world
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.Minecraft114WorldIO
-import me.danetnaverno.editoni.util.location.*
+import me.danetnaverno.editoni.location.*
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.nio.file.Path
 import java.util.*
@@ -23,7 +23,7 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
 
     fun getRegion(location: RegionLocation): Region?
     {
-        return regions.get(location)
+        return regions[location]
     }
 
     fun addRegion(region: Region)

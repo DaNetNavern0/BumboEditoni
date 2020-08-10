@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.util.location
+package me.danetnaverno.editoni.location
 
 import me.danetnaverno.editoni.world.Chunk
 
@@ -97,6 +97,11 @@ open class BlockLocation : Cloneable
         override fun immutable(): BlockLocation
         {
             return BlockLocation(globalX, globalY, globalZ)
+        }
+
+        override fun clone(): Mutable
+        {
+            return Mutable(globalX, globalY, globalZ)
         }
 
         fun blockLocationFromSectionIndex(chunk: Chunk, section: Int, index: Int): Mutable

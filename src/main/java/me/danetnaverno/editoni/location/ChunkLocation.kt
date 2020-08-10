@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.util.location
+package me.danetnaverno.editoni.location
 
 import kotlin.math.sqrt
 

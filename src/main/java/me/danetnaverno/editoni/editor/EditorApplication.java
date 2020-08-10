@@ -6,6 +6,7 @@ import lwjgui.scene.Scene;
 import lwjgui.scene.Window;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
+
 import static org.lwjgl.opengl.GL44.*;
 
 
@@ -35,6 +36,8 @@ public class EditorApplication extends LWJGUIApplication
     @Override
     public void start(String[] args, Window window)
     {
+        //todo inspect lwjgui for the excessive creation of short-living StyleOperation-s
+
         handleId = window.getContext().getWindow().getID();
         window.setTitle("Bumbo Editoni");
         window.setScene(new Scene(EditorGUI.INSTANCE.init(), WIDTH, HEIGHT));

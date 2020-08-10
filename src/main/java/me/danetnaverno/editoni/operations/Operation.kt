@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.operations
 
-import me.danetnaverno.editoni.util.location.ChunkArea
+import me.danetnaverno.editoni.location.ChunkArea
 
 
 abstract class Operation

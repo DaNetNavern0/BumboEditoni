@@ -3,6 +3,7 @@
 	
 	"top_bar.file": "File",
 	"top_bar.file.open": "Open...",
+	"top_bar.file.reload": "Reload",
 	"top_bar.file.save": "Save",
 	"top_bar.file.save_as": "Save As...",
 	"top_bar.edit": "Edit",

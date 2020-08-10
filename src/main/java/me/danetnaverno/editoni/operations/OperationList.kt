@@ -2,8 +2,8 @@ package me.danetnaverno.editoni.operations
 
 import me.danetnaverno.editoni.editor.EditorGUI.refreshOperationHistory
 import me.danetnaverno.editoni.editor.EditorTab
+import me.danetnaverno.editoni.location.ChunkArea
 import me.danetnaverno.editoni.util.Translation.translate
-import me.danetnaverno.editoni.util.location.ChunkArea
 import java.lang.Integer.max
 import java.lang.Integer.min
 import java.util.*
@@ -28,7 +28,7 @@ class OperationList constructor(val editorTab: EditorTab)
                 ChunkArea(chunks.world, chunks.min.add(-1, -1), chunks.max.add(1, 1))
                         .iterator().asSequence()
                         .mapNotNull { editorTab.world.getChunk(it) }
-                        .forEach { it.invalidateVertexes() }
+                        .forEach { it.vertexData.invalidate() }
         }
         else
         {
@@ -53,7 +53,7 @@ class OperationList constructor(val editorTab: EditorTab)
             ChunkArea(chunks.world, chunks.min.add(-1, -1), chunks.max.add(1, 1))
                     .iterator().asSequence()
                     .mapNotNull { editorTab.world.getChunk(it) }
-                    .forEach { it.invalidateVertexes() }
+                    .forEach { it.vertexData.invalidate() }
     }
 
     val all: List<Operation>
@@ -111,7 +111,7 @@ class OperationList constructor(val editorTab: EditorTab)
             ChunkArea(chunkArea.world, chunkArea.min.add(-1, -1), chunkArea.max.add(1, 1))
                     .iterator().asSequence()
                     .mapNotNull { chunkLoc -> editorTab.world.getChunk(chunkLoc) }
-                    .forEach { it.invalidateVertexes() }
+                    .forEach { it.vertexData.invalidate() }
         }
         this.currentPosition = currentPosition
     }

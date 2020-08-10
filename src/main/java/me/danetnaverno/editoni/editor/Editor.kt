@@ -2,8 +2,8 @@ package me.danetnaverno.editoni.editor
 
 import me.danetnaverno.editoni.blockrender.Shader
 import me.danetnaverno.editoni.io.Minecraft114WorldIO
-import me.danetnaverno.editoni.util.location.BlockLocation
-import me.danetnaverno.editoni.util.location.EntityLocation
+import me.danetnaverno.editoni.location.BlockLocation
+import me.danetnaverno.editoni.location.EntityLocation
 import me.danetnaverno.editoni.world.Block
 import me.danetnaverno.editoni.world.Entity
 import me.danetnaverno.editoni.world.World
@@ -31,9 +31,14 @@ object Editor
         InputHandler.init(EditorApplication.getWindowId())
     }
 
-    fun loadWorlds(worldPath: Path): Collection<World>
+    fun unloadWorld(world: World)
     {
-        return Minecraft114WorldIO().readWorlds(worldPath)
+        tabs.remove(world.path)
+    }
+
+    fun loadWorld(worldPath: Path): World
+    {
+        return Minecraft114WorldIO().readWorld(worldPath)
     }
 
     fun createNewTab(world: World): EditorTab

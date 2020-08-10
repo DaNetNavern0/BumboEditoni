@@ -2,8 +2,8 @@ package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.EditorTab
-import me.danetnaverno.editoni.util.location.BlockLocation
-import me.danetnaverno.editoni.util.location.toRegionLocation
+import me.danetnaverno.editoni.location.BlockLocation
+import me.danetnaverno.editoni.location.toRegionLocation
 import org.lwjgl.opengl.GL30.*
 import java.util.stream.Collectors
 import kotlin.math.abs
@@ -37,11 +37,10 @@ class WorldRenderer(private val tab: EditorTab)
                 glTexCoord2f(1.0f, 0.0f)
                 glEnd()
             }
-            //glBindTexture(GL_TEXTURE_2D_ARRAY, TextureAtlas.todoInstance.atlasTexture)
             for (chunk in visibleChunks)
             {
-                if (chunk.vertexCount == 0)
-                    chunk.updateVertexes()
+                if (!chunk.vertexData.isBuilt)
+                    chunk.vertexData.updateVertexes()
 
                 //for (Entity entity : chunk.getEntities())
                 //    entity.getType().getRenderer().draw(entity);

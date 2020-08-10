@@ -2,7 +2,7 @@ package me.danetnaverno.editoni.operations
 
 import me.danetnaverno.editoni.clipboard.ClipboardPrototype
 import me.danetnaverno.editoni.util.Translation
-import me.danetnaverno.editoni.util.location.BlockArea
+import me.danetnaverno.editoni.location.BlockArea
 
 class CutAreaOperation(area: BlockArea) : DeleteBlocksOperation(area)
 {

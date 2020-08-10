@@ -21,21 +21,15 @@ class Texture(val location: ResourceLocation, path: Path)
     {
         val imageData = ioResourceToByteBuffer(path)
 
-        val stack = MemoryStack.stackPush()
-        try
-        {
-            val w = stack.mallocInt(1)
-            val h = stack.mallocInt(1)
-            val components = stack.mallocInt(1)
+        MemoryStack.stackPush().use { memoryStack ->
+            val w = memoryStack.mallocInt(1)
+            val h = memoryStack.mallocInt(1)
+            val components = memoryStack.mallocInt(1)
 
             decodedImage = STBImage.stbi_load_from_memory(imageData, w, h, components, 4)
 
             this.width = w.get()
             this.height = h.get()
-        }
-        finally
-        {
-            stack.close()
         }
     }
 

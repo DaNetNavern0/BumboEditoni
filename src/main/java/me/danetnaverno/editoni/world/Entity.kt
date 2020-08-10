@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.world
 
-import me.danetnaverno.editoni.util.location.EntityLocation
+import me.danetnaverno.editoni.location.EntityLocation
 import net.querz.nbt.tag.CompoundTag
 
 
