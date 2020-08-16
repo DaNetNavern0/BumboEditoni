@@ -2,9 +2,9 @@ package me.danetnaverno.editoni.editor
 
 import me.danetnaverno.editoni.location.BlockArea
 import me.danetnaverno.editoni.operations.OperationList
+import me.danetnaverno.editoni.render.WorldRenderer
 import me.danetnaverno.editoni.world.Entity
 import me.danetnaverno.editoni.world.World
-import me.danetnaverno.editoni.world.WorldRenderer
 
 class EditorTab(var world: World)
 {

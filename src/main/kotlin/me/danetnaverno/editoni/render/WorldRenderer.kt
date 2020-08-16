@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.world
+package me.danetnaverno.editoni.render
 
 import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.EditorTab
@@ -64,6 +64,7 @@ class WorldRenderer(private val tab: EditorTab)
                 //for (Entity entity : chunk.getEntities())
                 //    entity.getType().getRenderer().draw(entity);
             }
+            glBindVertexArray(0)
         }
     }
 }

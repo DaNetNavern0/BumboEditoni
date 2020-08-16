@@ -79,6 +79,9 @@ open class ChunkLocation(x: Int, z: Int) : Cloneable
         return other.x == x && other.z == z
     }
 
+    /**
+     * @see [BlockLocation.Mutable]
+     */
     class Mutable(x: Int, z: Int): ChunkLocation(x, z)
     {
         private val regionLocation = RegionLocation.Mutable(x shr 6, z shr 6)

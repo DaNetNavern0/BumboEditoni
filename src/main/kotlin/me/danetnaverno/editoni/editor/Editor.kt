@@ -1,18 +1,19 @@
 package me.danetnaverno.editoni.editor
 
-import me.danetnaverno.editoni.blockrender.Shader
 import me.danetnaverno.editoni.io.Minecraft114WorldIO
 import me.danetnaverno.editoni.location.BlockLocation
 import me.danetnaverno.editoni.location.EntityLocation
+import me.danetnaverno.editoni.render.Shader
+import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.world.Block
 import me.danetnaverno.editoni.world.Entity
 import me.danetnaverno.editoni.world.World
 import org.apache.logging.log4j.LogManager
-import org.joml.Vector3d
 import org.joml.Vector3i
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL44.*
 import org.lwjgl.util.glu.GLU
+import org.lwjgl.util.vector.Matrix4f
 import org.lwjgl.util.vector.Vector3f
 import java.nio.file.Path
 import kotlin.math.ceil
@@ -59,13 +60,15 @@ object Editor
         EditorApplication.projectionMatrix.rotate(Math.toRadians(currentTab.camera.pitch).toFloat(), Vector3f(-1f, 0f, 0f))
         EditorApplication.projectionMatrix.rotate(Math.toRadians(currentTab.camera.yaw).toFloat(), Vector3f(0f, -1f, 0f))
         EditorApplication.projectionMatrix.translate(Vector3f(-currentTab.camera.x.toFloat(), -currentTab.camera.y.toFloat(), -currentTab.camera.z.toFloat()))
+
         Shader.use()
+        glBindTexture(GL_TEXTURE_2D_ARRAY, TextureAtlas.mainAtlas.atlasTexture)
 
         currentTab.worldRenderer.bake()
         currentTab.worldRenderer.render()
 
-        EditorUserHandler.selections()
         EditorUserHandler.controls()
+        EditorUserHandler.selections()
         InputHandler.update()
     }
 
@@ -74,7 +77,7 @@ object Editor
         return world.getEntitiesAt(location.add(0.0, -0.5, 0.0), 1f)?.firstOrNull()
     }
 
-    fun findBlock(world: World, point: Vector3d): Block?
+    fun findBlock(world: World, point: Vector3f): Block?
     {
         if (point.y < 0 || point.y > 255)
             return null
@@ -88,7 +91,10 @@ object Editor
             for (y in floor.y..ceiling.y)
                 for (z in floor.z..ceiling.z)
                 {
-                    val distance = point.distanceSquared(x + 0.5, y + 0.5, z + 0.5)
+                    val dx = point.x - (x + 0.5)
+                    val dy = point.y - (y + 0.5)
+                    val dz = point.z - (z + 0.5)
+                    val distance = dx * dx + dy * dy + dz * dz
                     if (distance < min)
                     {
                         val block = world.getLoadedBlockAt(BlockLocation(x, y, z))
@@ -102,26 +108,62 @@ object Editor
         return closest
     }
 
-    fun raycast(screenX: Int, screenY: Int): Vector3d
+    fun raycast(screenX: Int, screenY: Int): Vector3f
     {
+        //todo Yes, this isn't particularly nice, and uses GLU which is heavily dated, but it will work for now
+
         val viewport = BufferUtils.createIntBuffer(4)
         val mvmatrix = BufferUtils.createFloatBuffer(16)
         val projmatrix = BufferUtils.createFloatBuffer(16)
         val output = BufferUtils.createFloatBuffer(4)
 
-        glGetFloatv(GL_MODELVIEW_MATRIX, mvmatrix)
-        glGetFloatv(GL_PROJECTION_MATRIX, projmatrix)
+        val idMatrix = Matrix4f()
+        mvmatrix.put(idMatrix.m00)
+        mvmatrix.put(idMatrix.m01)
+        mvmatrix.put(idMatrix.m01)
+        mvmatrix.put(idMatrix.m03)
+        mvmatrix.put(idMatrix.m10)
+        mvmatrix.put(idMatrix.m11)
+        mvmatrix.put(idMatrix.m12)
+        mvmatrix.put(idMatrix.m13)
+        mvmatrix.put(idMatrix.m20)
+        mvmatrix.put(idMatrix.m21)
+        mvmatrix.put(idMatrix.m22)
+        mvmatrix.put(idMatrix.m23)
+        mvmatrix.put(idMatrix.m30)
+        mvmatrix.put(idMatrix.m31)
+        mvmatrix.put(idMatrix.m32)
+        mvmatrix.put(idMatrix.m33)
+
+        val projMatrix = EditorApplication.projectionMatrix
+        projmatrix.put(projMatrix.m00)
+        projmatrix.put(projMatrix.m01)
+        projmatrix.put(projMatrix.m01)
+        projmatrix.put(projMatrix.m03)
+        projmatrix.put(projMatrix.m10)
+        projmatrix.put(projMatrix.m11)
+        projmatrix.put(projMatrix.m12)
+        projmatrix.put(projMatrix.m13)
+        projmatrix.put(projMatrix.m20)
+        projmatrix.put(projMatrix.m21)
+        projmatrix.put(projMatrix.m22)
+        projmatrix.put(projMatrix.m23)
+        projmatrix.put(projMatrix.m30)
+        projmatrix.put(projMatrix.m31)
+        projmatrix.put(projMatrix.m32)
+        projmatrix.put(projMatrix.m33)
+
+        mvmatrix.rewind()
+        projmatrix.rewind()
         glGetIntegerv(GL_VIEWPORT, viewport)
 
         val reverseY = viewport.get(3) - screenY
         val winZ = BufferUtils.createFloatBuffer(1)
         glReadPixels(screenX, reverseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, winZ)
         val z = winZ.get(0)
-        //Yes, GLU is dated, but it does the job and it's not like we run it so often its performance matter
         GLU.gluUnProject(screenX.toFloat(), reverseY.toFloat(), z, mvmatrix, projmatrix, viewport, output)
-        return Vector3d(output.get(0).toDouble(), output.get(1).toDouble(), output.get(2).toDouble())
+        return Vector3f(output.get(0), output.get(1), output.get(2))
     }
-
 
     /*fun selectEntity(entity: Entity?)
     {

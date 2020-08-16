@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.location
 
+import me.danetnaverno.editoni.render.ChunkRenderer
 import me.danetnaverno.editoni.world.Chunk
 
 open class BlockLocation : Cloneable
@@ -98,6 +99,19 @@ open class BlockLocation : Cloneable
 
     companion object
 
+    /**
+     * When you need to use [BlockLocation] in large loops, this class can help to avoid rapid creation of massive
+     * amounts of [BlockLocation]s just to be used once and then awaiting for the Garbage Collection.
+     *
+     * [toChunkLocation] creates a [ChunkLocation.Mutable] version of [ChunkLocation],
+     * with the instance of [ChunkLocation.Mutable] being attached to the instance of [BlockLocation.Mutable]
+     *
+     * Same with [toRegionLocation]
+     *
+     * Usage example: [ChunkRenderer.updateVertexes]
+     *
+     * @see [ChunkLocation]
+     */
     class Mutable(globalX: Int, globalY: Int, globalZ: Int): BlockLocation(globalX, globalY, globalZ)
     {
         private val chunkLocation = ChunkLocation.Mutable(globalX shr 4, globalZ shr 4)

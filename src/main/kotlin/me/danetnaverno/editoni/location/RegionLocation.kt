@@ -1,6 +1,5 @@
 package me.danetnaverno.editoni.location
 
-import org.joml.Math
 
 open class RegionLocation(x: Int, z: Int): Cloneable
 {
@@ -54,6 +53,9 @@ open class RegionLocation(x: Int, z: Int): Cloneable
         return other.x == x && other.z == z
     }
 
+    /**
+     * @see [BlockLocation.Mutable]
+     */
     class Mutable(x: Int, z: Int): RegionLocation(x, z)
     {
         override fun immutable(): RegionLocation

@@ -12,35 +12,35 @@ class ChunkArea(val world: World, cornerA: ChunkLocation, cornerB: ChunkLocation
             Math.max(cornerA.x, cornerB.x),
             Math.max(cornerA.z, cornerB.z))
 
-    fun iterator(): Iterator<ChunkLocation>
+    fun iterator(): Iterator
     {
-        return ChunkAreaIterator(min, max)
-    }
-}
-
-class ChunkAreaIterator(min: ChunkLocation, max: ChunkLocation) : Iterator<ChunkLocation>
-{
-    private val minX = min.x
-
-    private val maxX = max.x
-    private val maxZ = max.z
-
-    private var currentX = min.x - 1
-    private var currentZ = min.z
-
-    override fun hasNext(): Boolean
-    {
-        return !(currentX >= maxX && currentZ >= maxZ)
+        return Iterator(min, max)
     }
 
-    override fun next(): ChunkLocation
+    class Iterator(min: ChunkLocation, max: ChunkLocation) : kotlin.collections.Iterator<ChunkLocation>
     {
-        currentX++
-        if (currentX > maxX)
+        private val minX = min.x
+
+        private val maxX = max.x
+        private val maxZ = max.z
+
+        private var currentX = min.x - 1
+        private var currentZ = min.z
+
+        override fun hasNext(): Boolean
         {
-            currentX = minX
-            currentZ++
+            return !(currentX >= maxX && currentZ >= maxZ)
         }
-        return ChunkLocation(currentX, currentZ)
+
+        override fun next(): ChunkLocation
+        {
+            currentX++
+            if (currentX > maxX)
+            {
+                currentX = minX
+                currentZ++
+            }
+            return ChunkLocation(currentX, currentZ)
+        }
     }
 }

@@ -84,7 +84,7 @@ class EditorApplication : LWJGUIApplication()
             private set
 
         private lateinit var doAfterStart: Runnable
-        lateinit var projectionMatrix: Matrix4f
+        lateinit var projectionMatrix: Matrix4f //todo move this to a right place
 
         fun main(args: Array<String>, doAfterStart: Runnable)
         {

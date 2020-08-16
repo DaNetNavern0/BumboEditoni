@@ -1,8 +1,7 @@
-package me.danetnaverno.editoni.blockrender
+package me.danetnaverno.editoni.render
 
 import me.danetnaverno.editoni.Main
 import me.danetnaverno.editoni.editor.EditorApplication
-import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.ResourceUtil.getBuiltInResourcePath
 import org.apache.logging.log4j.LogManager
 import org.lwjgl.BufferUtils
@@ -11,7 +10,7 @@ import java.nio.file.Files
 
 object Shader
 {
-    private var program = 0
+    var program = 0
 
     init
     {
@@ -67,10 +66,8 @@ object Shader
     fun use()
     {
         glUseProgram(program)
-        glActiveTexture(GL_TEXTURE0)
         val texture = glGetUniformLocation(program, "in_texture")
-        val proj = glGetUniformLocation(program, "proj_view")
-        glBindTexture(GL_TEXTURE_2D_ARRAY, TextureAtlas.mainAtlas.atlasTexture)
+        val proj = glGetUniformLocation(program, "proj_n_view")
         glUniform1i(texture, 0)
 
         val buffer = BufferUtils.createFloatBuffer(16)

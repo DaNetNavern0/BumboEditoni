@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.blockrender
+package me.danetnaverno.editoni.render.blockrender
 
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.location.BlockLocation

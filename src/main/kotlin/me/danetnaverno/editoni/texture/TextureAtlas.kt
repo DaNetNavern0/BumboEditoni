@@ -20,7 +20,6 @@ class TextureAtlas constructor(textures: Collection<Texture>)
 
     init
     {
-        glActiveTexture(GL_TEXTURE0)
         val texId = glGenTextures()
         glBindTexture(GL_TEXTURE_2D_ARRAY, texId)
 
@@ -46,6 +45,7 @@ class TextureAtlas constructor(textures: Collection<Texture>)
         }
 
         atlasTexture = texId
+        glBindTexture(GL_TEXTURE_2D_ARRAY, 0)
     }
 
     fun getZLayer(texture: Texture) : Float

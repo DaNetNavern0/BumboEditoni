@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.location
 
-import org.joml.Math
+import kotlin.math.sqrt
 
 data class EntityLocation(@JvmField val globalX: Double, @JvmField val globalY: Double, @JvmField val globalZ: Double)
 {
@@ -31,7 +31,7 @@ data class EntityLocation(@JvmField val globalX: Double, @JvmField val globalY: 
 
     fun distance(other: EntityLocation): Double
     {
-        return Math.sqrt(distanceSquared(other));
+        return sqrt(distanceSquared(other));
     }
 
     fun distanceSquared(other: EntityLocation): Double
