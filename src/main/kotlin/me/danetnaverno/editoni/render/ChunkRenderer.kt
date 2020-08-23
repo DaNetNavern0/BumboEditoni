@@ -94,12 +94,19 @@ class ChunkRenderer(private val chunk: Chunk)
     private fun growBuffers(vertexBuffer: FloatBuffer, uvBuffer: FloatBuffer): Pair<FloatBuffer, FloatBuffer>
     {
         val newCapacity = vertexBuffer.capacity() + 32768
-
         val newVertexBuffer = MemoryUtil.memAllocFloat(newCapacity)
-        MemoryUtil.memCopy(vertexBuffer, newVertexBuffer)
-
         val newUvBuffer = MemoryUtil.memAllocFloat(newCapacity)
+
+        val uvBufferPos = uvBuffer.position()
+        uvBuffer.flip()
         MemoryUtil.memCopy(uvBuffer, newUvBuffer)
+        newUvBuffer.position(uvBuffer.capacity())
+        newUvBuffer.position(uvBufferPos)
+
+        val vertexBufferPos = vertexBuffer.position()
+        vertexBuffer.flip()
+        MemoryUtil.memCopy(vertexBuffer, newVertexBuffer)
+        newVertexBuffer.position(vertexBufferPos)
 
         MemoryUtil.memFree(vertexBuffer)
         MemoryUtil.memFree(uvBuffer)

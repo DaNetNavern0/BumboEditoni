@@ -22,7 +22,7 @@ import kotlin.math.floor
 object Editor
 {
     val logger = LogManager.getLogger("Editor")!!
-    var renderDistance = 10
+    var renderDistance = 3
 
     lateinit var currentTab: EditorTab
         private set
@@ -57,10 +57,6 @@ object Editor
 
     fun displayLoop()
     {
-        EditorApplication.projectionMatrix.rotate(Math.toRadians(currentTab.camera.pitch).toFloat(), Vector3f(-1f, 0f, 0f))
-        EditorApplication.projectionMatrix.rotate(Math.toRadians(currentTab.camera.yaw).toFloat(), Vector3f(0f, -1f, 0f))
-        EditorApplication.projectionMatrix.translate(Vector3f(-currentTab.camera.x.toFloat(), -currentTab.camera.y.toFloat(), -currentTab.camera.z.toFloat()))
-
         Shader.use()
         glBindTexture(GL_TEXTURE_2D_ARRAY, TextureAtlas.mainAtlas.atlasTexture)
 
@@ -111,7 +107,6 @@ object Editor
     fun raycast(screenX: Int, screenY: Int): Vector3f
     {
         //todo Yes, this isn't particularly nice, and uses GLU which is heavily dated, but it will work for now
-
         val viewport = BufferUtils.createIntBuffer(4)
         val mvmatrix = BufferUtils.createFloatBuffer(16)
         val projmatrix = BufferUtils.createFloatBuffer(16)
@@ -135,7 +130,7 @@ object Editor
         mvmatrix.put(idMatrix.m32)
         mvmatrix.put(idMatrix.m33)
 
-        val projMatrix = EditorApplication.projectionMatrix
+        val projMatrix = EditorApplication.combinedMatrix
         projmatrix.put(projMatrix.m00)
         projmatrix.put(projMatrix.m01)
         projmatrix.put(projMatrix.m01)

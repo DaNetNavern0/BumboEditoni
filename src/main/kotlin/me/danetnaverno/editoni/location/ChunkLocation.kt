@@ -82,7 +82,7 @@ open class ChunkLocation(x: Int, z: Int) : Cloneable
     /**
      * @see [BlockLocation.Mutable]
      */
-    class Mutable(x: Int, z: Int): ChunkLocation(x, z)
+    class Mutable(x: Int, z: Int) : ChunkLocation(x, z)
     {
         private val regionLocation = RegionLocation.Mutable(x shr 6, z shr 6)
 
@@ -101,11 +101,20 @@ open class ChunkLocation(x: Int, z: Int) : Cloneable
             return Mutable(x, z)
         }
 
-        fun setMutably(x: Int, z: Int)
+        fun addMutably(x: Int, z: Int): Mutable
+        {
+            this.x += x
+            this.z += z
+            regionLocation.setMutably(this.x shr 6, this.z shr 6)
+            return this
+        }
+
+        fun setMutably(x: Int, z: Int): Mutable
         {
             this.x = x
             this.z = z
             regionLocation.setMutably(x shr 6, z shr 6)
+            return this
         }
     }
 }

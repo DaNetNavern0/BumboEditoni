@@ -3,7 +3,7 @@ package me.danetnaverno.editoni.operations
 import me.danetnaverno.editoni.location.BlockArea
 import me.danetnaverno.editoni.util.Translation
 
-class SelectAreaOperation(val area: BlockArea?) : Operation()
+class SelectAreaOperation(val area: BlockArea?) : Operation(), IObservingOperation
 {
     override val displayName: String =
             if (area == null)

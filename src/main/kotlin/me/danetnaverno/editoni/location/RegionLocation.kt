@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.location
 
 
-open class RegionLocation(x: Int, z: Int): Cloneable
+open class RegionLocation(x: Int, z: Int) : Cloneable
 {
     var x: Int = x
         protected set
@@ -56,7 +56,7 @@ open class RegionLocation(x: Int, z: Int): Cloneable
     /**
      * @see [BlockLocation.Mutable]
      */
-    class Mutable(x: Int, z: Int): RegionLocation(x, z)
+    class Mutable(x: Int, z: Int) : RegionLocation(x, z)
     {
         override fun immutable(): RegionLocation
         {
@@ -68,10 +68,18 @@ open class RegionLocation(x: Int, z: Int): Cloneable
             return Mutable(x, z)
         }
 
-        fun setMutably(x: Int, z: Int)
+        fun addMutably(x: Int, z: Int): Mutable
+        {
+            this.x += x
+            this.z += z
+            return this
+        }
+
+        fun setMutably(x: Int, z: Int): Mutable
         {
             this.x = x
             this.z = z
+            return this
         }
     }
 }

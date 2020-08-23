@@ -16,10 +16,11 @@ class Region(@JvmField val mcaFile: MCAFile, @JvmField val world: World, @JvmFie
         world.worldIOProvider.loadRegion(world, location)
     }
 
-    fun loadChunkAt(chunkLocation: ChunkLocation)
+    fun loadChunkAt(chunkLocation: ChunkLocation, ticket: ChunkTicket) : Chunk?
     {
         if (chunks[chunkLocation.x - chunkOffset.x][chunkLocation.z - chunkOffset.z] == null)
-            world.worldIOProvider.loadChunk(world, chunkLocation)
+            return world.worldIOProvider.loadChunk(world, chunkLocation, ticket)
+        return null
     }
 
     fun unloadChunk(chunkLocation: ChunkLocation)
@@ -54,17 +55,12 @@ class Region(@JvmField val mcaFile: MCAFile, @JvmField val world: World, @JvmFie
 
     fun getChunk(location: ChunkLocation): Chunk?
     {
-        loadChunkAt(location)
-        return chunks[location.x - chunkOffset.x][location.z - chunkOffset.z]
+        return getChunkIfLoaded(location)
     }
 
-    fun getChunk(location: BlockLocation): Chunk?
-    {
-        return getChunk(location.toChunkLocation())
-    }
-
-    fun setChunk(chunk: Chunk)
+    fun setChunk(chunk: Chunk) : Chunk
     {
         chunks[chunk.location.x - chunkOffset.x][chunk.location.z - chunkOffset.z] = chunk
+        return chunk
     }
 }

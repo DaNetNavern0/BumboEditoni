@@ -4,12 +4,12 @@ import lwjgui.LWJGUIApplication
 import lwjgui.scene.Context
 import lwjgui.scene.Scene
 import lwjgui.scene.Window
-import me.danetnaverno.editoni.editor.Editor.displayLoop
-import me.danetnaverno.editoni.editor.EditorGUI.init
-import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL44.*
 import org.lwjgl.util.vector.Matrix4f
+import org.lwjgl.util.vector.Vector3f
 import kotlin.math.tan
+
 
 class EditorApplication : LWJGUIApplication()
 {
@@ -17,13 +17,15 @@ class EditorApplication : LWJGUIApplication()
     {
         //todo inspect lwjgui for the excessive creation of short-living StyleOperation-s
         windowId = window.context.window.id
+
         window.setTitle("Bumbo Editoni")
-        window.scene = Scene(init(), WIDTH.toDouble(), HEIGHT.toDouble())
-        val vidMode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor())!!
-        GLFW.glfwSwapInterval(1)
-        GLFW.glfwSetWindowPos(windowId, (vidMode.width() - WIDTH) / 2, (vidMode.height() - HEIGHT) / 2)
+        window.scene = Scene(EditorGUI.init(), WIDTH.toDouble(), HEIGHT.toDouble())
+        val vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor())!!
+        glfwSwapInterval(1)
+        glfwSetWindowPos(windowId, (vidMode.width() - WIDTH) / 2, (vidMode.height() - HEIGHT) / 2)
         window.show()
         window.isWindowAutoClear = false
+
         window.setRenderingCallback(Renderer())
         doAfterStart.run()
     }
@@ -45,8 +47,6 @@ class EditorApplication : LWJGUIApplication()
                 glCullFace(GL_NONE)
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-                projectionMatrix = Matrix4f()
-
                 val fov = 90f
                 val aspect = (width - PANEL_WIDTH.toFloat() * 2) / height.toFloat()
                 val zNear = 0.01f
@@ -55,14 +55,20 @@ class EditorApplication : LWJGUIApplication()
                 val scaleX = scaleY / aspect
                 val zLength = zFar - zNear
 
-                projectionMatrix.m00 = scaleX
-                projectionMatrix.m11 = scaleY
-                projectionMatrix.m22 = -((zFar + zNear) / zLength)
-                projectionMatrix.m23 = -1f
-                projectionMatrix.m32 = -(2 * zNear * zFar / zLength)
-                projectionMatrix.m33 = 0f
+                combinedMatrix = Matrix4f()
 
-                displayLoop()
+                combinedMatrix.m00 = scaleX
+                combinedMatrix.m11 = scaleY
+                combinedMatrix.m22 = -((zFar + zNear) / zLength)
+                combinedMatrix.m23 = -1f
+                combinedMatrix.m32 = -(2 * zNear * zFar / zLength)
+                combinedMatrix.m33 = 0f
+
+                combinedMatrix.rotate(Math.toRadians(Editor.currentTab.camera.pitch).toFloat(), Vector3f(-1f, 0f, 0f))
+                combinedMatrix.rotate(Math.toRadians(Editor.currentTab.camera.yaw).toFloat(), Vector3f(0f, -1f, 0f))
+                combinedMatrix.translate(Vector3f(-Editor.currentTab.camera.x.toFloat(), -Editor.currentTab.camera.y.toFloat(), -Editor.currentTab.camera.z.toFloat()))
+
+                Editor.displayLoop()
                 val deltaTime = System.currentTimeMillis() - frameStamp
                 fps = (1000f / deltaTime).toInt()
                 frameStamp = System.currentTimeMillis()
@@ -84,11 +90,11 @@ class EditorApplication : LWJGUIApplication()
             private set
 
         private lateinit var doAfterStart: Runnable
-        lateinit var projectionMatrix: Matrix4f //todo move this to a right place
+        lateinit var combinedMatrix: Matrix4f //todo move this to a right place
 
         fun main(args: Array<String>, doAfterStart: Runnable)
         {
-            ModernOpenGL = false
+            ModernOpenGL = false //todo remove all that's left from the legacy OpenGL
             this.doAfterStart = doAfterStart
             launch(EditorApplication(), args)
         }

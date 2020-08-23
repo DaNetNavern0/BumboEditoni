@@ -3,9 +3,12 @@ package me.danetnaverno.editoni.render
 import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.location.BlockLocation
-import org.lwjgl.opengl.GL44.*
-import java.util.stream.Collectors
-import kotlin.math.abs
+import me.danetnaverno.editoni.location.ChunkLocation
+import me.danetnaverno.editoni.util.RobertoGarbagio
+import me.danetnaverno.editoni.world.ChunkTicketCamera
+import me.danetnaverno.editoni.world.ChunkTicketManager
+import me.danetnaverno.editoni.world.World
+import org.lwjgl.opengl.GL44.glBindVertexArray
 
 class WorldRenderer(private val tab: EditorTab)
 {
@@ -13,58 +16,29 @@ class WorldRenderer(private val tab: EditorTab)
     {
         val renderDistance = Editor.renderDistance
         val cameraLocation = BlockLocation(tab.camera.x.toInt(), tab.camera.y.toInt(), tab.camera.z.toInt()).toChunkLocation()
-        val visibleRegions = tab.world.getRegions().stream().filter { it.location.distance(cameraLocation.toRegionLocation()) <= 2 }.collect(Collectors.toList())
-        for (region in visibleRegions)
-        {
-            for (x in -renderDistance..renderDistance) for (z in -renderDistance..renderDistance)
-            {
-                val chunkCamLoc = cameraLocation.add(x, z)
-                if (chunkCamLoc.toRegionLocation() == region.location)
-                    region.loadChunkAt(chunkCamLoc)
-            }
-            val visibleChunks = region.getLoadedChunks()
-                    .filter { abs(it.location.x - cameraLocation.x) <= renderDistance || abs(it.location.z - cameraLocation.z) <= renderDistance }
-            for (chunk in visibleChunks)
-            {
-                glBegin(GL_QUADS)
-                glVertex3i(chunk.location.x * 16, 0, chunk.location.z * 16)
-                glTexCoord2f(0.0f, 0.0f)
-                glVertex3i(chunk.location.x * 16, 0, (chunk.location.z + 1) * 16)
-                glTexCoord2f(0.0f, 1.0f)
-                glVertex3i((chunk.location.x + 1) * 16, 0, (chunk.location.z + 1) * 16)
-                glTexCoord2f(1.0f, 1.0f)
-                glVertex3i((chunk.location.x + 1) * 16, 0, chunk.location.z * 16)
-                glTexCoord2f(1.0f, 0.0f)
-                glEnd()
-            }
-            for (chunk in visibleChunks)
-            {
-                if (!chunk.vertexData.isBuilt)
-                    chunk.vertexData.updateVertexes()
+        val chunkLocation = ChunkLocation.Mutable(cameraLocation.x - renderDistance, cameraLocation.z - renderDistance)
 
-                //for (Entity entity : chunk.getEntities())
-                //    entity.getType().getRenderer().draw(entity);
-            }
+        val cameraTicket = ChunkTicketCamera()
+        for (x in 0 until renderDistance * 2)
+        {
+            for (z in 0 until renderDistance * 2)
+                tab.world.loadChunkAt(chunkLocation.addMutably(1, 0), cameraTicket)
+            tab.world.loadChunkAt(chunkLocation.addMutably(-renderDistance * 2, 1), cameraTicket)
         }
+
+        ChunkTicketManager.cleanCameraTickets(tab.world)
+        for (chunk in tab.world.getLoadedChunks().filter { it.location.distance(cameraLocation) <= renderDistance })
+            ChunkTicketManager.addTicket(chunk, cameraTicket)
+
+        for (chunk in tab.world.getLoadedChunks())
+            if (!chunk.vertexData.isBuilt)
+                chunk.vertexData.updateVertexes()
     }
 
     fun render()
     {
-        val renderDistance = Editor.renderDistance
-        val cameraLocation = BlockLocation(tab.camera.x.toInt(), tab.camera.y.toInt(), tab.camera.z.toInt()).toChunkLocation()
-        val visibleRegions = tab.world.getRegions().stream().filter { it.location.distance(cameraLocation.toRegionLocation()) <= 2 }.collect(Collectors.toList())
-        for (region in visibleRegions)
-        {
-            val visibleChunks = region.getLoadedChunks()
-                    .filter { abs(it.location.x - cameraLocation.x) <= renderDistance || abs(it.location.z - cameraLocation.z) <= renderDistance }
-            for (chunk in visibleChunks)
-            {
-                chunk.draw()
-
-                //for (Entity entity : chunk.getEntities())
-                //    entity.getType().getRenderer().draw(entity);
-            }
-            glBindVertexArray(0)
-        }
+        for (chunk in tab.world.getLoadedChunks())
+            chunk.draw()
+        glBindVertexArray(0)
     }
 }

@@ -32,7 +32,6 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
 
     fun addRegion(region: Region)
     {
-        RobertoGarbagio.logger.info("Loaded a new region: $region")
         regions[region.location] = region
     }
 
@@ -59,7 +58,7 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
     fun getChunk(location: BlockLocation): Chunk?
     {
         val region = getRegion(location.toRegionLocation()) ?: return null
-        return region.getChunk(location)
+        return region.getChunk(location.toChunkLocation())
     }
 
     fun getChunk(location: ChunkLocation): Chunk?
@@ -68,14 +67,19 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
         return region.getChunk(location)
     }
 
-    fun loadChunkAt(chunkLocation: ChunkLocation)
+    fun loadChunkAt(chunkLocation: ChunkLocation, ticket: ChunkTicket) : Chunk?
     {
-        getRegion(chunkLocation.toRegionLocation())!!.loadChunkAt(chunkLocation) //todo
+        return getRegion(chunkLocation.toRegionLocation())?.loadChunkAt(chunkLocation, ticket) //todo
     }
 
-    fun unloadChunks(chunksToUnload: List<Chunk>)
+    fun unloadChunk(chunk: Chunk)
     {
-        for (chunk in chunksToUnload)
+        getRegion(chunk.location.toRegionLocation())?.unloadChunk(chunk.location) //todo
+    }
+
+    fun unloadChunks(chunks: List<Chunk>)
+    {
+        for (chunk in chunks)
             getRegion(chunk.location.toRegionLocation())!!.unloadChunk(chunk.location) //todo
     }
 

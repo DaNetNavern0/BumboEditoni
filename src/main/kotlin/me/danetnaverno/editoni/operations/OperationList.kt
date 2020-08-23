@@ -4,6 +4,8 @@ import me.danetnaverno.editoni.editor.EditorGUI.refreshOperationHistory
 import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.location.ChunkArea
 import me.danetnaverno.editoni.util.Translation.translate
+import me.danetnaverno.editoni.world.ChunkTicketManager
+import me.danetnaverno.editoni.world.ChunkTicketOperation
 import java.lang.Integer.max
 import java.lang.Integer.min
 import java.util.*
@@ -25,10 +27,13 @@ class OperationList constructor(val editorTab: EditorTab)
             operation.initialApply()
             val chunks = operation.alteredChunks
             if (chunks != null)
-                ChunkArea(chunks.world, chunks.min.add(-1, -1), chunks.max.add(1, 1))
-                        .iterator().asSequence()
-                        .mapNotNull { editorTab.world.getChunk(it) }
-                        .forEach { it.vertexData.invalidate() }
+            {
+                redrawChunkArea(chunks)
+                if (operation !is IObservingOperation)
+                    chunks.iterator().asSequence()
+                            .mapNotNull { editorTab.world.getChunk(it) }
+                            .forEach { ChunkTicketManager.addTicket(it, ChunkTicketOperation(operation)) }
+            }
         }
         else
         {
@@ -50,10 +55,7 @@ class OperationList constructor(val editorTab: EditorTab)
         currentPosition = operationList.size - 1
         val chunks = operation.alteredChunks
         if (chunks != null)
-            ChunkArea(chunks.world, chunks.min.add(-1, -1), chunks.max.add(1, 1))
-                    .iterator().asSequence()
-                    .mapNotNull { editorTab.world.getChunk(it) }
-                    .forEach { it.vertexData.invalidate() }
+            redrawChunkArea(chunks)
     }
 
     val all: List<Operation>
@@ -107,12 +109,14 @@ class OperationList constructor(val editorTab: EditorTab)
                     alteredChunks.add(chunks)
             }
         }
-        alteredChunks.forEach { chunkArea ->
-            ChunkArea(chunkArea.world, chunkArea.min.add(-1, -1), chunkArea.max.add(1, 1))
-                    .iterator().asSequence()
-                    .mapNotNull { chunkLoc -> editorTab.world.getChunk(chunkLoc) }
-                    .forEach { it.vertexData.invalidate() }
-        }
+        alteredChunks.forEach { redrawChunkArea(it) }
         this.currentPosition = currentPosition
+    }
+
+    private fun redrawChunkArea(chunkArea: ChunkArea)
+    {
+        ChunkArea(chunkArea.world, chunkArea.min.add(-1, -1), chunkArea.max.add(1, 1)).iterator().asSequence()
+                .mapNotNull { chunkLoc -> editorTab.world.getChunk(chunkLoc) }
+                .forEach { it.vertexData.invalidate() }
     }
 }

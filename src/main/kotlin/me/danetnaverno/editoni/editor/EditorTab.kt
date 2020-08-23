@@ -41,6 +41,7 @@ class EditorTab(var world: World)
     {
         var x = 23.0
         var y = 11.0
+        //var y = 81.0
         var z = 12.0
         var pitch = 315.0
         var yaw = 74.0

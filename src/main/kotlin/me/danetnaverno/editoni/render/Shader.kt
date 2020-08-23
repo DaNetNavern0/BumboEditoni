@@ -67,11 +67,11 @@ object Shader
     {
         glUseProgram(program)
         val texture = glGetUniformLocation(program, "in_texture")
-        val proj = glGetUniformLocation(program, "proj_n_view")
+        val proj = glGetUniformLocation(program, "combined_matrix")
         glUniform1i(texture, 0)
 
         val buffer = BufferUtils.createFloatBuffer(16)
-        EditorApplication.projectionMatrix.store(buffer)
+        EditorApplication.combinedMatrix.store(buffer)
         buffer.flip()
         glUniformMatrix4fv(proj, false, buffer)
     }

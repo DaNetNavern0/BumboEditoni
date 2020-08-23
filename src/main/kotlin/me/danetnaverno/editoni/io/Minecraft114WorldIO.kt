@@ -91,13 +91,18 @@ class Minecraft114WorldIO
         }
     }
 
-    fun loadChunk(world: World, location: ChunkLocation)
+    fun loadChunk(world: World, location: ChunkLocation, ticket: ChunkTicket) : Chunk?
     {
         val region = world.getRegion(location.toRegionLocation())!! //todo
         val (x, z) = location.toRegionOffset()
         val mcaChunk = region.mcaFile.getChunk(x, z)
         if (mcaChunk != null)
-            region.setChunk(readChunk(world, mcaChunk))
+        {
+            val chunk = region.setChunk(readChunk(world, mcaChunk))
+            ChunkTicketManager.addTicket(chunk, ticket)
+            return chunk
+        }
+        return null
     }
 
     @Throws(IOException::class)
