@@ -4,10 +4,8 @@ import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.location.BlockLocation
 import me.danetnaverno.editoni.location.ChunkLocation
-import me.danetnaverno.editoni.util.RobertoGarbagio
 import me.danetnaverno.editoni.world.ChunkTicketCamera
 import me.danetnaverno.editoni.world.ChunkTicketManager
-import me.danetnaverno.editoni.world.World
 import org.lwjgl.opengl.GL44.glBindVertexArray
 
 class WorldRenderer(private val tab: EditorTab)
@@ -32,7 +30,7 @@ class WorldRenderer(private val tab: EditorTab)
 
         for (chunk in tab.world.getLoadedChunks())
             if (!chunk.vertexData.isBuilt)
-                chunk.vertexData.updateVertexes()
+                chunk.vertexData.updateVertices()
     }
 
     fun render()

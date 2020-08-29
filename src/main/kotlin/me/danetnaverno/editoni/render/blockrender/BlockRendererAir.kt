@@ -16,7 +16,12 @@ class BlockRendererAir : BlockRenderer()
         return false
     }
 
-    override fun bake(world: World, location: BlockLocation.Mutable, vertexBuffer: FloatBuffer, uvBuffer: FloatBuffer)
+    override fun getMaxVertexCount(): Int
+    {
+        return 0
+    }
+
+    override fun bake(world: World, location: BlockLocation.Mutable, vertexBuffer: FloatBuffer)
     {
     }
 

@@ -12,22 +12,19 @@ class ChunkRenderer(private val chunk: Chunk)
         get() = vertexCount != -1
 
     private var vao = 0
-    private var vboVertexes = 0
-    private var vboUV = 0
+    private var vbo = 0
     private var vertexCount = -1
 
     fun invalidate()
     {
         glDeleteVertexArrays(vao)
-        glDeleteBuffers(vboVertexes)
-        glDeleteBuffers(vboUV)
+        glDeleteBuffers(vbo)
         vertexCount = -1
     }
 
-    fun updateVertexes()
+    fun updateVertices()
     {
         var vertexBuffer = MemoryUtil.memAllocFloat(32768)
-        var uvBuffer = MemoryUtil.memAllocFloat(32768)
         val mutableLocation = BlockLocation.Mutable(0, 0, 0)
 
         try
@@ -39,46 +36,37 @@ class ChunkRenderer(private val chunk: Chunk)
                 {
                     val blockType = blockTypes[index] ?: continue
                     mutableLocation.blockLocationFromSectionIndex(chunk, section, index)
-                    if (blockType.renderer.isVisible(chunk.world, mutableLocation))
-                        blockType.renderer.bake(chunk.world, mutableLocation, vertexBuffer, uvBuffer)
-
-                    if (vertexBuffer.position() >= vertexBuffer.capacity() - 100) //todo
+                    val renderer = blockType.renderer
+                    if (renderer.isVisible(chunk.world, mutableLocation))
                     {
-                        val pair = growBuffers(vertexBuffer, uvBuffer)
-                        vertexBuffer = pair.first
-                        uvBuffer = pair.second
+                        if (vertexBuffer.position() + renderer.getMaxVertexCount() * 6 >= vertexBuffer.capacity()) //todo
+                            vertexBuffer = growBuffer(vertexBuffer)
+                        renderer.bake(chunk.world, mutableLocation, vertexBuffer)
                     }
                 }
             }
 
-            vertexCount = vertexBuffer.position()
+            vertexCount = vertexBuffer.position() / 2
 
             if (vertexCount == 0)
                 return
 
             vertexBuffer.flip()
-            uvBuffer.flip()
 
             vao = glGenVertexArrays()
             glBindVertexArray(vao)
 
-            vboVertexes = glGenBuffers()
-            glBindBuffer(GL_ARRAY_BUFFER, vboVertexes)
+            vbo = glGenBuffers()
+            glBindBuffer(GL_ARRAY_BUFFER, vbo)
             glBufferStorage(GL_ARRAY_BUFFER, vertexBuffer, 0)
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0)
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, 4 * 6, 0)
             glEnableVertexAttribArray(0)
-
-            vboUV = glGenBuffers()
-            glBindBuffer(GL_ARRAY_BUFFER, vboUV)
-            glBufferStorage(GL_ARRAY_BUFFER, uvBuffer, 0)
-            glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0)
+            glVertexAttribPointer(1, 3, GL_FLOAT, false, 4 * 6, 4 * 3)
             glEnableVertexAttribArray(1)
-            glBindVertexArray(0)
         }
         finally
         {
             MemoryUtil.memFree(vertexBuffer)
-            MemoryUtil.memFree(uvBuffer)
         }
     }
 
@@ -88,20 +76,13 @@ class ChunkRenderer(private val chunk: Chunk)
             return
 
         glBindVertexArray(vao)
-        glDrawArrays(GL_QUADS, 0, vertexCount)
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount)
     }
 
-    private fun growBuffers(vertexBuffer: FloatBuffer, uvBuffer: FloatBuffer): Pair<FloatBuffer, FloatBuffer>
+    private fun growBuffer(vertexBuffer: FloatBuffer): FloatBuffer
     {
         val newCapacity = vertexBuffer.capacity() + 32768
         val newVertexBuffer = MemoryUtil.memAllocFloat(newCapacity)
-        val newUvBuffer = MemoryUtil.memAllocFloat(newCapacity)
-
-        val uvBufferPos = uvBuffer.position()
-        uvBuffer.flip()
-        MemoryUtil.memCopy(uvBuffer, newUvBuffer)
-        newUvBuffer.position(uvBuffer.capacity())
-        newUvBuffer.position(uvBufferPos)
 
         val vertexBufferPos = vertexBuffer.position()
         vertexBuffer.flip()
@@ -109,8 +90,7 @@ class ChunkRenderer(private val chunk: Chunk)
         newVertexBuffer.position(vertexBufferPos)
 
         MemoryUtil.memFree(vertexBuffer)
-        MemoryUtil.memFree(uvBuffer)
 
-        return Pair(newVertexBuffer, newUvBuffer)
+        return newVertexBuffer
     }
 }

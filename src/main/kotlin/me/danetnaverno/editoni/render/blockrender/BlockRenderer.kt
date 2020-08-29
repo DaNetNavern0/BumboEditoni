@@ -9,7 +9,8 @@ abstract class BlockRenderer
 {
     abstract fun fromJson(data: JSONObject)
     abstract fun isVisible(world: World, location: BlockLocation.Mutable): Boolean
-    abstract fun bake(world: World, location: BlockLocation.Mutable, vertexBuffer: FloatBuffer, uvBuffer: FloatBuffer)
+    abstract fun getMaxVertexCount() : Int
+    abstract fun bake(world: World, location: BlockLocation.Mutable, vertexBuffer: FloatBuffer)
 
     open fun shouldRenderSideAgainst(world: World, location: BlockLocation): Boolean
     {

@@ -106,7 +106,7 @@ object Editor
 
     fun raycast(screenX: Int, screenY: Int): Vector3f
     {
-        //todo Yes, this isn't particularly nice, and uses GLU which is heavily dated, but it will work for now
+        //todo Yes, this isn't particularly nice and quite buggy, and uses GLU which is heavily dated, but it will work for now
         val viewport = BufferUtils.createIntBuffer(4)
         val mvmatrix = BufferUtils.createFloatBuffer(16)
         val projmatrix = BufferUtils.createFloatBuffer(16)

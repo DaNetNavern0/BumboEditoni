@@ -17,16 +17,14 @@ class SelectionRenderer
     private var vboLines: Int = 0
 
     private var vaoBox: Int = 0
-    private var vboVertexes: Int = 0
-    private var vboUV: Int = 0
+    private var vboVertices: Int = 0
 
     fun invalidate()
     {
         glDeleteVertexArrays(vaoLines)
         glDeleteVertexArrays(vaoBox)
         glDeleteBuffers(vboLines)
-        glDeleteBuffers(vboVertexes)
-        glDeleteBuffers(vboUV)
+        glDeleteBuffers(vboVertices)
     }
 
     fun update(area: BlockArea)
@@ -48,14 +46,14 @@ class SelectionRenderer
 
         val size = max.subtract(min)
         val uvX = size.globalX.toFloat()
+        val uvY = size.globalY.toFloat()
         val uvZ = size.globalZ.toFloat()
 
         bakeLines(minX, minY, minZ, maxX, maxY, maxZ)
 
         vaoBox = glGenVertexArrays()
         glBindVertexArray(vaoBox)
-        bakeVertices(minX, minY, minZ, maxX, maxY, maxZ)
-        bakeUV(uvX, uvZ, tIndex)
+        bakeVertices(minX, minY, minZ, maxX, maxY, maxZ, uvX, uvY, uvZ, tIndex)
     }
 
     private fun bakeLines(minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float)
@@ -65,34 +63,45 @@ class SelectionRenderer
         vaoLines = glGenVertexArrays()
         glBindVertexArray(vaoLines)
 
-        lineBuffer.put(floatArrayOf (
-                minX, minY, minZ,
-                maxX, minY, minZ,
-                maxX, minY, minZ,
-                maxX, maxY, minZ,
-                maxX, maxY, minZ,
-                minX, maxY, minZ,
-                minX, maxY, minZ,
-                minX, minY, minZ,
+        //I don't like how it looks, but it seems to be the most optimized way of doing this.
+        //Method put(<float_array>) has individual put(float) calls under the hood anyway.
+        lineBuffer.put(minX).put(minY).put(minZ)
+        lineBuffer.put(minX).put(minY).put(maxZ)
 
-                minX, minY, maxZ,
-                maxX, minY, maxZ,
-                maxX, minY, maxZ,
-                maxX, maxY, maxZ,
-                maxX, maxY, maxZ,
-                minX, maxY, maxZ,
-                minX, maxY, maxZ,
-                minX, minY, maxZ,
+        lineBuffer.put(minX).put(minY).put(minZ)
+        lineBuffer.put(minX).put(maxY).put(minZ)
 
-                minX, minY, minZ,
-                minX, minY, maxZ,
-                minX, maxY, minZ,
-                minX, maxY, maxZ,
-                maxX, maxY, minZ,
-                maxX, maxY, maxZ,
-                maxX, minY, minZ,
-                maxX, minY, maxZ,
-        ))
+        lineBuffer.put(minX).put(minY).put(minZ)
+        lineBuffer.put(maxX).put(minY).put(minZ)
+
+        lineBuffer.put(maxX).put(maxY).put(maxZ)
+        lineBuffer.put(maxX).put(maxY).put(minZ)
+
+        lineBuffer.put(maxX).put(maxY).put(maxZ)
+        lineBuffer.put(maxX).put(minY).put(maxZ)
+
+        lineBuffer.put(maxX).put(maxY).put(maxZ)
+        lineBuffer.put(minX).put(maxY).put(maxZ)
+
+
+        lineBuffer.put(minX).put(maxY).put(minZ)
+        lineBuffer.put(maxX).put(maxY).put(minZ)
+
+        lineBuffer.put(minX).put(minY).put(minZ)
+        lineBuffer.put(minX).put(minY).put(minZ)
+
+        lineBuffer.put(minX).put(minY).put(minZ)
+        lineBuffer.put(minX).put(minY).put(minZ)
+
+        lineBuffer.put(minX).put(minY).put(minZ)
+        lineBuffer.put(minX).put(minY).put(minZ)
+
+        lineBuffer.put(minX).put(minY).put(minZ)
+        lineBuffer.put(minX).put(minY).put(minZ)
+
+        lineBuffer.put(minX).put(minY).put(minZ)
+        lineBuffer.put(minX).put(minY).put(minZ)
+
         lineBuffer.flip()
 
         vboLines = glGenBuffers()
@@ -105,103 +114,79 @@ class SelectionRenderer
     }
 
 
-    private fun bakeVertices(minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float)
+    private fun bakeVertices(minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float, uvX: Float, uvY: Float, uvZ: Float, tIndex: Float)
     {
-        val vertexBuffer = MemoryUtil.memAllocFloat(6 * 4 * 3)
+        val vertexBuffer = MemoryUtil.memAllocFloat(6 * 6 * 6)
 
-        vertexBuffer.put(maxX).put(minY).put(minZ)
-        vertexBuffer.put(maxX).put(minY).put(maxZ)
-        vertexBuffer.put(minX).put(minY).put(maxZ)
-        vertexBuffer.put(minX).put(minY).put(minZ)
+        //I don't like how it looks, but it seems to be the most optimized way of doing this.
+        //Method put(<float_array>) has individual put(float) calls under the hood anyway.
+        vertexBuffer
+                .put(minX).put(maxY).put(minZ).put(0f).put(0f).put(tIndex)
+                .put(minX).put(maxY).put(maxZ).put(0f).put(uvZ).put(tIndex)
+                .put(maxX).put(maxY).put(maxZ).put(uvX).put(uvZ).put(tIndex)
 
-        vertexBuffer.put(minX).put(maxY).put(minZ)
-        vertexBuffer.put(minX).put(maxY).put(maxZ)
-        vertexBuffer.put(maxX).put(maxY).put(maxZ)
-        vertexBuffer.put(maxX).put(maxY).put(minZ)
-
-        vertexBuffer.put(minX).put(minY).put(minZ)
-        vertexBuffer.put(minX).put(minY).put(maxZ)
-        vertexBuffer.put(minX).put(maxY).put(maxZ)
-        vertexBuffer.put(minX).put(maxY).put(minZ)
+                .put(maxX).put(maxY).put(maxZ).put(uvX).put(uvZ).put(tIndex)
+                .put(maxX).put(maxY).put(minZ).put(uvX).put(0.0f).put(tIndex)
+                .put(minX).put(maxY).put(minZ).put(0f).put(0f).put(tIndex)
 
 
-        vertexBuffer.put(minX).put(maxY).put(minZ)
-        vertexBuffer.put(maxX).put(maxY).put(minZ)
-        vertexBuffer.put(maxX).put(minY).put(minZ)
-        vertexBuffer.put(minX).put(minY).put(minZ)
+                .put(maxX).put(minY).put(maxZ).put(0f).put(0f).put(tIndex)
+                .put(minX).put(minY).put(maxZ).put(0f).put(uvZ).put(tIndex)
+                .put(minX).put(minY).put(minZ).put(uvX).put(uvZ).put(tIndex)
+
+                .put(minX).put(minY).put(minZ).put(uvX).put(uvZ).put(tIndex)
+                .put(maxX).put(minY).put(minZ).put(uvX).put(0.0f).put(tIndex)
+                .put(maxX).put(minY).put(maxZ).put(0f).put(0f).put(tIndex)
 
 
-        vertexBuffer.put(minX).put(minY).put(maxZ)
-        vertexBuffer.put(maxX).put(minY).put(maxZ)
-        vertexBuffer.put(maxX).put(maxY).put(maxZ)
-        vertexBuffer.put(minX).put(maxY).put(maxZ)
+                .put(maxX).put(maxY).put(maxZ).put(uvX).put(uvY).put(tIndex)
+                .put(minX).put(maxY).put(maxZ).put(0f).put(uvY).put(tIndex)
+                .put(minX).put(minY).put(maxZ).put(0f).put(0f).put(tIndex)
+
+                .put(minX).put(minY).put(maxZ).put(0f).put(0f).put(tIndex)
+                .put(maxX).put(minY).put(maxZ).put(uvX).put(0f).put(tIndex)
+                .put(maxX).put(maxY).put(maxZ).put(uvX).put(uvY).put(tIndex)
 
 
-        vertexBuffer.put(maxX).put(maxY).put(minZ)
-        vertexBuffer.put(maxX).put(maxY).put(maxZ)
-        vertexBuffer.put(maxX).put(minY).put(maxZ)
-        vertexBuffer.put(maxX).put(minY).put(minZ)
+                .put(maxX).put(minY).put(minZ).put(uvX).put(0f).put(tIndex)
+                .put(minX).put(minY).put(minZ).put(0f).put(0f).put(tIndex)
+                .put(minX).put(maxY).put(minZ).put(0f).put(uvY).put(tIndex)
+
+                .put(minX).put(maxY).put(minZ).put(0f).put(uvY).put(tIndex)
+                .put(maxX).put(maxY).put(minZ).put(uvX).put(uvY).put(tIndex)
+                .put(maxX).put(minY).put(minZ).put(uvX).put(0f).put(tIndex)
+
+
+                .put(minX).put(maxY).put(maxZ).put(uvY).put(uvZ).put(tIndex)
+                .put(minX).put(maxY).put(minZ).put(uvY).put(0f).put(tIndex)
+                .put(minX).put(minY).put(minZ).put(0f).put(0f).put(tIndex)
+
+                .put(minX).put(minY).put(minZ).put(0f).put(0f).put(tIndex)
+                .put(minX).put(minY).put(maxZ).put(0f).put(uvZ).put(tIndex)
+                .put(minX).put(maxY).put(maxZ).put(uvY).put(uvZ).put(tIndex)
+
+
+                .put(maxX).put(maxY).put(minZ).put(uvY).put(0f).put(tIndex)
+                .put(maxX).put(maxY).put(maxZ).put(uvY).put(uvZ).put(tIndex)
+                .put(maxX).put(minY).put(maxZ).put(0f).put(uvZ).put(tIndex)
+
+                .put(maxX).put(minY).put(maxZ).put(0f).put(uvZ).put(tIndex)
+                .put(maxX).put(minY).put(minZ).put(0f).put(0f).put(tIndex)
+                .put(maxX).put(maxY).put(minZ).put(uvY).put(0f).put(tIndex)
 
         vertexBuffer.flip()
 
-        vboVertexes = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboVertexes)
+        vboVertices = glGenBuffers()
+        glBindBuffer(GL_ARRAY_BUFFER, vboVertices)
         glBufferStorage(GL_ARRAY_BUFFER, vertexBuffer, 0)
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 4 * 6, 0)
         glEnableVertexAttribArray(0)
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 4 * 6, 4 * 3)
+        glEnableVertexAttribArray(1)
 
         MemoryUtil.memFree(vertexBuffer)
     }
 
-
-    private fun bakeUV(uvX: Float, uvZ: Float, tIndex: Float)
-    {
-        val uvBuffer = MemoryUtil.memAllocFloat(6 * 4 * 3)
-
-        uvBuffer.put(uvX).put(0.0f).put(tIndex)
-        uvBuffer.put(uvX).put(uvZ).put(tIndex)
-        uvBuffer.put(0.0f).put(uvZ).put(tIndex)
-        uvBuffer.put(0.0f).put(uvZ).put(tIndex)
-
-
-        uvBuffer.put(0.0f).put(0.0f).put(tIndex)
-        uvBuffer.put(0.0f).put(uvZ).put(tIndex)
-        uvBuffer.put(uvX).put(uvZ).put(tIndex)
-        uvBuffer.put(uvX).put(0.0f).put(tIndex)
-
-        uvBuffer.put(0.0f).put(0.0f).put(tIndex)
-        uvBuffer.put(0.0f).put(uvZ).put(tIndex)
-        uvBuffer.put(uvX).put(uvZ).put(tIndex)
-        uvBuffer.put(uvX).put(0.0f).put(tIndex)
-
-        uvBuffer.put(0.0f).put(uvZ).put(tIndex)
-        uvBuffer.put(uvX).put(uvZ).put(tIndex)
-        uvBuffer.put(uvX).put(0.0f).put(tIndex)
-        uvBuffer.put(0.0f).put(0.0f).put(tIndex)
-
-
-        uvBuffer.put(0.0f).put(0.0f).put(tIndex)
-        uvBuffer.put(uvX).put(0.0f).put(tIndex)
-        uvBuffer.put(uvX).put(uvZ).put(tIndex)
-        uvBuffer.put(0.0f).put(uvZ).put(tIndex)
-
-
-        uvBuffer.put(uvX).put(0.0f).put(tIndex)
-        uvBuffer.put(uvX).put(uvZ).put(tIndex)
-        uvBuffer.put(0.0f).put(uvZ).put(tIndex)
-        uvBuffer.put(0.0f).put(0.0f).put(tIndex)
-
-        uvBuffer.flip()
-
-        vboUV = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboUV)
-        glBufferStorage(GL_ARRAY_BUFFER, uvBuffer, 0)
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0)
-        glEnableVertexAttribArray(1)
-        glBindVertexArray(0)
-
-        MemoryUtil.memFree(uvBuffer)
-    }
 
     fun draw()
     {
@@ -215,6 +200,6 @@ class SelectionRenderer
         glEnable(GL_DEPTH_TEST)
 
         glBindVertexArray(vaoBox)
-        glDrawArrays(GL_QUADS, 0, 6 * 4 * 3)
+        glDrawArrays(GL_TRIANGLES, 0, 6 * 4 * 3)
     }
 }

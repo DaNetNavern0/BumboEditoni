@@ -94,7 +94,6 @@ class EditorApplication : LWJGUIApplication()
 
         fun main(args: Array<String>, doAfterStart: Runnable)
         {
-            ModernOpenGL = false //todo remove all that's left from the legacy OpenGL
             this.doAfterStart = doAfterStart
             launch(EditorApplication(), args)
         }

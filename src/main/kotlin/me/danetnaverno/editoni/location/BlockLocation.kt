@@ -108,7 +108,7 @@ open class BlockLocation : Cloneable
      *
      * Same with [toRegionLocation]
      *
-     * Usage example: [ChunkRenderer.updateVertexes]
+     * Usage example: [ChunkRenderer.updateVertices]
      *
      * @see [ChunkLocation]
      */
