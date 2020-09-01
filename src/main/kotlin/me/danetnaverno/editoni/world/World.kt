@@ -1,3 +1,4 @@
+
 package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
@@ -7,12 +8,12 @@ import me.danetnaverno.editoni.location.BlockLocation
 import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.EntityLocation
 import me.danetnaverno.editoni.location.RegionLocation
-import me.danetnaverno.editoni.util.RobertoGarbagio
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.nio.file.Path
 import java.util.*
 import kotlin.collections.ArrayList
 
+@Suppress("unused")
 class World constructor(var version: String, var worldIOProvider: Minecraft114WorldIO, var path: Path)
 {
     private val regions = HashMap<RegionLocation, Region>()
@@ -46,13 +47,13 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
     fun getChunkIfLoaded(location: BlockLocation): Chunk?
     {
         val region = getRegion(location.toRegionLocation()) ?: return null
-        return region.getChunkIfLoaded(location.toChunkLocation())
+        return region.getChunk(location.toChunkLocation())
     }
 
     fun getChunkIfLoaded(location: ChunkLocation): Chunk?
     {
         val region = getRegion(location.toRegionLocation()) ?: return null
-        return region.getChunkIfLoaded(location)
+        return region.getChunk(location)
     }
 
     fun getChunk(location: BlockLocation): Chunk?
@@ -69,18 +70,18 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
 
     fun loadChunkAt(chunkLocation: ChunkLocation, ticket: ChunkTicket) : Chunk?
     {
-        return getRegion(chunkLocation.toRegionLocation())?.loadChunkAt(chunkLocation, ticket) //todo
+        return getRegion(chunkLocation.toRegionLocation())?.loadChunkAt(chunkLocation, ticket)
     }
 
     fun unloadChunk(chunk: Chunk)
     {
-        getRegion(chunk.location.toRegionLocation())?.unloadChunk(chunk.location) //todo
+        getRegion(chunk.location.toRegionLocation())?.unloadChunk(chunk)
     }
 
     fun unloadChunks(chunks: List<Chunk>)
     {
         for (chunk in chunks)
-            getRegion(chunk.location.toRegionLocation())!!.unloadChunk(chunk.location) //todo
+            getRegion(chunk.location.toRegionLocation())!!.unloadChunk(chunk)
     }
 
     fun createChunk(location: ChunkLocation): Chunk

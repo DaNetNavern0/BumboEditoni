@@ -1,7 +1,6 @@
 package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.editor.Editor
-import me.danetnaverno.editoni.operations.Operation
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -13,7 +12,7 @@ object ChunkTicketManager
 
     init
     {
-        executor.scheduleAtFixedRate({ unloadExcessChunks() }, 0, 10, TimeUnit.SECONDS)
+        executor.scheduleAtFixedRate({ unloadExcessChunks() }, 0, 10, TimeUnit.SECONDS) //todo multithreading issues all over the place
     }
 
     fun addTicket(chunk: Chunk, chunkTicket: ChunkTicket)
@@ -30,6 +29,11 @@ object ChunkTicketManager
     fun removeTicket(chunk: Chunk, chunkTicket: ChunkTicket)
     {
         tickets[chunk]?.remove(chunkTicket)
+    }
+
+    fun clearTickets(chunk: Chunk)
+    {
+        tickets.remove(chunk)
     }
 
     fun cleanCameraTickets(world: World)

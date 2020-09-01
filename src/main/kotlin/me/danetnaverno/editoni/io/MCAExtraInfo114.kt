@@ -7,9 +7,9 @@ class MCAExtraInfo114(data: CompoundTag) : MCAExtraInfo(data)
     init
     {
         val level = data.getCompoundTag("Level")
-        level.putByte("isLightOn", 0.toByte())
-        level.remove("Sections")
-        level.remove("Heightmaps")
-        level.remove("Entities")
+        //level.putByte("isLightOn", 0.toByte())
+        //level.remove("Sections")
+        //level.remove("Heightmaps")
+        //level.remove("Entities")
     }
 }

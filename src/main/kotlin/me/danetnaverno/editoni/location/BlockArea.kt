@@ -20,8 +20,7 @@ class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation
     }
 
     /**
-     * More taxing than [mutableIterator], since it creates a new BlockLocation object each iteration,
-     *   which could be needed in some cases
+     * More taxing than [mutableIterator], since it creates a new BlockLocation object each iteration, but it may be needed in some cases
      */
     fun immutableIterator(): Iterator<BlockLocation>
     {
@@ -37,6 +36,11 @@ class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation
     fun mutableIterator(): Iterator<BlockLocation>
     {
         return BlockAreaMutableIterator(min, max)
+    }
+
+    override fun toString(): String
+    {
+        return "BlockArea{$min...$max}"
     }
 }
 
@@ -55,7 +59,6 @@ abstract class BlockAreaIterator(min: BlockLocation, max: BlockLocation) : Itera
 
     override fun hasNext(): Boolean
     {
-        //return (currentZ <= maxZ && currentY <= maxY) || currentX < maxX
         return !(currentX >= maxX && currentY >= maxY && currentZ >= maxZ)
     }
 

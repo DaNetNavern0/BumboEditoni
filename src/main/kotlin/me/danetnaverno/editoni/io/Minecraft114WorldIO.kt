@@ -1,6 +1,5 @@
 package me.danetnaverno.editoni.io
 
-
 import me.danetnaverno.editoni.blockstate.BlockStateDictionary
 import me.danetnaverno.editoni.blocktype.BlockDictionary.getBlockType
 import me.danetnaverno.editoni.blocktype.BlockType
@@ -8,17 +7,20 @@ import me.danetnaverno.editoni.location.*
 import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.RobertoGarbagio
 import me.danetnaverno.editoni.world.*
+import net.querz.mca.LoadFlags
 import net.querz.mca.MCAFile
 import net.querz.mca.MCAUtil
 import net.querz.nbt.tag.CompoundTag
 import net.querz.nbt.tag.ListTag
 import java.io.IOException
+import java.io.RandomAccessFile
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
+import kotlin.reflect.jvm.isAccessible
 import net.querz.mca.Chunk as QuerzChunk
 
 class Minecraft114WorldIO
@@ -74,35 +76,16 @@ class Minecraft114WorldIO
         return world
     }
 
-    fun loadRegion(world: World, location: RegionLocation)
+    @Throws(IOException::class)
+    private fun readRegion(world: World, regionFile: Path, x: Int, z: Int): Region
     {
-        val region = world.getRegion(location)!! //todo
-        for (offsetX in 0..31) for (offsetZ in 0..31)
-        {
-            val mcaChunk = region.mcaFile.getChunk(offsetX, offsetZ)
-            if (mcaChunk != null)
-            {
-                if (region.getChunkIfLoaded(ChunkRegionOffset(offsetX, offsetZ).toChunkLocation(location)) == null)
-                {
-                    val chunk = readChunk(world, mcaChunk)
-                    region.setChunk(chunk)
-                }
-            }
-        }
+        return Region(RandomAccessFile(regionFile.toFile(), "r"), world, RegionLocation(x, z))
     }
 
-    fun loadChunk(world: World, location: ChunkLocation, ticket: ChunkTicket) : Chunk?
+    fun readChunk(region: Region, location: ChunkLocation) : Chunk?
     {
-        val region = world.getRegion(location.toRegionLocation())!! //todo
-        val (x, z) = location.toRegionOffset()
-        val mcaChunk = region.mcaFile.getChunk(x, z)
-        if (mcaChunk != null)
-        {
-            val chunk = region.setChunk(readChunk(world, mcaChunk))
-            ChunkTicketManager.addTicket(chunk, ticket)
-            return chunk
-        }
-        return null
+        val qChunk = readQChunk(region, location) ?: return null
+        return convertQChunk(region.world, qChunk)
     }
 
     @Throws(IOException::class)
@@ -138,125 +121,156 @@ class Minecraft114WorldIO
     @Throws(IOException::class)
     private fun writeRegion(region: Region, regionFile: Path)
     {
-        for (chunk in region.getLoadedChunks())
+        /*for (chunk in region.getLoadedChunks())
         {
             val (x, z) = chunk.location.toRegionOffset()
             region.mcaFile.setChunk(x, z, writeChunk(chunk))
         }
-        MCAUtil.write(region.mcaFile, regionFile.toFile())
+        MCAUtil.write(region.mcaFile, regionFile.toFile())*/
+        //todo
+    }
+
+
+    private fun writeChunk(chunk: Chunk): QuerzChunk
+    {
+        val tileEntities: ListTag<CompoundTag> = ListTag(CompoundTag::class.java)
+        val entities: ListTag<CompoundTag> = ListTag(CompoundTag::class.java)
+        val mcaChunk = QuerzChunk(chunk.extras.data)
+        for (entity in chunk.getEntities()) entities.add(entity.tag)
+        for (x in 0..15) for (y in 0..255) for (z in 0..15)
+        {
+            val block = chunk.getBlockAt(BlockLocation(chunk, x, y, z)) ?: continue
+            val properties = if (block.state != null) block.state.tag else null
+            val blockState = CompoundTag()
+            blockState.putString("Name", block.type.toString())
+            if (properties != null) blockState.put("Properties", properties)
+            mcaChunk.setBlockStateAt(block.location.globalX, block.location.globalY, block.location.globalZ, blockState, false)
+        }
+        mcaChunk.setEntities(entities)
+        tileEntities.addAll(chunk.tileEntities.values.map { it.tag })
+        mcaChunk.setTileEntities(tileEntities)
+        for (i in 0..15)
+        {
+            val section = mcaChunk.getSection(i)
+            if (section != null)
+            {
+                section.blockLight = null
+                section.skyLight = null
+            }
+        }
+        val (x, z) = chunk.location.toRegionOffset()
+        mcaChunk.updateHandle(x, z)
+        return mcaChunk
+    }
+
+
+    //====================================
+    //QuerzChunk-related methods
+    //====================================
+
+    private fun readQChunk(region: Region, location: ChunkLocation): QuerzChunk?
+    {
+        val raf = region.file
+        val index = MCAFile.getChunkIndex(location.x - region.chunkOffset.x, location.z - region.chunkOffset.z)
+
+        raf.seek(index * 4L)
+        var offset = raf.read() shl 16
+        offset = offset or (raf.read() and 0xFF shl 8)
+        offset = offset or (raf.read() and 0xFF)
+        if (raf.readByte().toInt() == 0)
+            return null
+        raf.seek(4096 + index * 4L)
+        val timestamp = raf.readInt()
+        val qChunk = newQChunk(timestamp)
+        raf.seek(4096L * offset + 4L) //+4: skip data size
+        qChunk.deserialize(raf, LoadFlags.ALL_DATA)
+        return qChunk
+    }
+
+    private fun convertQChunk(world: World, mcaChunk: QuerzChunk): Chunk
+    {
+        val data = getData(mcaChunk)
+        val posX: Int = data.getCompoundTag("Level").getInt("xPos")
+        val posZ: Int = data.getCompoundTag("Level").getInt("zPos")
+        val blockTypes = arrayOfNulls<Array<BlockType?>?>(16)
+        val blockStates: MutableMap<Int, BlockState> = HashMap<Int, BlockState>()
+        val tileEntities: MutableMap<Int, TileEntity> = HashMap<Int, TileEntity>()
+        val entities: MutableList<Entity> = ArrayList<Entity>()
+        val chunk = Chunk(
+                world, ChunkLocation(posX, posZ),
+                MCAExtraInfo114(data), entities)
+
+        //Entities
+        /*for (tag in mcaChunk.getEntities())
+        {
+            val type = EntityDictionary.getEntityType(ResourceLocation(tag.getString("id")))
+            val posTag: ListTag<DoubleTag> = tag.getListTag("Pos") as ListTag<DoubleTag>
+            val location = EntityLocation(
+                    posTag.get(0).asDouble(),
+                    posTag.get(1).asDouble(),
+                    posTag.get(2).asDouble())
+            entities.add(MinecraftEntity(chunk, location, type, tag))
+        }*/
+
+        //Tile Entities
+        for (tileEntity in mcaChunk.tileEntities)
+        {
+            val globalX: Int = tileEntity.getInt("x")
+            val y: Int = tileEntity.getInt("y")
+            val globalZ: Int = tileEntity.getInt("z")
+            val x = globalX - (posX shl 4)
+            val z = globalZ - (posZ shl 4)
+            val index: Int = BlockLocation(x, y, z).toChunkBlockIndex()
+            tileEntities[index] = TileEntity(tileEntity)
+        }
+
+        //Block States
+        for (x in 0..15) for (y in 0..255) for (z in 0..15)
+        {
+            val tag = try
+            {
+                mcaChunk.getBlockStateAt(x, y, z)
+            }
+            catch (e: Exception) //todo bug within the thing
+            {
+                null
+            }
+            if (tag != null)
+            {
+                val blockType = getBlockType(ResourceLocation(tag.getString("Name")))
+                val blockState = BlockStateDictionary.createBlockState(blockType, tag.getCompoundTag("Properties"))
+                val location = BlockLocation(chunk, x, y, z)
+                if (blockState != null)
+                    blockStates[location.toChunkBlockIndex()] = blockState
+                if (blockTypes[y / 16] == null)
+                    blockTypes[y / 16] = arrayOfNulls(4096)
+                blockTypes[y / 16]!![location.toSectionBlockIndex()] = blockType
+            }
+        }
+        chunk.load(blockTypes, blockStates, tileEntities)
+        return chunk
     }
 
     companion object
     {
         private val mcaRegex = Pattern.compile("r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca")
         private val dataField = QuerzChunk::class.java.getDeclaredField("data")
+        private val qChunkConstr = QuerzChunk::class.constructors.first()
 
-        private fun writeChunk(chunk: Chunk): QuerzChunk
+        init
         {
-            val tileEntities: ListTag<CompoundTag> = ListTag(CompoundTag::class.java)
-            val entities: ListTag<CompoundTag> = ListTag(CompoundTag::class.java)
-            val mcaChunk = QuerzChunk(chunk.extras.data)
-            for (entity in chunk.getEntities()) entities.add(entity.tag)
-            for (x in 0..15) for (y in 0..255) for (z in 0..15)
-            {
-                val block = chunk.getBlockAt(BlockLocation(chunk, x, y, z)) ?: continue
-                val properties = if (block.state != null) block.state.tag else null
-                val blockState = CompoundTag()
-                blockState.putString("Name", block.type.toString())
-                if (properties != null) blockState.put("Properties", properties)
-                mcaChunk.setBlockStateAt(block.location.globalX, block.location.globalY, block.location.globalZ, blockState, false)
-            }
-            mcaChunk.setEntities(entities)
-            tileEntities.addAll(chunk.tileEntities.values.map { it.tag })
-            mcaChunk.setTileEntities(tileEntities)
-            for (i in 0..15)
-            {
-                val section = mcaChunk.getSection(i)
-                if (section != null)
-                {
-                    section.blockLight = null
-                    section.skyLight = null
-                }
-            }
-            val (x, z) = chunk.location.toRegionOffset()
-            mcaChunk.updateHandle(x, z)
-            return mcaChunk
-        }
-
-        @Throws(IOException::class)
-        private fun readRegion(world: World, regionFile: Path, x: Int, z: Int): Region
-        {
-            return Region(MCAUtil.read(regionFile.toFile()), world, RegionLocation(x, z))
-        }
-
-        private fun readChunk(world: World, mcaChunk: QuerzChunk): Chunk
-        {
-            val data = getData(mcaChunk)
-            val posX: Int = data.getCompoundTag("Level").getInt("xPos")
-            val posZ: Int = data.getCompoundTag("Level").getInt("zPos")
-            val blockTypes = arrayOfNulls<Array<BlockType?>?>(16)
-            val blockStates: MutableMap<Int, BlockState> = HashMap<Int, BlockState>()
-            val tileEntities: MutableMap<Int, TileEntity> = HashMap<Int, TileEntity>()
-            val entities: MutableList<Entity> = ArrayList<Entity>()
-            val chunk = Chunk(
-                    world, ChunkLocation(posX, posZ),
-                    MCAExtraInfo114(data), entities)
-
-            //Entities
-            /*for (tag in mcaChunk.getEntities())
-            {
-                val type = EntityDictionary.getEntityType(ResourceLocation(tag.getString("id")))
-                val posTag: ListTag<DoubleTag> = tag.getListTag("Pos") as ListTag<DoubleTag>
-                val location = EntityLocation(
-                        posTag.get(0).asDouble(),
-                        posTag.get(1).asDouble(),
-                        posTag.get(2).asDouble())
-                entities.add(MinecraftEntity(chunk, location, type, tag))
-            }*/
-
-            //Tile Entities
-            for (tileEntity in mcaChunk.tileEntities)
-            {
-                val globalX: Int = tileEntity.getInt("x")
-                val y: Int = tileEntity.getInt("y")
-                val globalZ: Int = tileEntity.getInt("z")
-                val x = globalX - (posX shl 4)
-                val z = globalZ - (posZ shl 4)
-                val index: Int = BlockLocation(x, y, z).toChunkBlockIndex()
-                tileEntities[index] = TileEntity(tileEntity)
-            }
-
-            //Block States
-            for (x in 0..15) for (y in 0..255) for (z in 0..15)
-            {
-                val tag = try
-                {
-                    mcaChunk.getBlockStateAt(x, y, z)
-                }
-                catch (e: Exception) //todo bug within the thing
-                {
-                    null
-                }
-                if (tag != null)
-                {
-                    val blockType = getBlockType(ResourceLocation(tag.getString("Name")))
-                    val blockState = BlockStateDictionary.createBlockState(blockType, tag.getCompoundTag("Properties"))
-                    val location = BlockLocation(chunk, x, y, z)
-                    if (blockState != null)
-                        blockStates[location.toChunkBlockIndex()] = blockState
-                    if (blockTypes[y / 16] == null)
-                        blockTypes[y / 16] = arrayOfNulls(4096)
-                    blockTypes[y / 16]!![location.toSectionBlockIndex()] = blockType
-                }
-            }
-            chunk.load(blockTypes, blockStates, tileEntities)
-            return chunk
+            qChunkConstr.isAccessible = true
+            dataField.isAccessible = true
         }
 
         fun getData(chunk: QuerzChunk): CompoundTag
         {
-            dataField.isAccessible = true
             return dataField.get(chunk) as CompoundTag
+        }
+
+        fun newQChunk(timestamp: Int): QuerzChunk
+        {
+            return qChunkConstr.call(timestamp)
         }
     }
 }

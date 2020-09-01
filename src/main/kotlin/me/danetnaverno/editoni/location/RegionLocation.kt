@@ -28,7 +28,7 @@ open class RegionLocation(x: Int, z: Int) : Cloneable
     //======================================================
     override fun toString(): String
     {
-        return "{$x, $z}"
+        return "Region{$x, $z}"
     }
 
     public override fun clone(): RegionLocation
@@ -43,14 +43,17 @@ open class RegionLocation(x: Int, z: Int) : Cloneable
 
     override fun equals(other: Any?): Boolean
     {
-        if (other is RegionLocation)
-            return equals(other)
-        return false
+        return other is RegionLocation && other.x == x && other.z == z
     }
 
     fun equals(other: RegionLocation): Boolean
     {
         return other.x == x && other.z == z
+    }
+
+    fun isChunkLocationBelongs(location: ChunkLocation): Boolean
+    {
+        return location.toRegionLocation() == this
     }
 
     /**

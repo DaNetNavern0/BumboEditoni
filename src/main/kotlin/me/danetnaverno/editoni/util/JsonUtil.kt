@@ -13,13 +13,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 
+@Suppress("unused")
 object JsonUtil
 {
-    fun JsonArray(elements: List<*>?): JSONArray
-    {
-        return JSONArray(elements as List<Any?>?)
-    }
-
     fun fromPair(key: String?, value: Any?): JSONObject
     {
         val `object` = JSONObject()
@@ -39,15 +35,8 @@ object JsonUtil
         return `object`
     }
 
-    fun fromMap(map: Map<String?, Any?>): JSONObject
-    {
-        val `object` = JSONObject()
-        map.forEach { (key: String?, value: Any?) -> `object`[key] = value }
-        return `object`
-    }
-
     @Throws(IOException::class)
-    fun fromFile(path: Path?): JSONObject
+    fun fromFile(path: Path): JSONObject
     {
         return try
         {
@@ -60,7 +49,7 @@ object JsonUtil
     }
 
     @Throws(IOException::class)
-    fun fromFileArray(path: Path?): JSONArray
+    fun fromFileArray(path: Path): JSONArray
     {
         return try
         {
@@ -73,7 +62,7 @@ object JsonUtil
     }
 
     @Throws(IOException::class)
-    fun saveJSONToFile(path: Path, json: JSON?)
+    fun saveJSONToFile(path: Path, json: JSON)
     {
         val writer = SerializeWriter()
         writer.config(SerializerFeature.PrettyFormat, true)

@@ -1,31 +1,38 @@
 package me.danetnaverno.editoni.world
 
-import me.danetnaverno.editoni.location.BlockLocation
 import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
-import net.querz.mca.MCAFile
+import java.io.RandomAccessFile
 
-
-class Region(@JvmField val mcaFile: MCAFile, @JvmField val world: World, @JvmField val location: RegionLocation)
+class Region(@JvmField val file: RandomAccessFile, @JvmField val world: World, @JvmField val location: RegionLocation)
 {
     private val chunks = Array<Array<Chunk?>>(32) { arrayOfNulls(32) }
-    private val chunkOffset = ChunkLocation(location.x shl 5, location.z shl 5)
-
-    fun loadAllChunks()
-    {
-        world.worldIOProvider.loadRegion(world, location)
-    }
+    val chunkOffset = ChunkLocation(location.x shl 5, location.z shl 5)
 
     fun loadChunkAt(chunkLocation: ChunkLocation, ticket: ChunkTicket) : Chunk?
     {
-        if (chunks[chunkLocation.x - chunkOffset.x][chunkLocation.z - chunkOffset.z] == null)
-            return world.worldIOProvider.loadChunk(world, chunkLocation, ticket)
+        require(this.location.isChunkLocationBelongs(chunkLocation)) {
+            "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${chunkLocation}"
+        }
+        val localX = chunkLocation.x - chunkOffset.x
+        val localZ = chunkLocation.z - chunkOffset.z
+        if (chunks[localX][localZ] == null)
+        {
+            val chunk = world.worldIOProvider.readChunk(this, chunkLocation) ?: return null
+            chunks[localX][localZ] = chunk
+            ChunkTicketManager.addTicket(chunk, ticket)
+            return chunk
+        }
         return null
     }
 
-    fun unloadChunk(chunkLocation: ChunkLocation)
+    fun unloadChunk(chunk: Chunk)
     {
-        chunks[chunkLocation.x - chunkOffset.x][chunkLocation.z - chunkOffset.z] = null
+        require(this.location.isChunkLocationBelongs(chunk.location)) {
+            "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${chunk.location}"
+        }
+        chunks[chunk.location.x - chunkOffset.x][chunk.location.z - chunkOffset.z] = null
+        ChunkTicketManager.clearTickets(chunk)
     }
 
     fun getLoadedChunks(): Collection<Chunk>
@@ -41,25 +48,19 @@ class Region(@JvmField val mcaFile: MCAFile, @JvmField val world: World, @JvmFie
         return result
     }
 
-    fun getAllChunks(): Collection<Chunk>
-    {
-        loadAllChunks()
-        return getLoadedChunks()
-    }
-
-
-    fun getChunkIfLoaded(location: ChunkLocation): Chunk?
-    {
-        return chunks[location.x - chunkOffset.x][location.z - chunkOffset.z]
-    }
-
     fun getChunk(location: ChunkLocation): Chunk?
     {
-        return getChunkIfLoaded(location)
+        require(this.location.isChunkLocationBelongs(location)) {
+            "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${location}"
+        }
+        return chunks[location.x - chunkOffset.x][location.z - chunkOffset.z]
     }
 
     fun setChunk(chunk: Chunk) : Chunk
     {
+        require(this.location.isChunkLocationBelongs(chunk.location)) {
+            "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${chunk.location}"
+        }
         chunks[chunk.location.x - chunkOffset.x][chunk.location.z - chunkOffset.z] = chunk
         return chunk
     }
