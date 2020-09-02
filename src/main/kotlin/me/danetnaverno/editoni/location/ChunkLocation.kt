@@ -2,21 +2,11 @@ package me.danetnaverno.editoni.location
 
 import kotlin.math.sqrt
 
-open class ChunkLocation(x: Int, z: Int) : Cloneable
+data class ChunkLocation(override val x: Int, override val z: Int) : IChunkLocation
 {
-    var x: Int = x
-        protected set
-    var z: Int = z
-        protected set
-
-    open fun toRegionLocation(): RegionLocation
+    override fun toRegionLocation(): RegionLocation
     {
         return RegionLocation(x shr 6, z shr 6)
-    }
-
-    fun isBlockLocationBelongs(pos: BlockLocation): Boolean
-    {
-        return pos.globalX shr 4 == x && pos.globalZ shr 4 == z
     }
 
     fun add(x: Int, z: Int): ChunkLocation
@@ -46,22 +36,13 @@ open class ChunkLocation(x: Int, z: Int) : Cloneable
         return dx * dx + dz * dz
     }
 
-    open fun immutable(): ChunkLocation
-    {
-        return this
-    }
-
-    //======================================================
-    override fun toString(): String
-    {
-        return "{$x, $z}"
-    }
-
-    public override fun clone(): ChunkLocation
-    {
-        return ChunkLocation(x, z)
-    }
-
+    //========================================
+    // Yes, this is some hacky stuff right there.
+    // By doing this, we make it possible to check if a collection has a ChunkLocation,
+    // if we check collection#contains with a ChunkLocationMutable.
+    // For an example, look at World#getRegion
+    // It's up to a programmer to make sure Mutable Locations are never placed into collections.
+    //========================================
     override fun hashCode(): Int
     {
         return x * 31 + z
@@ -69,52 +50,6 @@ open class ChunkLocation(x: Int, z: Int) : Cloneable
 
     override fun equals(other: Any?): Boolean
     {
-        if (other is ChunkLocation)
-            return equals(other)
-        return false
-    }
-
-    fun equals(other: ChunkLocation): Boolean
-    {
-        return other.x == x && other.z == z
-    }
-
-    /**
-     * @see [BlockLocation.Mutable]
-     */
-    class Mutable(x: Int, z: Int) : ChunkLocation(x, z)
-    {
-        private val regionLocation = RegionLocation.Mutable(x shr 6, z shr 6)
-
-        override fun toRegionLocation(): RegionLocation
-        {
-            return regionLocation
-        }
-
-        override fun immutable(): ChunkLocation
-        {
-            return ChunkLocation(x, z)
-        }
-
-        override fun clone(): Mutable
-        {
-            return Mutable(x, z)
-        }
-
-        fun addMutably(x: Int, z: Int): Mutable
-        {
-            this.x += x
-            this.z += z
-            regionLocation.setMutably(this.x shr 6, this.z shr 6)
-            return this
-        }
-
-        fun setMutably(x: Int, z: Int): Mutable
-        {
-            this.x = x
-            this.z = z
-            regionLocation.setMutably(x shr 6, z shr 6)
-            return this
-        }
+        return other is IChunkLocation && other.x == x && other.z == z
     }
 }

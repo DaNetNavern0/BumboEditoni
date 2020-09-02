@@ -4,10 +4,12 @@ import lwjgui.LWJGUIApplication
 import lwjgui.scene.Context
 import lwjgui.scene.Scene
 import lwjgui.scene.Window
+import me.danetnaverno.editoni.util.ThreadExecutor
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL44.*
 import org.lwjgl.util.vector.Matrix4f
 import org.lwjgl.util.vector.Vector3f
+import java.util.concurrent.Executors
 import kotlin.math.tan
 
 
@@ -91,6 +93,7 @@ class EditorApplication : LWJGUIApplication()
 
         private lateinit var doAfterStart: Runnable
         lateinit var combinedMatrix: Matrix4f //todo move this to a right place
+        val mainThreadExecutor = ThreadExecutor() //todo move this to a right place
 
         fun main(args: Array<String>, doAfterStart: Runnable)
         {

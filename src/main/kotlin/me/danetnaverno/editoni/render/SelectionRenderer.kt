@@ -11,20 +11,20 @@ import org.lwjgl.system.MemoryUtil
 class SelectionRenderer
 {
     val isBuilt: Boolean
-        get() = vaoBox != 0
+        get() = vaoBoxVertices != 0
 
     private var vaoLines: Int = 0
     private var vboLines: Int = 0
 
-    private var vaoBox: Int = 0
-    private var vboVertices: Int = 0
+    private var vaoBoxVertices: Int = 0
+    private var vboBoxVertices: Int = 0
 
     fun invalidate()
     {
         glDeleteVertexArrays(vaoLines)
-        glDeleteVertexArrays(vaoBox)
+        glDeleteVertexArrays(vaoBoxVertices)
         glDeleteBuffers(vboLines)
-        glDeleteBuffers(vboVertices)
+        glDeleteBuffers(vboBoxVertices)
     }
 
     fun update(area: BlockArea)
@@ -51,8 +51,8 @@ class SelectionRenderer
 
         bakeLines(minX, minY, minZ, maxX, maxY, maxZ)
 
-        vaoBox = glGenVertexArrays()
-        glBindVertexArray(vaoBox)
+        vaoBoxVertices = glGenVertexArrays()
+        glBindVertexArray(vaoBoxVertices)
         bakeVertices(minX, minY, minZ, maxX, maxY, maxZ, uvX, uvY, uvZ, tIndex)
     }
 
@@ -176,8 +176,8 @@ class SelectionRenderer
 
         vertexBuffer.flip()
 
-        vboVertices = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vboVertices)
+        vboBoxVertices = glGenBuffers()
+        glBindBuffer(GL_ARRAY_BUFFER, vboBoxVertices)
         glBufferStorage(GL_ARRAY_BUFFER, vertexBuffer, 0)
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 4 * 6, 0)
         glEnableVertexAttribArray(0)
@@ -190,7 +190,7 @@ class SelectionRenderer
 
     fun draw()
     {
-        if (vaoBox == 0)
+        if (vaoBoxVertices == 0)
             return
 
         glLineWidth(2f)
@@ -199,7 +199,7 @@ class SelectionRenderer
         glDrawArrays(GL_LINES, 0, 12 * 3)
         glEnable(GL_DEPTH_TEST)
 
-        glBindVertexArray(vaoBox)
+        glBindVertexArray(vaoBoxVertices)
         glDrawArrays(GL_TRIANGLES, 0, 6 * 4 * 3)
     }
 }

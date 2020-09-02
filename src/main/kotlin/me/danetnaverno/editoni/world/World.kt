@@ -1,13 +1,9 @@
-
 package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.Minecraft114WorldIO
-import me.danetnaverno.editoni.location.BlockLocation
-import me.danetnaverno.editoni.location.ChunkLocation
-import me.danetnaverno.editoni.location.EntityLocation
-import me.danetnaverno.editoni.location.RegionLocation
+import me.danetnaverno.editoni.location.*
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.nio.file.Path
 import java.util.*
@@ -26,7 +22,7 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
         return regions.values
     }
 
-    fun getRegion(location: RegionLocation): Region?
+    fun getRegion(location: IRegionLocation): Region?
     {
         return regions[location]
     }
@@ -44,7 +40,7 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
         return regions.values.flatMap { it.getLoadedChunks() }
     }
 
-    fun getChunkIfLoaded(location: BlockLocation): Chunk?
+    fun getChunkIfLoaded(location: IBlockLocation): Chunk?
     {
         val region = getRegion(location.toRegionLocation()) ?: return null
         return region.getChunk(location.toChunkLocation())
@@ -56,19 +52,24 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
         return region.getChunk(location)
     }
 
-    fun getChunk(location: BlockLocation): Chunk?
+    fun getChunk(location: IBlockLocation): Chunk?
     {
         val region = getRegion(location.toRegionLocation()) ?: return null
         return region.getChunk(location.toChunkLocation())
     }
 
-    fun getChunk(location: ChunkLocation): Chunk?
+    fun getChunk(location: IChunkLocation): Chunk?
     {
         val region = getRegion(location.toRegionLocation()) ?: return null
         return region.getChunk(location)
     }
 
-    fun loadChunkAt(chunkLocation: ChunkLocation, ticket: ChunkTicket) : Chunk?
+    fun loadChunkAsync(chunkLocation: IChunkLocation, ticket: ChunkTicket)
+    {
+        getRegion(chunkLocation.toRegionLocation())?.loadChunkAsync(chunkLocation, ticket)
+    }
+
+    fun loadChunkAt(chunkLocation: ChunkLocation, ticket: ChunkTicket): Chunk?
     {
         return getRegion(chunkLocation.toRegionLocation())?.loadChunkAt(chunkLocation, ticket)
     }
@@ -92,37 +93,37 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
     //======================
     // BLOCKS
     //======================
-    fun getBlockAt(location: BlockLocation): Block?
+    fun getBlockAt(location: IBlockLocation): Block?
     {
         val chunk = getChunk(location) ?: return null
         return chunk.getBlockAt(location)
     }
 
-    fun getBlockTypeAt(location: BlockLocation): BlockType?
+    fun getBlockTypeAt(location: IBlockLocation): BlockType?
     {
         val chunk = getChunk(location) ?: return null
         return chunk.getBlockTypeAt(location)
     }
 
-    fun getBlockStateAt(location: BlockLocation): BlockState?
+    fun getBlockStateAt(location: IBlockLocation): BlockState?
     {
         val chunk = getChunk(location) ?: return null
         return chunk.getBlockStateAt(location)
     }
 
-    fun getTileEntityAt(location: BlockLocation): TileEntity?
+    fun getTileEntityAt(location: IBlockLocation): TileEntity?
     {
         val chunk = getChunk(location) ?: return null
         return chunk.getTileEntityAt(location)
     }
 
-    fun getLoadedBlockAt(location: BlockLocation): Block?
+    fun getLoadedBlockAt(location: IBlockLocation): Block?
     {
         val chunk = getChunkIfLoaded(location) ?: return null
         return chunk.getBlockAt(location)
     }
 
-    fun getLoadedBlockTypeAt(location: BlockLocation): BlockType?
+    fun getLoadedBlockTypeAt(location: IBlockLocation): BlockType?
     {
         val chunk = getChunkIfLoaded(location) ?: return null
         return chunk.getBlockTypeAt(location)
@@ -143,14 +144,16 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
     fun setBlock(block: Block)
     {
         var chunk = getChunk(block.location)
-        if (chunk == null) chunk = createChunk(block.location.toChunkLocation())
+        if (chunk == null)
+            chunk = createChunk(block.location.toChunkLocation())
         chunk.setBlock(block)
     }
 
-    fun deleteBlock(location: BlockLocation)
+    fun deleteBlock(location: IBlockLocation)
     {
         val chunk = getChunk(location.toChunkLocation())
-        if (chunk != null) setBlock(Block(chunk, location.immutable(), MinecraftDictionaryFiller.AIR, null, null))
+        if (chunk != null)
+            setBlock(Block(chunk, location.toImmutable(), MinecraftDictionaryFiller.AIR, null, null))
     }
 
 

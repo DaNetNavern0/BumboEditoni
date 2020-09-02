@@ -5,7 +5,6 @@ import me.danetnaverno.editoni.blocktype.BlockDictionary.getBlockType
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.location.*
 import me.danetnaverno.editoni.util.ResourceLocation
-import me.danetnaverno.editoni.util.RobertoGarbagio
 import me.danetnaverno.editoni.world.*
 import net.querz.mca.LoadFlags
 import net.querz.mca.MCAFile
@@ -17,8 +16,7 @@ import java.io.RandomAccessFile
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
-import java.util.concurrent.ForkJoinPool
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 import java.util.regex.Pattern
 import kotlin.reflect.jvm.isAccessible
 import net.querz.mca.Chunk as QuerzChunk
@@ -82,9 +80,14 @@ class Minecraft114WorldIO
         return Region(RandomAccessFile(regionFile.toFile(), "r"), world, RegionLocation(x, z))
     }
 
-    fun readChunk(region: Region, location: ChunkLocation) : Chunk?
+    fun readChunk(region: Region, location: IChunkLocation) : Chunk?
     {
-        val qChunk = readQChunk(region, location) ?: return null
+        return readChunk(region, location.x, location.z)
+    }
+
+    fun readChunk(region: Region, x: Int, z: Int) : Chunk?
+    {
+        val qChunk = readQChunk(region, x, z) ?: return null
         return convertQChunk(region.world, qChunk)
     }
 
@@ -92,7 +95,6 @@ class Minecraft114WorldIO
     fun writeWorld(world: World, path: Path)
     {
         val executor = ForkJoinPool()
-        val now = System.currentTimeMillis()
         val regionFolder = path.resolve("region")
         Files.createDirectories(regionFolder)
         for (region in world.getRegions())
@@ -115,7 +117,6 @@ class Minecraft114WorldIO
         {
             e.printStackTrace()
         }
-        RobertoGarbagio.logger.info("Saved in " + (System.currentTimeMillis() - now))
     }
 
     @Throws(IOException::class)
@@ -168,10 +169,10 @@ class Minecraft114WorldIO
     //QuerzChunk-related methods
     //====================================
 
-    private fun readQChunk(region: Region, location: ChunkLocation): QuerzChunk?
+    private fun readQChunk(region: Region, x: Int, z: Int): QuerzChunk?
     {
         val raf = region.file
-        val index = MCAFile.getChunkIndex(location.x - region.chunkOffset.x, location.z - region.chunkOffset.z)
+        val index = MCAFile.getChunkIndex(x - region.chunkOffset.x, z - region.chunkOffset.z)
 
         raf.seek(index * 4L)
         var offset = raf.read() shl 16

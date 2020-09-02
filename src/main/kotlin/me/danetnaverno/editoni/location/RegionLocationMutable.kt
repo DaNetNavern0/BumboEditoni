@@ -1,18 +1,27 @@
 package me.danetnaverno.editoni.location
 
-
-data class RegionLocation(override val x: Int, override val z: Int) : IRegionLocation
+/**
+ * @see [BlockLocationMutable]
+ */
+class RegionLocationMutable(x: Int, z: Int) : IRegionLocation
 {
-    fun distance(other: RegionLocation): Double
+    override var x: Int = x
+        private set
+    override var z: Int = z
+        private set
+
+    fun add(x: Int, z: Int): RegionLocationMutable
     {
-        return Math.sqrt(distanceSquared(other).toDouble())
+        this.x += x
+        this.z += z
+        return this
     }
 
-    fun distanceSquared(other: RegionLocation): Int
+    fun set(x: Int, z: Int): RegionLocationMutable
     {
-        val dx = this.x - other.x
-        val dz = this.z - other.z
-        return dx * dx + dz * dz
+        this.x = x
+        this.z = z
+        return this
     }
 
     //========================================
@@ -30,5 +39,10 @@ data class RegionLocation(override val x: Int, override val z: Int) : IRegionLoc
     override fun equals(other: Any?): Boolean
     {
         return other is IRegionLocation && other.x == x && other.z == z
+    }
+
+    override fun toString(): String
+    {
+        return "RegionLocationMutable($x, $z)"
     }
 }

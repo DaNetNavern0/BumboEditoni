@@ -2,10 +2,7 @@ package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.MCAExtraInfo
-import me.danetnaverno.editoni.location.BlockLocation
-import me.danetnaverno.editoni.location.ChunkLocation
-import me.danetnaverno.editoni.location.toChunkBlockIndex
-import me.danetnaverno.editoni.location.toSectionBlockIndex
+import me.danetnaverno.editoni.location.*
 import me.danetnaverno.editoni.render.ChunkRenderer
 
 class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
@@ -23,7 +20,7 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
         this.tileEntities = tileEntities
     }
 
-    fun getBlockAt(location: BlockLocation): Block?
+    fun getBlockAt(location: IBlockLocation): Block?
     {
         if (!location.isValid())
             return null
@@ -35,10 +32,12 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
         val array = blockTypes[section]
         if (array == null || array[index] == null)
             return null
-        return Block(this, location.immutable(), array[index]!!, getBlockStateAt(location), getTileEntityAt(location))
+
+
+        return Block(this, location.toImmutable(), array[index]!!, getBlockStateAt(location), getTileEntityAt(location))
     }
 
-    fun getBlockTypeAt(location: BlockLocation): BlockType?
+    fun getBlockTypeAt(location: IBlockLocation): BlockType?
     {
         require(this.location.isBlockLocationBelongs(location)) {
             "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
@@ -47,7 +46,7 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
         return section[location.toSectionBlockIndex()]
     }
 
-    fun getBlockStateAt(location: BlockLocation): BlockState?
+    fun getBlockStateAt(location: IBlockLocation): BlockState?
     {
         require(this.location.isBlockLocationBelongs(location)) {
             "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
@@ -56,7 +55,7 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
     }
 
 
-    fun getTileEntityAt(location: BlockLocation): TileEntity?
+    fun getTileEntityAt(location: IBlockLocation): TileEntity?
     {
         require(this.location.isBlockLocationBelongs(location)) {
             "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
@@ -90,4 +89,6 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
     {
         vertexData.draw()
     }
+
+    object Placeholder
 }

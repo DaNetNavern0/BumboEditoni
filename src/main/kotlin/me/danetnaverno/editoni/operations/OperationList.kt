@@ -4,7 +4,7 @@ import me.danetnaverno.editoni.editor.EditorGUI.refreshOperationHistory
 import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.location.ChunkArea
 import me.danetnaverno.editoni.util.Translation.translate
-import me.danetnaverno.editoni.world.ChunkTicketManager
+import me.danetnaverno.editoni.world.ChunkManager
 import me.danetnaverno.editoni.world.ChunkTicketOperation
 import java.lang.Integer.max
 import java.lang.Integer.min
@@ -32,7 +32,7 @@ class OperationList constructor(val editorTab: EditorTab)
                 if (operation !is IObservingOperation)
                     chunks.iterator().asSequence()
                             .mapNotNull { editorTab.world.getChunk(it) }
-                            .forEach { ChunkTicketManager.addTicket(it, ChunkTicketOperation(operation)) }
+                            .forEach { ChunkManager.addTicket(it, ChunkTicketOperation(operation)) }
             }
         }
         else

@@ -33,7 +33,7 @@ class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation
      * To consider: do we actually need this, since in many occasions we need an immutable version of this anyway?
      * Look at the usages of [BlockLocation.immutable]
      */
-    fun mutableIterator(): Iterator<BlockLocation>
+    fun mutableIterator(): Iterator<BlockLocationMutable>
     {
         return BlockAreaMutableIterator(min, max)
     }
@@ -44,7 +44,7 @@ class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation
     }
 }
 
-abstract class BlockAreaIterator(min: BlockLocation, max: BlockLocation) : Iterator<BlockLocation>
+abstract class BlockAreaIterator<T>(min: BlockLocation, max: BlockLocation) : Iterator<T>
 {
     protected val minX = min.globalX
     protected val minY = min.globalY
@@ -78,7 +78,7 @@ abstract class BlockAreaIterator(min: BlockLocation, max: BlockLocation) : Itera
     }
 }
 
-class BlockAreaImmutableIterator(min: BlockLocation, max: BlockLocation) : BlockAreaIterator(min, max)
+class BlockAreaImmutableIterator(min: BlockLocation, max: BlockLocation) : BlockAreaIterator<BlockLocation>(min, max)
 {
     override fun next(): BlockLocation
     {
@@ -87,12 +87,12 @@ class BlockAreaImmutableIterator(min: BlockLocation, max: BlockLocation) : Block
     }
 }
 
-class BlockAreaMutableIterator(min: BlockLocation, max: BlockLocation) : BlockAreaIterator(min, max)
+class BlockAreaMutableIterator(min: BlockLocation, max: BlockLocation) : BlockAreaIterator<BlockLocationMutable>(min, max)
 {
-    private val currentLocation = BlockLocation.Mutable(currentX, currentY, currentZ)
-    override fun next(): BlockLocation
+    private val currentLocation = BlockLocationMutable(currentX, currentY, currentZ)
+    override fun next(): BlockLocationMutable
     {
         shiftIndex()
-        return currentLocation.setMutably(currentX, currentY, currentZ)
+        return currentLocation.set(currentX, currentY, currentZ)
     }
 }

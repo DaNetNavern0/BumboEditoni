@@ -2,6 +2,7 @@ package me.danetnaverno.editoni.render.blockrender
 
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.location.BlockLocation
+import me.danetnaverno.editoni.location.BlockLocationMutable
 import me.danetnaverno.editoni.world.World
 import java.nio.FloatBuffer
 
@@ -11,7 +12,7 @@ class BlockRendererAir : BlockRenderer()
     {
     }
 
-    override fun isVisible(world: World, location: BlockLocation.Mutable): Boolean
+    override fun isVisible(world: World, location: BlockLocationMutable): Boolean
     {
         return false
     }
@@ -21,11 +22,11 @@ class BlockRendererAir : BlockRenderer()
         return 0
     }
 
-    override fun bake(world: World, location: BlockLocation.Mutable, vertexBuffer: FloatBuffer)
+    override fun bake(world: World, location: BlockLocationMutable, vertexBuffer: FloatBuffer)
     {
     }
 
-    override fun shouldRenderSideAgainst(world: World, location: BlockLocation): Boolean
+    override fun shouldRenderSideAgainst(world: World, location: BlockLocationMutable): Boolean
     {
         return false
     }

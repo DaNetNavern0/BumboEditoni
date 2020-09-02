@@ -1,18 +1,22 @@
 package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.editor.Editor
+import me.danetnaverno.editoni.editor.EditorApplication
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.function.Predicate
 
-object ChunkTicketManager
+object ChunkManager
 {
-    private val executor = Executors.newSingleThreadScheduledExecutor()
+    val chunkLoadingExecutor = Executors.newSingleThreadScheduledExecutor()
     private val tickets: MutableMap<Chunk, MutableSet<ChunkTicket>> = ConcurrentHashMap()
 
     init
     {
-        executor.scheduleAtFixedRate({ unloadExcessChunks() }, 0, 10, TimeUnit.SECONDS) //todo multithreading issues all over the place
+        chunkLoadingExecutor.scheduleAtFixedRate({
+            EditorApplication.mainThreadExecutor.addTask { unloadExcessChunks() }
+        }, 0, 10, TimeUnit.SECONDS) //todo multithreading issues all over the place
     }
 
     fun addTicket(chunk: Chunk, chunkTicket: ChunkTicket)
@@ -31,16 +35,20 @@ object ChunkTicketManager
         tickets[chunk]?.remove(chunkTicket)
     }
 
+    fun removeTicketsIf(chunk: Chunk, predicate: Predicate<ChunkTicket>)
+    {
+        tickets[chunk]?.removeIf(predicate)
+    }
+
     fun clearTickets(chunk: Chunk)
     {
         tickets.remove(chunk)
     }
 
-    fun cleanCameraTickets(world: World)
+    fun cleanCameraTickets()
     {
-        val cameraTicket = ChunkTicketCamera()
         for (ticket in tickets.values)
-            ticket.remove(cameraTicket)
+            ticket.remove(ChunkTicketCamera)
     }
 
     fun unloadExcessChunks()
@@ -52,10 +60,10 @@ object ChunkTicketManager
     fun unloadExcessChunks(world: World)
     {
         tickets.entries.removeIf {
-            val anyTickets = !tickets.values.isEmpty()
-            if (anyTickets)
-                world.unloadChunk(it.key) //todo sync queue... or _A_sync?
-            anyTickets
+            val noTickets = it.value.isEmpty()
+            if (noTickets)
+                world.unloadChunk(it.key)
+            noTickets
         }
     }
 }

@@ -14,7 +14,7 @@ object Main
         EditorApplication.main(args) {
             MinecraftDictionaryFiller.init()
             //Editor.currentWorld = Editor.loadWorld(Paths.get("tests/1.14.2 survival world/region"))
-            val world = Editor.loadWorld(Paths.get("tests/1.14.2 world/region"))
+            val world = Editor.loadWorld(Paths.get("tests/1.14.2 survival world/region"))
             val tab = Editor.createNewTab(world)
             Editor.openTab(tab)
             EditorGUI.refreshWorldList()

@@ -9,18 +9,7 @@ open class ChunkTicket
  *  the camera is either close enough to load a chunk, or not.
  * You can't have multiple tickets from multiple cameras being stacked
  */
-class ChunkTicketCamera : ChunkTicket()
-{
-    override fun equals(other: Any?): Boolean
-    {
-        return other is ChunkTicketCamera
-    }
-
-    override fun hashCode(): Int
-    {
-        return 1337
-    }
-}
+object ChunkTicketCamera : ChunkTicket()
 
 class ChunkTicketOperation(val operation: Operation) : ChunkTicket()
 {

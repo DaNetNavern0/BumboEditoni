@@ -57,6 +57,7 @@ object Editor
 
     fun displayLoop()
     {
+        EditorApplication.mainThreadExecutor.fireTasks()
         Shader.use()
         glBindTexture(GL_TEXTURE_2D_ARRAY, TextureAtlas.mainAtlas.atlasTexture)
 

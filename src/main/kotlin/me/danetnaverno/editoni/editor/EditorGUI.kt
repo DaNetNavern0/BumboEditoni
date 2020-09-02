@@ -9,7 +9,7 @@ import lwjgui.style.BackgroundSolid
 import lwjgui.theme.ThemeWhite
 import me.danetnaverno.editoni.editor.control.DynamicLabel
 import me.danetnaverno.editoni.util.Translation
-import me.danetnaverno.editoni.world.ChunkTicketManager
+import me.danetnaverno.editoni.world.ChunkManager
 import net.querz.nbt.tag.CompoundTag
 import javax.swing.JFileChooser
 
@@ -88,7 +88,7 @@ object EditorGUI
             if (state == JFileChooser.APPROVE_OPTION)
             {
                 Editor.currentTab.world.worldIOProvider.writeWorld(Editor.currentTab.world, fc.selectedFile.toPath())
-                ChunkTicketManager.unloadExcessChunks(Editor.currentTab.world)
+                ChunkManager.unloadExcessChunks(Editor.currentTab.world)
                 Editor.currentTab.operationList.savePosition = Editor.currentTab.operationList.getPosition()
             }
         }

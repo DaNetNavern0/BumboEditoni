@@ -2,19 +2,9 @@ package me.danetnaverno.editoni.location
 
 import me.danetnaverno.editoni.world.Chunk
 
-fun BlockLocation.toSectionBlockIndex(): Int
-{
-    return (localY % 16) * 256 + localZ * 16 + localX
-}
-
 fun BlockLocation.getSection(): Int
 {
     return localY / 16
-}
-
-fun BlockLocation.toChunkBlockIndex(): Int
-{
-    return localY * 256 + localZ * 16 + localX
 }
 
 fun BlockLocation.Companion.fromBlockIndex(chunk: Chunk, index: Int): BlockLocation

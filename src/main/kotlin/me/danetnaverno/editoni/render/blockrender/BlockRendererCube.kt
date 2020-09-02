@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.render.blockrender
 
 import com.alibaba.fastjson.JSONObject
-import me.danetnaverno.editoni.location.BlockLocation
+import me.danetnaverno.editoni.location.BlockLocationMutable
 import me.danetnaverno.editoni.texture.Texture
 import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.ResourceLocation
@@ -92,19 +92,19 @@ open class BlockRendererCube : BlockRenderer
         return 1.0f
     }
 
-    override fun isVisible(world: World, location: BlockLocation.Mutable): Boolean
+    override fun isVisible(world: World, location: BlockLocationMutable): Boolean
     {
         //A small trick to avoid creating new short-living BlockLocation instances
         val x = location.globalX
         val y = location.globalY
         val z = location.globalZ
-        val result = shouldRenderSideAgainst(world, location.addMutably(0, 1, 0)) ||
-                shouldRenderSideAgainst(world, location.addMutably(0, -2, 0)) ||
-                shouldRenderSideAgainst(world, location.addMutably(0, 1, 1)) ||
-                shouldRenderSideAgainst(world, location.addMutably(0, 0, -2)) ||
-                shouldRenderSideAgainst(world, location.addMutably(1, 0, 1)) ||
-                shouldRenderSideAgainst(world, location.addMutably(-2, 0, 0))
-        location.setMutably(x, y, z)
+        val result = shouldRenderSideAgainst(world, location.add(0, 1, 0)) ||
+                shouldRenderSideAgainst(world, location.add(0, -2, 0)) ||
+                shouldRenderSideAgainst(world, location.add(0, 1, 1)) ||
+                shouldRenderSideAgainst(world, location.add(0, 0, -2)) ||
+                shouldRenderSideAgainst(world, location.add(1, 0, 1)) ||
+                shouldRenderSideAgainst(world, location.add(-2, 0, 0))
+        location.set(x, y, z)
         return result
     }
 
@@ -113,7 +113,7 @@ open class BlockRendererCube : BlockRenderer
         return 6 * 4 * 4
     }
 
-    override fun bake(world: World, location: BlockLocation.Mutable, vertexBuffer: FloatBuffer)
+    override fun bake(world: World, location: BlockLocationMutable, vertexBuffer: FloatBuffer)
     {
         val size = getSize()
         val x1 = location.globalX.toFloat()
@@ -124,7 +124,7 @@ open class BlockRendererCube : BlockRenderer
         val y2 = location.globalY + size
         val z2 = location.globalZ + size
 
-        if (shouldRenderSideAgainst(world, location.addMutably(0, 1, 0)))
+        if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(top)
             //I don't like how it looks, but it seems to be the most optimized way of doing this.
@@ -139,7 +139,7 @@ open class BlockRendererCube : BlockRenderer
                     .put(x1).put(y2).put(z1).put(0f).put(0f).put(tIndex)
         }
 
-        if (shouldRenderSideAgainst(world, location.addMutably(0, -2, 0)))
+        if (shouldRenderSideAgainst(world, location.add(0, -2, 0)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(bottom)
 
@@ -153,7 +153,7 @@ open class BlockRendererCube : BlockRenderer
                     .put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
         }
 
-        if (shouldRenderSideAgainst(world, location.addMutably(0, 1, 1)))
+        if (shouldRenderSideAgainst(world, location.add(0, 1, 1)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(south)
 
@@ -168,7 +168,7 @@ open class BlockRendererCube : BlockRenderer
 
         }
 
-        if (shouldRenderSideAgainst(world, location.addMutably(0, 0, -2)))
+        if (shouldRenderSideAgainst(world, location.add(0, 0, -2)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(north)
 
@@ -182,7 +182,7 @@ open class BlockRendererCube : BlockRenderer
                     .put(x2).put(y1).put(z1).put(0f).put(0f).put(tIndex)
         }
 
-        if (shouldRenderSideAgainst(world, location.addMutably(-1, 0, 1)))
+        if (shouldRenderSideAgainst(world, location.add(-1, 0, 1)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(west)
 
@@ -196,7 +196,7 @@ open class BlockRendererCube : BlockRenderer
                     .put(x1).put(y2).put(z2).put(0f).put(0f).put(tIndex)
         }
 
-        if (shouldRenderSideAgainst(world, location.addMutably(2, 0, 0)))
+        if (shouldRenderSideAgainst(world, location.add(2, 0, 0)))
         {
             val tIndex = TextureAtlas.mainAtlas.getZLayer(east)
 

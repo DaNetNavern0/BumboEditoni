@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.render
 
-import me.danetnaverno.editoni.location.BlockLocation
+import me.danetnaverno.editoni.location.BlockLocationMutable
 import me.danetnaverno.editoni.world.Chunk
 import org.lwjgl.opengl.GL44.*
 import org.lwjgl.system.MemoryUtil
@@ -25,7 +25,7 @@ class ChunkRenderer(private val chunk: Chunk)
     fun updateVertices()
     {
         var vertexBuffer = MemoryUtil.memAllocFloat(32768)
-        val mutableLocation = BlockLocation.Mutable(0, 0, 0)
+        val mutableLocation = BlockLocationMutable(0, 0, 0)
 
         try
         {
