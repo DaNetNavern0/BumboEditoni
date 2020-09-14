@@ -2,7 +2,7 @@ group = "BumboEditoni"
 version = "indev"
 
 buildscript {
-    ext.kotlin_version = '1.4-M3'
+    ext.kotlin_version = '1.4.10'
     repositories {
         mavenCentral()
         maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }

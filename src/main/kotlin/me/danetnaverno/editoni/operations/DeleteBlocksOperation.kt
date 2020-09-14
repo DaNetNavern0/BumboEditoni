@@ -18,7 +18,7 @@ open class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
         reapply()
     }
 
-    override fun reapply() //todo there is the difference betwee applyFirst and applyToRollback
+    override fun reapply()
     {
         for (location in area.mutableIterator())
             area.world.deleteBlock(location)

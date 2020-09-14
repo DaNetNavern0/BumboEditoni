@@ -87,7 +87,7 @@ object EditorGUI
             val state = fc.showOpenDialog(null)
             if (state == JFileChooser.APPROVE_OPTION)
             {
-                Editor.currentTab.world.worldIOProvider.writeWorld(Editor.currentTab.world, fc.selectedFile.toPath())
+                Editor.currentTab.world.worldIOProvider.writeWorld(Editor.currentTab, fc.selectedFile.toPath())
                 ChunkManager.unloadExcessChunks(Editor.currentTab.world)
                 Editor.currentTab.operationList.savePosition = Editor.currentTab.operationList.getPosition()
             }

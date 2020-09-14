@@ -1,8 +1,9 @@
 package me.danetnaverno.editoni.location
 
+import me.danetnaverno.editoni.world.Chunk
 import me.danetnaverno.editoni.world.World
 
-class ChunkArea(val world: World, cornerA: ChunkLocation, cornerB: ChunkLocation)
+class ChunkArea(val world: World, cornerA: ChunkLocation, cornerB: ChunkLocation) : Iterable<ChunkLocation>
 {
     val min = ChunkLocation(
             Math.min(cornerA.x, cornerB.x),
@@ -12,7 +13,7 @@ class ChunkArea(val world: World, cornerA: ChunkLocation, cornerB: ChunkLocation
             Math.max(cornerA.x, cornerB.x),
             Math.max(cornerA.z, cornerB.z))
 
-    fun iterator(): Iterator
+    override fun iterator(): Iterator
     {
         return Iterator(min, max)
     }

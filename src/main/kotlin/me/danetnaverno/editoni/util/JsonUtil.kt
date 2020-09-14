@@ -18,21 +18,21 @@ object JsonUtil
 {
     fun fromPair(key: String?, value: Any?): JSONObject
     {
-        val `object` = JSONObject()
-        `object`[key] = value
-        return `object`
+        val json = JSONObject()
+        json[key] = value
+        return json
     }
 
     fun fromPairs(vararg pairs: Any?): JSONObject
     {
-        val `object` = JSONObject()
+        val json = JSONObject()
         var i = 0
         while (i < pairs.size)
         {
-            `object`[pairs[i] as String?] = pairs[i + 1]
+            json[pairs[i] as String?] = pairs[i + 1]
             i += 2
         }
-        return `object`
+        return json
     }
 
     @Throws(IOException::class)

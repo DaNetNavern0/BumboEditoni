@@ -5,8 +5,9 @@ import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
 import java.io.RandomAccessFile
+import java.nio.file.Path
 
-class Region(@JvmField val file: RandomAccessFile, @JvmField val world: World, @JvmField val location: RegionLocation)
+class Region(@JvmField val path: Path, @JvmField val world: World, @JvmField val location: RegionLocation)
 {
     private val chunks = Array<Array<Any?>>(32) { arrayOfNulls(32) }
 

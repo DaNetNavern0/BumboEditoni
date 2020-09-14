@@ -39,7 +39,7 @@ class ChunkRenderer(private val chunk: Chunk)
                     val renderer = blockType.renderer
                     if (renderer.isVisible(chunk.world, mutableLocation))
                     {
-                        if (vertexBuffer.position() + renderer.getMaxVertexCount() * 6 >= vertexBuffer.capacity()) //todo
+                        if (vertexBuffer.position() + renderer.getMaxVertexCount() * 6 >= vertexBuffer.capacity())
                             vertexBuffer = growBuffer(vertexBuffer)
                         renderer.bake(chunk.world, mutableLocation, vertexBuffer)
                     }
@@ -81,16 +81,21 @@ class ChunkRenderer(private val chunk: Chunk)
 
     private fun growBuffer(vertexBuffer: FloatBuffer): FloatBuffer
     {
-        val newCapacity = vertexBuffer.capacity() + 32768
-        val newVertexBuffer = MemoryUtil.memAllocFloat(newCapacity)
+        try
+        {
+            val newCapacity = vertexBuffer.capacity() + 32768
+            val newVertexBuffer = MemoryUtil.memAllocFloat(newCapacity)
 
-        val vertexBufferPos = vertexBuffer.position()
-        vertexBuffer.flip()
-        MemoryUtil.memCopy(vertexBuffer, newVertexBuffer)
-        newVertexBuffer.position(vertexBufferPos)
+            val vertexBufferPos = vertexBuffer.position()
+            vertexBuffer.flip()
+            MemoryUtil.memCopy(vertexBuffer, newVertexBuffer)
+            newVertexBuffer.position(vertexBufferPos)
 
-        MemoryUtil.memFree(vertexBuffer)
-
-        return newVertexBuffer
+            return newVertexBuffer
+        }
+        finally
+        {
+            MemoryUtil.memFree(vertexBuffer)
+        }
     }
 }

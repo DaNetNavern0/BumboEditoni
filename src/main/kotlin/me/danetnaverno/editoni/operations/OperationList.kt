@@ -3,7 +3,9 @@ package me.danetnaverno.editoni.operations
 import me.danetnaverno.editoni.editor.EditorGUI.refreshOperationHistory
 import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.location.ChunkArea
+import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.util.Translation.translate
+import me.danetnaverno.editoni.world.Chunk
 import me.danetnaverno.editoni.world.ChunkManager
 import me.danetnaverno.editoni.world.ChunkTicketOperation
 import java.lang.Integer.max
@@ -118,5 +120,17 @@ class OperationList constructor(val editorTab: EditorTab)
         ChunkArea(chunkArea.world, chunkArea.min.add(-1, -1), chunkArea.max.add(1, 1)).iterator().asSequence()
                 .mapNotNull { chunkLoc -> editorTab.world.getChunk(chunkLoc) }
                 .forEach { it.vertexData.invalidate() }
+    }
+
+    fun getAllAlteredChunks() : List<ChunkLocation>
+    {
+        //todo
+        return operationList.mapNotNull { it.alteredChunks }.flatten()
+    }
+
+    fun getAllTrulyAlteredChunks() : List<ChunkLocation>
+    {
+        //todo
+        return operationList.filter { it !is IObservingOperation }.mapNotNull { it.alteredChunks }.flatten()
     }
 }

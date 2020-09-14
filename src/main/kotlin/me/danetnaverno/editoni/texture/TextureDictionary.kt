@@ -41,7 +41,7 @@ object TextureDictionary
             logger.error("Failed to load a texture: $name", ex)
             get(ResourceLocation("common:error"))
         }
-        textures[name] = texture
+        textures[name] = texture!!
 
         return texture
     }

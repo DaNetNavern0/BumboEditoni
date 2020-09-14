@@ -13,6 +13,9 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
 
     val vertexData = ChunkRenderer(this)
 
+    val region
+        get() = world.getRegion(location.toRegionLocation())!!
+
     fun load(blockTypes: Array<Array<BlockType?>?>, blockStates: MutableMap<Int, BlockState>, tileEntities: MutableMap<Int, TileEntity>)
     {
         this.blockTypes = blockTypes

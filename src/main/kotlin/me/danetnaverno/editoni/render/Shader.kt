@@ -11,6 +11,8 @@ import java.nio.file.Files
 object Shader
 {
     var program = 0
+    private var texture = 0
+    private var proj = 0
 
     init
     {
@@ -41,6 +43,9 @@ object Shader
 
         glDeleteShader(vertShader)
         glDeleteShader(fragShader)
+
+        texture = glGetUniformLocation(program, "in_texture")
+        proj = glGetUniformLocation(program, "combined_matrix")
     }
 
     private fun loadShader(program: Int, shaderStr: String, type: Int) : Int
@@ -66,8 +71,6 @@ object Shader
     fun use()
     {
         glUseProgram(program)
-        val texture = glGetUniformLocation(program, "in_texture")
-        val proj = glGetUniformLocation(program, "combined_matrix")
         glUniform1i(texture, 0)
 
         val buffer = BufferUtils.createFloatBuffer(16)
