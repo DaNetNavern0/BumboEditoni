@@ -1,58 +1,41 @@
 package me.danetnaverno.editoni.texture
 
+import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.ResourceUtil
-import org.apache.logging.log4j.LogManager
 import java.nio.file.Files
-import java.util.stream.Collectors
+import java.nio.file.Paths
+import kotlin.streams.asSequence
 
 object TextureDictionary
 {
-    private val logger = LogManager.getLogger("TextureDictionary")
-    private val textures = mutableMapOf<ResourceLocation, Texture>()
+    private val textures: Map<ResourceLocation, Texture>
 
     init
     {
-        //Yes, this isn't a good code, but I want to move on to having some functionality already
-        //todo make this part properly
-        val root = ResourceUtil.getBuiltInResourcePath("/assets/textures/")
-        val textures = Files.find(root, 99, { path, basicFileAttributes ->
-            path.getName(path.nameCount - 1).toString().endsWith(".png")
-        }).map { path ->
-            val ass = path.getName(path.nameCount - 1).toString()
-            val resourceLocation = ResourceLocation.fromTwo(path.getName(path.nameCount - 2).toString(), ass.substring(0, ass.length - 4))
-            Texture(resourceLocation, path)
-        }.collect(Collectors.toList())
-        TextureAtlas.mainAtlas = TextureAtlas(textures)
+        val root = ResourceUtil.getBuiltInResourcePath("/assets/textures")
+        textures = Files.walk(Paths.get(root.toUri()))
+                .filter(Files::isRegularFile)
+                .asSequence().associateBy(
+                        {
+                            val nameStr = root.relativize(it).toString().replace('\\', ':', false).replace('/', ':', false)
+                            ResourceLocation(nameStr.substring(0, nameStr.length - 4))
+                        },
+                        { Texture(it) })
+        TextureAtlas.mainAtlas = TextureAtlas(textures.values)
     }
 
+    /**
+     * Because we don't call this method within the rendering loop,
+     * we can get away with using [ResourceLocation] as an argument and a Map key
+     */
     operator fun get(name: ResourceLocation): Texture
     {
-        var texture = textures[name]
+        val texture = textures[name]
         if (texture != null)
             return texture
 
-        texture = try
-        {
-            Texture(name, ResourceUtil.getBuiltInResourcePath("/assets/textures/${name.name.replace(":","/")}.png"))
-        }
-        catch (ex: Exception)
-        {
-            logger.error("Failed to load a texture: $name", ex)
-            get(ResourceLocation("common:error"))
-        }
-        textures[name] = texture!!
-
-        return texture
-    }
-
-    fun getTextures(): MutableCollection<Texture>
-    {
-        return textures.values
-    }
-
-    interface ITextureProvider
-    {
-        fun provide(name: ResourceLocation): Texture
+        Editor.logger.error("Texture has never been loaded: $name")
+        return get(ResourceLocation("common:error"))
     }
 }

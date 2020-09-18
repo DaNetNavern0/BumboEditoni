@@ -2,6 +2,7 @@ package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.EditorApplication
+import me.danetnaverno.editoni.editor.Settings
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -16,7 +17,7 @@ object ChunkManager
     {
         chunkLoadingExecutor.scheduleAtFixedRate({
             EditorApplication.mainThreadExecutor.addTask { unloadExcessChunks() }
-        }, 0, 10, TimeUnit.SECONDS) //todo multithreading issues all over the place
+        }, 0, Settings.chunkCleanupPeriod, TimeUnit.SECONDS)
     }
 
     fun addTicket(chunk: Chunk, chunkTicket: ChunkTicket)
@@ -27,7 +28,8 @@ object ChunkManager
             set = mutableSetOf()
             tickets[chunk] = set
         }
-        set.add(chunkTicket)
+        if (chunkTicket != ChunkTicketCamera)
+            set.add(chunkTicket)
     }
 
     fun removeTicket(chunk: Chunk, chunkTicket: ChunkTicket)
@@ -45,25 +47,26 @@ object ChunkManager
         tickets.remove(chunk)
     }
 
-    fun cleanCameraTickets()
-    {
-        for (ticket in tickets.values)
-            ticket.remove(ChunkTicketCamera)
-    }
-
     fun unloadExcessChunks()
     {
         for (world in Editor.tabs.map { it.value.world })
             unloadExcessChunks(world)
     }
 
+    fun isLoadedByCamera(chunk: Chunk): Boolean
+    {
+        val tab = Editor.tabs.values.first { it.world == chunk.world }
+        val cameraLocation = tab.camera.mutableLocation.toChunkLocation()
+        return chunk.location.withinCubicDistance(cameraLocation, Settings.renderDistance)
+    }
+
     fun unloadExcessChunks(world: World)
     {
-        tickets.entries.removeIf {
-            val noTickets = it.value.isEmpty()
-            if (noTickets)
-                world.unloadChunk(it.key)
-            noTickets
+        world.getLoadedChunks().forEach {
+            val list = tickets[it]
+            val noTickets = list == null || list.isEmpty()
+            if (noTickets && !isLoadedByCamera(it))
+                world.unloadChunk(it)
         }
     }
 }

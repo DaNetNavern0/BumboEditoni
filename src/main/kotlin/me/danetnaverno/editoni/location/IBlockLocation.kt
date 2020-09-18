@@ -28,11 +28,11 @@ interface IBlockLocation
 
     fun toSectionBlockIndex(): Int
     {
-        return (localY % 16) * 256 + localZ * 16 + localX
+        return (globalY % 16) * 256 + (globalZ and 15) * 16 + (globalX and 15)
     }
 
     fun toChunkBlockIndex(): Int
     {
-        return localY * 256 + localZ * 16 + localX
+        return globalY * 256 + (globalZ and 15) * 16 + (globalX and 15)
     }
 }

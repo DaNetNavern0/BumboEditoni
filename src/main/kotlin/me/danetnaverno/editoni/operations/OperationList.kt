@@ -2,10 +2,10 @@ package me.danetnaverno.editoni.operations
 
 import me.danetnaverno.editoni.editor.EditorGUI.refreshOperationHistory
 import me.danetnaverno.editoni.editor.EditorTab
+import me.danetnaverno.editoni.editor.Settings
 import me.danetnaverno.editoni.location.ChunkArea
 import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.util.Translation.translate
-import me.danetnaverno.editoni.world.Chunk
 import me.danetnaverno.editoni.world.ChunkManager
 import me.danetnaverno.editoni.world.ChunkTicketOperation
 import java.lang.Integer.max
@@ -24,14 +24,16 @@ class OperationList constructor(val editorTab: EditorTab)
         operation.operationList = this
         if (currentPosition >= operationList.size - 1)
         {
-            operationList.add(operation)
+            val isObserving = operation is IObservingOperation
+            if (!isObserving || !Settings.hideObservingOperations)
+                operationList.add(operation)
             currentPosition = operationList.size - 1
             operation.initialApply()
             val chunks = operation.alteredChunks
             if (chunks != null)
             {
                 redrawChunkArea(chunks)
-                if (operation !is IObservingOperation)
+                if (!isObserving)
                     chunks.iterator().asSequence()
                             .mapNotNull { editorTab.world.getChunk(it) }
                             .forEach { ChunkManager.addTicket(it, ChunkTicketOperation(operation)) }
@@ -52,6 +54,8 @@ class OperationList constructor(val editorTab: EditorTab)
      */
     fun applyForced(operation: Operation)
     {
+        if (!Settings.hideObservingOperations || operation !is IObservingOperation)
+            operationList.add(operation)
         operationList.subList(currentPosition, operationList.size).clear()
         operationList.add(operation)
         currentPosition = operationList.size - 1

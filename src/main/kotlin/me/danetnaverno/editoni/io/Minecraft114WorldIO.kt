@@ -5,7 +5,10 @@ import me.danetnaverno.editoni.blockstate.BlockStateDictionary
 import me.danetnaverno.editoni.blocktype.BlockDictionary.getBlockType
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.editor.EditorTab
-import me.danetnaverno.editoni.location.*
+import me.danetnaverno.editoni.location.BlockLocation
+import me.danetnaverno.editoni.location.ChunkLocation
+import me.danetnaverno.editoni.location.IChunkLocation
+import me.danetnaverno.editoni.location.RegionLocation
 import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.world.*
 import net.querz.mca.LoadFlags
@@ -22,6 +25,9 @@ import java.util.regex.Pattern
 import kotlin.reflect.jvm.isAccessible
 import net.querz.mca.Chunk as QuerzChunk
 
+/**
+ * todo A huge disclaimer - this class in in heavy development - saving doesn't work, the idea of how it's going to work isn't solidified etc
+ */
 class Minecraft114WorldIO
 {
     fun isAppropriateToRead(path: Path): Boolean
@@ -83,12 +89,12 @@ class Minecraft114WorldIO
         return Region(regionFile, world, RegionLocation(x, z))
     }
 
-    fun readChunk(region: Region, location: IChunkLocation) : Chunk?
+    fun readChunk(region: Region, location: IChunkLocation): Chunk?
     {
         return readChunk(region, location.x, location.z)
     }
 
-    fun readChunk(region: Region, globalX: Int, globalZ: Int) : Chunk?
+    fun readChunk(region: Region, globalX: Int, globalZ: Int): Chunk?
     {
         val qChunk = readQChunk(region, globalX, globalZ) ?: return null
         return convertQChunk(region.world, qChunk)
@@ -174,12 +180,10 @@ class Minecraft114WorldIO
         val posX = data.getCompoundTag("Level").getInt("xPos")
         val posZ = data.getCompoundTag("Level").getInt("zPos")
         val blockTypes = arrayOfNulls<Array<BlockType?>?>(16)
-        val blockStates: MutableMap<Int, BlockState> = HashMap<Int, BlockState>()
-        val tileEntities: MutableMap<Int, TileEntity> = HashMap<Int, TileEntity>()
-        val entities: MutableList<Entity> = ArrayList<Entity>()
-        val chunk = Chunk(
-                world, ChunkLocation(posX, posZ),
-                MCAExtraInfo114(data), entities)
+        val blockStates = HashMap<Int, BlockState>()
+        val tileEntities = HashMap<Int, TileEntity>()
+        val entities = ArrayList<Entity>()
+        val chunk = Chunk(world, ChunkLocation(posX, posZ), MCAExtraInfo114(data), entities)
 
         //Entities
         /*for (tag in mcaChunk.getEntities())
@@ -196,13 +200,12 @@ class Minecraft114WorldIO
         //Tile Entities
         for (tileEntity in mcaChunk.tileEntities)
         {
-            val globalX: Int = tileEntity.getInt("x")
-            val y: Int = tileEntity.getInt("y")
-            val globalZ: Int = tileEntity.getInt("z")
+            val globalX = tileEntity.getInt("x")
+            val y = tileEntity.getInt("y")
+            val globalZ = tileEntity.getInt("z")
             val x = globalX - (posX shl 4)
             val z = globalZ - (posZ shl 4)
-            val index: Int = BlockLocation(x, y, z).toChunkBlockIndex()
-            tileEntities[index] = TileEntity(tileEntity)
+            tileEntities[y * 256 + z * 16 + x] = TileEntity(tileEntity)
         }
 
         //Block States

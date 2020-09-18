@@ -2,7 +2,7 @@ package me.danetnaverno.editoni.render
 
 import me.danetnaverno.editoni.location.BlockLocationMutable
 import me.danetnaverno.editoni.world.Chunk
-import org.lwjgl.opengl.GL44.*
+import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryUtil
 import java.nio.BufferOverflowException
 import java.nio.FloatBuffer

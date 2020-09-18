@@ -3,7 +3,8 @@ package me.danetnaverno.editoni.world
 import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.MCAExtraInfo
-import me.danetnaverno.editoni.location.*
+import me.danetnaverno.editoni.location.ChunkLocation
+import me.danetnaverno.editoni.location.IBlockLocation
 import me.danetnaverno.editoni.render.ChunkRenderer
 
 class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
@@ -91,11 +92,6 @@ class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, v
     fun getEntities(): Collection<Entity>
     {
         return entities.toList()
-    }
-
-    fun draw()
-    {
-        vertexData.draw()
     }
 
     object Placeholder

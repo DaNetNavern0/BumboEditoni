@@ -20,7 +20,8 @@ object InputHandler
     }
     private val mouseStates = IntArray(MOUSE_SIZE)
     private var windowId: Long = 0
-    fun init(window: Long)
+
+    internal fun init(window: Long)
     {
         resetKeyboard()
         for (i in mouseStates.indices) mouseStates[i] = NO_STATE
@@ -89,6 +90,7 @@ object InputHandler
         return mouseStates[button] != NO_STATE
     }
 
+    //todo We can save some CPU time here
     val mouseCoords: Pair<Double, Double>
         get()
         {

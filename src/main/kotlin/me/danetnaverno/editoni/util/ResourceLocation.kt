@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.util
 
+//todo inlining is still not enough - gonna just use regular strings instead :(
 inline class ResourceLocation(val name: String)
 {
     companion object

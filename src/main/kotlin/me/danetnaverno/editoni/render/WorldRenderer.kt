@@ -1,20 +1,17 @@
 package me.danetnaverno.editoni.render
 
-import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.EditorTab
-import me.danetnaverno.editoni.location.BlockLocation
+import me.danetnaverno.editoni.editor.Settings
 import me.danetnaverno.editoni.location.ChunkLocationMutable
 import me.danetnaverno.editoni.world.ChunkTicketCamera
-import me.danetnaverno.editoni.world.ChunkManager
-import org.lwjgl.opengl.GL44.glBindVertexArray
-import kotlin.math.abs
+import org.lwjgl.opengl.GL33.glBindVertexArray
 
 class WorldRenderer(private val tab: EditorTab)
 {
     fun bake()
     {
-        val renderDistance = Editor.renderDistance
-        val cameraLocation = BlockLocation(tab.camera.x.toInt(), tab.camera.y.toInt(), tab.camera.z.toInt()).toChunkLocation()
+        val renderDistance = Settings.renderDistance
+        val cameraLocation = tab.camera.mutableLocation.toChunkLocation()
         val chunkLocation = ChunkLocationMutable(cameraLocation.x - renderDistance, cameraLocation.z - renderDistance)
 
         for (x in 0 until renderDistance * 2)
@@ -25,14 +22,6 @@ class WorldRenderer(private val tab: EditorTab)
         }
 
         for (chunk in tab.world.getLoadedChunks())
-        {
-            if (abs(chunk.location.x - cameraLocation.x) <= renderDistance && abs(chunk.location.z - cameraLocation.z) <= renderDistance)
-                ChunkManager.addTicket(chunk, ChunkTicketCamera)
-            else
-                ChunkManager.removeTicket(chunk, ChunkTicketCamera)
-        }
-
-        for (chunk in tab.world.getLoadedChunks())
             if (!chunk.vertexData.isBuilt)
                 chunk.vertexData.updateVertices()
     }
@@ -40,7 +29,7 @@ class WorldRenderer(private val tab: EditorTab)
     fun render()
     {
         for (chunk in tab.world.getLoadedChunks())
-            chunk.draw()
+            chunk.vertexData.draw()
         glBindVertexArray(0)
     }
 }

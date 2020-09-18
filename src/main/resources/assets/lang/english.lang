@@ -12,13 +12,18 @@
 	"top_bar.edit.cut": "Cut",
 	"top_bar.edit.copy": "Copy",
 	"top_bar.edit.paste": "Paste",
-	
+
+	"top_bar.settings": "Settings",
+	"top_bar.settings.hide_observing_operations": "Hide Observing Operations",
+
 	"status_bar.fps": "{0} FPS",
-	"status_bar.loaded_chunks": "Chunks: {0} visible, {1} loaded",
+	"status_bar.loaded_chunks": "Chunks loaded: {0}",
 	
 	"gui.block_info.type": "Type: {0}",
+	"gui.block_info.type.area": "Area",
 	"gui.block_info.location.global": "Global: x: {0}, y: {1}, z:{2}",
-	"gui.block_info.location.local": "Chunk: x: {0}, y: {1}, z:{2}",
+	"gui.block_info.location.local": "Relative: x: {0}, y: {1}, z:{2}",
+	"gui.block_info.location.chunk": "Chunk: x: {0}, z:{1}",
 
 	"gui.world.label": "World:",
 	

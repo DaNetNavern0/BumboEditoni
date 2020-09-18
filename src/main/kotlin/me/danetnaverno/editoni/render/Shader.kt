@@ -4,7 +4,7 @@ import me.danetnaverno.editoni.Main
 import me.danetnaverno.editoni.editor.EditorApplication
 import me.danetnaverno.editoni.util.ResourceUtil.getBuiltInResourcePath
 import org.apache.logging.log4j.LogManager
-import org.lwjgl.opengl.GL44.*
+import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryStack
 import java.nio.file.Files
 

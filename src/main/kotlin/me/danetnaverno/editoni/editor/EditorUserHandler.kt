@@ -37,6 +37,7 @@ object EditorUserHandler
         }
     }
 
+    //todo This entire class is WIP. Don't mind it. It even uses the numbers keyboard row to rotate the camera %)
     fun controls()
     {
         val camera = Editor.currentTab.camera
@@ -90,8 +91,12 @@ object EditorUserHandler
 
         if (InputHandler.keyReleased(GLFW.GLFW_KEY_ESCAPE))
         {
-            Editor.currentTab.operationList.apply(SelectAreaOperation(null))
-            Editor.currentTab.selectArea(null)
+            if (Editor.currentTab.selectedArea != null)
+            {
+                Editor.currentTab.operationList.apply(SelectAreaOperation(null))
+                Editor.currentTab.selectArea(null)
+            }
+            selectedCorner = null
         }
 
         if (InputHandler.keyDown(GLFW.GLFW_KEY_5) || InputHandler.mouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_LEFT))

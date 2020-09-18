@@ -1,7 +1,5 @@
 package me.danetnaverno.editoni.location
 
-import kotlin.math.sqrt
-
 data class ChunkLocation(override val x: Int, override val z: Int) : IChunkLocation
 {
     override fun toRegionLocation(): RegionLocation
@@ -22,18 +20,6 @@ data class ChunkLocation(override val x: Int, override val z: Int) : IChunkLocat
     fun subtract(location: ChunkLocation): ChunkLocation
     {
         return ChunkLocation(this.x - location.x, this.z - location.z)
-    }
-
-    fun distance(other: ChunkLocation): Double
-    {
-        return sqrt(distanceSquared(other).toDouble())
-    }
-
-    fun distanceSquared(other: ChunkLocation): Int
-    {
-        val dx = this.x - other.x
-        val dz = this.z - other.z
-        return dx * dx + dz * dz
     }
 
     //========================================

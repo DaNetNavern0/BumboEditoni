@@ -1,22 +1,19 @@
 package me.danetnaverno.editoni.texture
 
-import me.danetnaverno.editoni.util.ResourceLocation
+import me.danetnaverno.editoni.editor.Editor
 import org.lwjgl.opengl.ARBTextureStorage.glTexStorage3D
-import org.lwjgl.opengl.GL44.*
-import java.io.IOException
+import org.lwjgl.opengl.GL33.*
+import org.lwjgl.stb.STBImage
+import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.MemoryUtil
+import java.nio.file.Files
 
 typealias TextureId = Int
 
-/**
- * Yes, we use a GL_TEXTURE_3D to make an easy to use atlas.
- * Not something a professional game engine would use, especially giving that we're dodging the need to use shaders,
- *  but it will work just fine for this application... At least for now
- */
 class TextureAtlas constructor(textures: Collection<Texture>)
 {
     var atlasTexture : TextureId = 0
         private set
-    var zLayerMap = mutableMapOf<ResourceLocation, Int>() //todo - this is terrible
 
     init
     {
@@ -30,27 +27,53 @@ class TextureAtlas constructor(textures: Collection<Texture>)
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT)
 
         glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, 16, 16, textures.size)
-        for ((i, texture) in textures.withIndex())
+
+        var buffer = MemoryUtil.memAlloc(4096)
+        try
         {
-            zLayerMap[texture.location] = i
-            try
-            {
-                if (texture.decodedImage != null)
-                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, 16, 16, 1, GL_RGBA, GL_UNSIGNED_BYTE, texture.decodedImage!!)
+            MemoryStack.stackPush().use { memoryStack ->
+                val trash = memoryStack.mallocInt(1)
+                for ((i, texture) in textures.withIndex())
+                {
+                    try
+                    {
+                        val bytes = Files.readAllBytes(texture.path)
+
+                        if (bytes.size > buffer.capacity())
+                        {
+                            MemoryUtil.memFree(buffer)
+                            buffer = MemoryUtil.memAlloc(bytes.size)
+                        }
+                        else if (bytes.size > buffer.limit())
+                            buffer.limit(bytes.size)
+
+                        buffer.put(bytes, 0, bytes.size)
+                        buffer.flip()
+
+                        val decodedImage = STBImage.stbi_load_from_memory(buffer, trash, trash, trash, 4)!!
+                        try { glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, 16, 16, 1, GL_RGBA, GL_UNSIGNED_BYTE, decodedImage) }
+                        finally { STBImage.stbi_image_free(decodedImage) }
+                        texture.atlasZLayer = i.toFloat()
+                    }
+                    catch (e: Exception)
+                    {
+                        Editor.logger.error("Failed to load a texture: $texture", e)
+                    }
+                }
             }
-            catch (e: IOException)
-            {
-                e.printStackTrace()
-            }
+        }
+        finally
+        {
+            MemoryUtil.memFree(buffer)
         }
 
         atlasTexture = texId
         glBindTexture(GL_TEXTURE_2D_ARRAY, 0)
     }
 
-    fun getZLayer(texture: Texture) : Float
+    fun bind()
     {
-        return zLayerMap.getOrDefault(texture.location, 0).toFloat()
+        glBindTexture(GL_TEXTURE_2D_ARRAY, atlasTexture)
     }
 
     companion object

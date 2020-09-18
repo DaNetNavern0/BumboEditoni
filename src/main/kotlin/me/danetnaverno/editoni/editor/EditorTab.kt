@@ -1,6 +1,7 @@
 package me.danetnaverno.editoni.editor
 
 import me.danetnaverno.editoni.location.BlockArea
+import me.danetnaverno.editoni.location.BlockLocationMutable
 import me.danetnaverno.editoni.operations.OperationList
 import me.danetnaverno.editoni.render.WorldRenderer
 import me.danetnaverno.editoni.world.Entity
@@ -44,5 +45,13 @@ class EditorTab(var world: World)
         var z = 12.0
         var pitch = 315.0
         var yaw = 74.0
+
+        val _location = BlockLocationMutable(0, 0, 0)
+        val mutableLocation: BlockLocationMutable
+            get()
+            {
+                _location.set(x.toInt(), y.toInt(), z.toInt())
+                return _location
+            }
     }
 }

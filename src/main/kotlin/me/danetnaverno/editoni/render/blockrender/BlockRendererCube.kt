@@ -3,7 +3,6 @@ package me.danetnaverno.editoni.render.blockrender
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.location.BlockLocationMutable
 import me.danetnaverno.editoni.texture.Texture
-import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.world.World
 import java.nio.FloatBuffer
@@ -126,88 +125,82 @@ open class BlockRendererCube : BlockRenderer
 
         if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
         {
-            val tIndex = TextureAtlas.mainAtlas.getZLayer(top)
+            val tIndex = top.atlasZLayer
             //I don't like how it looks, but it seems to be the most optimized way of doing this.
             //Method put(<float_array>) has individual put(float) calls under the hood anyway.
-            vertexBuffer
-                    .put(x1).put(y2).put(z1).put(0f).put(0f).put(tIndex)
-                    .put(x1).put(y2).put(z2).put(1f).put(0f).put(tIndex)
-                    .put(x2).put(y2).put(z2).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x1).put(y2).put(z1).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y2).put(z2).put(1f).put(0f).put(tIndex)
+            vertexBuffer.put(x2).put(y2).put(z2).put(1f).put(1f).put(tIndex)
 
-                    .put(x2).put(y2).put(z2).put(1f).put(1f).put(tIndex)
-                    .put(x2).put(y2).put(z1).put(0f).put(1f).put(tIndex)
-                    .put(x1).put(y2).put(z1).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x2).put(y2).put(z2).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y2).put(z1).put(0f).put(1f).put(tIndex)
+            vertexBuffer.put(x1).put(y2).put(z1).put(0f).put(0f).put(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, -2, 0)))
         {
-            val tIndex = TextureAtlas.mainAtlas.getZLayer(bottom)
+            val tIndex = bottom.atlasZLayer
 
-            vertexBuffer
-                    .put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
-                    .put(x1).put(y1).put(z2).put(1f).put(0f).put(tIndex)
-                    .put(x1).put(y1).put(z1).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x1).put(y1).put(z2).put(1f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y1).put(z1).put(0f).put(0f).put(tIndex)
 
-                    .put(x1).put(y1).put(z1).put(0f).put(0f).put(tIndex)
-                    .put(x2).put(y1).put(z1).put(0f).put(1f).put(tIndex)
-                    .put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x1).put(y1).put(z1).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x2).put(y1).put(z1).put(0f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, 1, 1)))
         {
-            val tIndex = TextureAtlas.mainAtlas.getZLayer(south)
+            val tIndex = south.atlasZLayer
 
-            vertexBuffer
-                    .put(x2).put(y2).put(z2).put(0f).put(0f).put(tIndex)
-                    .put(x1).put(y2).put(z2).put(1f).put(0f).put(tIndex)
-                    .put(x1).put(y1).put(z2).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y2).put(z2).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y2).put(z2).put(1f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y1).put(z2).put(1f).put(1f).put(tIndex)
 
-                    .put(x1).put(y1).put(z2).put(1f).put(1f).put(tIndex)
-                    .put(x2).put(y1).put(z2).put(0f).put(1f).put(tIndex)
-                    .put(x2).put(y2).put(z2).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y1).put(z2).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y1).put(z2).put(0f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y2).put(z2).put(0f).put(0f).put(tIndex)
 
         }
 
         if (shouldRenderSideAgainst(world, location.add(0, 0, -2)))
         {
-            val tIndex = TextureAtlas.mainAtlas.getZLayer(north)
+            val tIndex = north.atlasZLayer
 
-            vertexBuffer
-                    .put(x2).put(y1).put(z1).put(0f).put(0f).put(tIndex)
-                    .put(x1).put(y1).put(z1).put(1f).put(0f).put(tIndex)
-                    .put(x1).put(y2).put(z1).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y1).put(z1).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y1).put(z1).put(1f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y2).put(z1).put(1f).put(1f).put(tIndex)
 
-                    .put(x1).put(y2).put(z1).put(1f).put(1f).put(tIndex)
-                    .put(x2).put(y2).put(z1).put(0f).put(1f).put(tIndex)
-                    .put(x2).put(y1).put(z1).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y2).put(z1).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y2).put(z1).put(0f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y1).put(z1).put(0f).put(0f).put(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(-1, 0, 1)))
         {
-            val tIndex = TextureAtlas.mainAtlas.getZLayer(west)
+            val tIndex = west.atlasZLayer
 
-            vertexBuffer
-                    .put(x1).put(y2).put(z2).put(0f).put(0f).put(tIndex)
-                    .put(x1).put(y2).put(z1).put(1f).put(0f).put(tIndex)
-                    .put(x1).put(y1).put(z1).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x1).put(y2).put(z2).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y2).put(z1).put(1f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y1).put(z1).put(1f).put(1f).put(tIndex)
 
-                    .put(x1).put(y1).put(z1).put(1f).put(1f).put(tIndex)
-                    .put(x1).put(y1).put(z2).put(0f).put(1f).put(tIndex)
-                    .put(x1).put(y2).put(z2).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x1).put(y1).put(z1).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x1).put(y1).put(z2).put(0f).put(1f).put(tIndex)
+            vertexBuffer.put(x1).put(y2).put(z2).put(0f).put(0f).put(tIndex)
         }
 
         if (shouldRenderSideAgainst(world, location.add(2, 0, 0)))
         {
-            val tIndex = TextureAtlas.mainAtlas.getZLayer(east)
+            val tIndex = east.atlasZLayer
 
-            vertexBuffer
-                    .put(x2).put(y2).put(z1).put(0f).put(0f).put(tIndex)
-                    .put(x2).put(y2).put(z2).put(1f).put(0f).put(tIndex)
-                    .put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y2).put(z1).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x2).put(y2).put(z2).put(1f).put(0f).put(tIndex)
+            vertexBuffer.put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
 
-                    .put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
-                    .put(x2).put(y1).put(z1).put(0f).put(1f).put(tIndex)
-                    .put(x2).put(y2).put(z1).put(0f).put(0f).put(tIndex)
+            vertexBuffer.put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y1).put(z1).put(0f).put(1f).put(tIndex)
+            vertexBuffer.put(x2).put(y2).put(z1).put(0f).put(0f).put(tIndex)
         }
     }
 }

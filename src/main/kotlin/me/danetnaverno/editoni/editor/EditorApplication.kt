@@ -5,18 +5,50 @@ import lwjgui.scene.Scene
 import lwjgui.scene.Window
 import me.danetnaverno.editoni.util.ThreadExecutor
 import org.joml.Matrix4f
-import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.opengl.GL44.*
+import org.lwjgl.opengl.GL33.*
+import java.awt.Rectangle
 import kotlin.math.tan
 
-
-class EditorApplication : LWJGUIApplicationPatched()
+object EditorApplication : LWJGUIApplicationPatched()
 {
+    private const val WIDTH = 1500
+    private const val HEIGHT = 768
+    private const val SIDE_PANEL_WIDTH = 250
+    private const val MENU_BAR_HEIGHT = 24
+
+    val mainThreadExecutor = ThreadExecutor() //todo move this to a right place
+
+    var fps = 0
+    var windowId: Long = 0
+        private set
+    lateinit var combinedMatrix: Matrix4f //todo move this to a right place
+
+    val windowWidth
+        get() = window.width
+    val windowHeight
+        get() = window.height
+    val viewportDimensions
+        get() = Rectangle(SIDE_PANEL_WIDTH, MENU_BAR_HEIGHT, window.width - SIDE_PANEL_WIDTH * 2, window.height - MENU_BAR_HEIGHT)
+    val sidePanelWidth
+        get() = SIDE_PANEL_WIDTH
+    val menuBarHeight
+        get() = MENU_BAR_HEIGHT
+
+    private lateinit var doAfterStart: Runnable
+    private lateinit var window: Window
+
+    fun main(args: Array<String>, doAfterStart: Runnable)
+    {
+        this.doAfterStart = doAfterStart
+        launch(this, args)
+    }
+
     override fun start(args: Array<String>, window: Window)
     {
         //todo inspect lwjgui for the excessive creation of short-living StyleOperation-s
         windowId = window.context.window.id
+        this.window = window
 
         window.setTitle("Bumbo Editoni")
         window.scene = Scene(EditorGUI.init(), WIDTH.toDouble(), HEIGHT.toDouble())
@@ -38,9 +70,8 @@ class EditorApplication : LWJGUIApplicationPatched()
             try
             {
                 glClearColor(0.8f, 0.9f, 1.0f, 1.0f)
-                glViewport(PANEL_WIDTH.toInt(), 0, width - PANEL_WIDTH.toInt() * 2, height)
+                glViewport(SIDE_PANEL_WIDTH, 0, width - SIDE_PANEL_WIDTH * 2, height - MENU_BAR_HEIGHT)
                 glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-                glEnable(GL_TEXTURE_2D)
                 glEnable(GL_BLEND)
                 glEnable(GL_DEPTH_TEST)
                 glEnable(GL_CULL_FACE)
@@ -48,7 +79,7 @@ class EditorApplication : LWJGUIApplicationPatched()
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
                 val fov = 90f
-                val aspect = (width - PANEL_WIDTH.toFloat() * 2) / height.toFloat()
+                val aspect = (width - SIDE_PANEL_WIDTH.toFloat() * 2) / height.toFloat()
                 val zNear = 0.01f
                 val zFar = 1000f
                 val scaleY = 1f / tan(Math.toRadians(fov / 2.0)).toFloat()
@@ -64,10 +95,6 @@ class EditorApplication : LWJGUIApplicationPatched()
                 combinedMatrix.m32(-(2 * zNear * zFar / zLength))
                 combinedMatrix.m33(0f)
 
-                combinedMatrix.rotate(Math.toRadians(Editor.currentTab.camera.pitch).toFloat(), Vector3f(-1f, 0f, 0f))
-                combinedMatrix.rotate(Math.toRadians(Editor.currentTab.camera.yaw).toFloat(), Vector3f(0f, -1f, 0f))
-                combinedMatrix.translate(Vector3f(-Editor.currentTab.camera.x.toFloat(), -Editor.currentTab.camera.y.toFloat(), -Editor.currentTab.camera.z.toFloat()))
-
                 Editor.displayLoop()
                 val deltaTime = System.currentTimeMillis() - frameStamp
                 fps = (1000f / deltaTime).toInt()
@@ -75,28 +102,8 @@ class EditorApplication : LWJGUIApplicationPatched()
             }
             catch (e: Throwable)
             {
-                e.printStackTrace()
+                Editor.logger.error(e)
             }
-        }
-    }
-
-    companion object
-    {
-        const val WIDTH = 1500
-        const val HEIGHT = 768
-        const val PANEL_WIDTH = 250.0
-        var fps = 0
-        var windowId: Long = 0
-            private set
-
-        private lateinit var doAfterStart: Runnable
-        lateinit var combinedMatrix: Matrix4f //todo move this to a right place
-        val mainThreadExecutor = ThreadExecutor() //todo move this to a right place
-
-        fun main(args: Array<String>, doAfterStart: Runnable)
-        {
-            this.doAfterStart = doAfterStart
-            launch(EditorApplication(), args)
         }
     }
 }

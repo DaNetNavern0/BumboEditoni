@@ -2,6 +2,7 @@ package me.danetnaverno.editoni.editor
 
 import lwjgui.geometry.Insets
 import lwjgui.geometry.Pos
+import lwjgui.paint.Color
 import lwjgui.scene.Node
 import lwjgui.scene.control.*
 import lwjgui.scene.layout.*
@@ -50,10 +51,14 @@ object EditorGUI
     private fun menuBar(): Node
     {
         val bar = MenuBar()
-        bar.minWidth = EditorApplication.WIDTH.toDouble()
+        bar.minWidth = EditorApplication.windowWidth.toDouble()
+        addFileMenuTab(bar)
+        return bar
+    }
 
-        // "File"
-        val file = Menu(Translation.translate("top_bar.file"))
+    private fun addFileMenuTab(bar: MenuBar)
+    {
+        val fileTab = Menu(Translation.translate("top_bar.file"))
 
         val fileOpen = MenuItem(Translation.translate("top_bar.file.open"))
         fileOpen.setOnAction {
@@ -68,7 +73,7 @@ object EditorGUI
                 refreshWorldList()
             }
         }
-        file.items.add(fileOpen)
+        fileTab.items.add(fileOpen)
 
         val fileReload = MenuItem(Translation.translate("top_bar.file.reload"))
         fileReload.setOnAction {
@@ -78,7 +83,7 @@ object EditorGUI
             val tab = Editor.createNewTab(newWorld)
             Editor.openTab(tab)
         }
-        file.items.add(fileReload)
+        fileTab.items.add(fileReload)
 
         val fileSaveAs = MenuItem(Translation.translate("top_bar.file.save_as"))
         fileSaveAs.setOnAction {
@@ -92,25 +97,25 @@ object EditorGUI
                 Editor.currentTab.operationList.savePosition = Editor.currentTab.operationList.getPosition()
             }
         }
-        file.items.add(fileSaveAs)
+        fileTab.items.add(fileSaveAs)
 
-        bar.items.add(file)
-        return bar
+        bar.items.add(fileTab)
     }
 
 
     private fun leftPanel(): Node
     {
+        val sidePanelWidth = EditorApplication.sidePanelWidth.toDouble()
         val leftPanelBcg = VBox()
         leftPanelBcg.background = BackgroundSolid(ThemeWhite().pane)
         leftPanelBcg.padding = Insets(7.0)
-        leftPanelBcg.prefWidth = EditorApplication.PANEL_WIDTH
+        leftPanelBcg.prefWidth = sidePanelWidth
         leftPanelBcg.isFillToParentWidth = true
         leftPanelBcg.isFillToParentHeight = true
 
         val leftPanel = VBox()
-        leftPanel.minWidth = EditorApplication.PANEL_WIDTH - 14
-        leftPanel.maxWidth = EditorApplication.PANEL_WIDTH - 14
+        leftPanel.minWidth = sidePanelWidth - 14
+        leftPanel.maxWidth = sidePanelWidth - 14
         leftPanelBcg.children.add(leftPanel)
 
         selectInfoBox = VBox()
@@ -124,28 +129,50 @@ object EditorGUI
         statusBar.alignment = Pos.TOP_LEFT
         val fpsLabel = DynamicLabel(500) { Translation.translate("status_bar.fps", EditorApplication.fps) }
         statusBar.children.add(fpsLabel)
-        val chunkLabel = DynamicLabel(500) { Translation.translate("status_bar.loaded_chunks", "?", Editor.currentTab.world.getLoadedChunks().size) }
+        val chunkLabel = DynamicLabel(500) { Translation.translate("status_bar.loaded_chunks", Editor.currentTab.world.getLoadedChunks().size) }
         statusBar.children.add(chunkLabel)
 
         leftPanel.children.add(statusBar)
+        leftBottomPanel(leftPanelBcg)
         return leftPanelBcg
+    }
+
+    private fun leftBottomPanel(leftPanelBcg: VBox)
+    {
+        val sidePanelWidth = EditorApplication.sidePanelWidth.toDouble()
+
+        val leftBottomPanel = VBox()
+        leftBottomPanel.background = BackgroundSolid(Color.AQUA)
+        leftBottomPanel.minWidth = sidePanelWidth - 14
+        leftBottomPanel.maxWidth = sidePanelWidth - 14
+        leftPanelBcg.children.add(leftBottomPanel)
+
+        val hideObservingOperations = CheckBox(Translation.translate("top_bar.settings.hide_observing_operations"))
+        hideObservingOperations.isChecked = Settings.hideObservingOperations
+        hideObservingOperations.setOnAction {
+            Settings.hideObservingOperations = hideObservingOperations.isChecked
+        }
+
+        leftBottomPanel.children.add(hideObservingOperations)
     }
 
     private fun rightPanel(): Node
     {
+        val sidePanelWidth = EditorApplication.sidePanelWidth.toDouble()
+
         val rightPanelBcg = VBox()
         rightPanelBcg.background = BackgroundSolid(ThemeWhite().pane)
         rightPanelBcg.padding = Insets(7.0)
-        rightPanelBcg.prefWidth = EditorApplication.PANEL_WIDTH
+        rightPanelBcg.prefWidth = sidePanelWidth
         rightPanelBcg.isFillToParentWidth = true
         rightPanelBcg.isFillToParentHeight = true
         val rightPanel = VBox()
-        rightPanel.maxWidth = EditorApplication.PANEL_WIDTH - 14
+        rightPanel.maxWidth = sidePanelWidth - 14
         rightPanelBcg.children.add(rightPanel)
 
         rightPanel.children.add(Label(Translation.translate("gui.world.label", EditorApplication.fps)))
 
-        worldList.prefWidth = EditorApplication.PANEL_WIDTH - 20
+        worldList.prefWidth = sidePanelWidth - 20
         worldList.alignment = Pos.CENTER
         worldList.setOnAction {
             if (Editor.currentTab != worldList.value)
@@ -185,6 +212,8 @@ object EditorGUI
 
     private fun refreshBlockInfoLabel()
     {
+        val sidePanelWidth = EditorApplication.sidePanelWidth.toDouble()
+
         val selectedBlock = Editor.currentTab.selectedArea?.world?.getLoadedBlockAt(Editor.currentTab.selectedArea!!.min)
 
         val blockInfoLabel = Label(Translation.translate("gui.block_info.type", selectedBlock?.type ?: "-"))
@@ -201,17 +230,25 @@ object EditorGUI
         else
             Label(Translation.translate("gui.block_info.location.local", selectedBlock.location.localX, selectedBlock.location.localY, selectedBlock.location.localZ))
 
+        val blockChunkPosLabel = if (selectedBlock == null)
+            Label(Translation.translate("gui.block_info.location.chunk", "-", "-"))
+        else
+            Label(Translation.translate("gui.block_info.location.chunk", selectedBlock.chunk.location.x, selectedBlock.chunk.location.z))
+
         blockGlobalLocLabel.isFillToParentWidth = true
         blockGlobalLocLabel.alignment = Pos.TOP_LEFT
         blockChunkLocLabel.isFillToParentWidth = true
         blockChunkLocLabel.alignment = Pos.TOP_LEFT
+        blockChunkPosLabel.isFillToParentWidth = true
+        blockChunkPosLabel.alignment = Pos.TOP_LEFT
 
-        val blockStatePane = buildPane(selectedBlock?.state?.tag, EditorApplication.PANEL_WIDTH - 50)
-        val tileEntityPane = buildPane(selectedBlock?.tileEntity?.tag, EditorApplication.PANEL_WIDTH - 50)
+        val blockStatePane = buildPane(selectedBlock?.state?.tag, sidePanelWidth - 50)
+        val tileEntityPane = buildPane(selectedBlock?.tileEntity?.tag, sidePanelWidth - 50)
 
         selectInfoBox.children.add(blockInfoLabel)
         selectInfoBox.children.add(blockGlobalLocLabel)
         selectInfoBox.children.add(blockChunkLocLabel)
+        selectInfoBox.children.add(blockChunkPosLabel)
         selectInfoBox.children.add(blockStatePane)
         selectInfoBox.children.add(tileEntityPane)
     }
@@ -220,19 +257,19 @@ object EditorGUI
     {
         val selectedArea = Editor.currentTab.selectedArea!!
 
-        val blockInfoLabel = Label(Translation.translate("gui.block_info.type", "Area"))
+        val blockInfoLabel = Label(Translation.translate("gui.block_info.type", Translation.translate("gui.block_info.type.area")))
         blockInfoLabel.isFillToParentWidth = true
         blockInfoLabel.alignment = Pos.TOP_LEFT
 
-        val minLabel = Label(Translation.translate("gui.block_info.location.local", selectedArea.min.globalX, selectedArea.min.globalY, selectedArea.min.globalZ))
-        val maxLabel = Label(Translation.translate("gui.block_info.location.local", selectedArea.max.globalX, selectedArea.max.globalY, selectedArea.max.globalZ))
+        val minLabel = Label(Translation.translate("gui.block_info.location.global", selectedArea.min.globalX, selectedArea.min.globalY, selectedArea.min.globalZ))
+        val maxLabel = Label(Translation.translate("gui.block_info.location.global", selectedArea.max.globalX, selectedArea.max.globalY, selectedArea.max.globalZ))
 
         minLabel.isFillToParentWidth = true
         minLabel.alignment = Pos.TOP_LEFT
         maxLabel.isFillToParentWidth = true
         maxLabel.alignment = Pos.TOP_LEFT
 
-        val tagPane = buildPane(CompoundTag(), EditorApplication.PANEL_WIDTH)
+        val tagPane = buildPane(CompoundTag(), EditorApplication.sidePanelWidth.toDouble())
 
         selectInfoBox.children.add(blockInfoLabel)
         selectInfoBox.children.add(minLabel)
@@ -254,7 +291,7 @@ object EditorGUI
         locationLabel.isFillToParentWidth = true
         locationLabel.alignment = Pos.TOP_LEFT
 
-        val tagPane = buildPane(selectedEntity.tag, EditorApplication.PANEL_WIDTH)
+        val tagPane = buildPane(selectedEntity.tag, EditorApplication.sidePanelWidth.toDouble())
 
         selectInfoBox.children.add(infoLabel)
         selectInfoBox.children.add(locationLabel)

@@ -13,7 +13,7 @@ import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector3i
 import org.joml.Vector4f
-import org.lwjgl.opengl.GL44.*
+import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryStack
 import java.nio.file.Path
 import kotlin.math.abs
@@ -23,11 +23,10 @@ import kotlin.math.floor
 object Editor
 {
     val logger = LogManager.getLogger("Editor")!!
-    var renderDistance = 10
 
+    val tabs = mutableMapOf<Path, EditorTab>()
     lateinit var currentTab: EditorTab
         private set
-    val tabs = mutableMapOf<Path, EditorTab>()
 
     init
     {
@@ -58,9 +57,14 @@ object Editor
 
     fun displayLoop()
     {
+        EditorApplication.combinedMatrix.rotate(Math.toRadians(currentTab.camera.pitch).toFloat(), Vector3f(-1f, 0f, 0f))
+        EditorApplication.combinedMatrix.rotate(Math.toRadians(currentTab.camera.yaw).toFloat(), Vector3f(0f, -1f, 0f))
+        EditorApplication.combinedMatrix.translate(Vector3f(-currentTab.camera.x.toFloat(), -currentTab.camera.y.toFloat(), -currentTab.camera.z.toFloat()))
+
         EditorApplication.mainThreadExecutor.fireTasks()
+
         Shader.use()
-        glBindTexture(GL_TEXTURE_2D_ARRAY, TextureAtlas.mainAtlas.atlasTexture)
+        TextureAtlas.mainAtlas.bind()
 
         currentTab.worldRenderer.bake()
         currentTab.worldRenderer.render()
@@ -108,14 +112,16 @@ object Editor
 
     fun raycast(screenX: Int, screenY: Int): Vector3f?
     {
+        val visibleViewport = EditorApplication.viewportDimensions
         MemoryStack.stackPush().use { stack ->
             val buf = stack.mallocFloat(1)
-            val reverseY = EditorApplication.HEIGHT - screenY
+            val reverseY = EditorApplication.windowHeight - screenY
             glReadPixels(screenX, reverseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, buf)
             val screenZ = buf.get(0)
             return unProject(screenX.toFloat(), reverseY.toFloat(), screenZ,
                     EditorApplication.combinedMatrix,
-                    EditorApplication.PANEL_WIDTH.toFloat(), 0f, (EditorApplication.WIDTH - EditorApplication.PANEL_WIDTH * 2).toFloat(), EditorApplication.HEIGHT.toFloat())
+                    visibleViewport.x.toFloat(), 0f,
+                    visibleViewport.width.toFloat(), visibleViewport.height.toFloat())
         }
     }
 
