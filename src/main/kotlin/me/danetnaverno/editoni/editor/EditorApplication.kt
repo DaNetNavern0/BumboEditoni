@@ -1,19 +1,17 @@
 package me.danetnaverno.editoni.editor
 
-import lwjgui.LWJGUIApplication
 import lwjgui.scene.Context
 import lwjgui.scene.Scene
 import lwjgui.scene.Window
 import me.danetnaverno.editoni.util.ThreadExecutor
+import org.joml.Matrix4f
+import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL44.*
-import org.lwjgl.util.vector.Matrix4f
-import org.lwjgl.util.vector.Vector3f
-import java.util.concurrent.Executors
 import kotlin.math.tan
 
 
-class EditorApplication : LWJGUIApplication()
+class EditorApplication : LWJGUIApplicationPatched()
 {
     override fun start(args: Array<String>, window: Window)
     {
@@ -59,12 +57,12 @@ class EditorApplication : LWJGUIApplication()
 
                 combinedMatrix = Matrix4f()
 
-                combinedMatrix.m00 = scaleX
-                combinedMatrix.m11 = scaleY
-                combinedMatrix.m22 = -((zFar + zNear) / zLength)
-                combinedMatrix.m23 = -1f
-                combinedMatrix.m32 = -(2 * zNear * zFar / zLength)
-                combinedMatrix.m33 = 0f
+                combinedMatrix.m00(scaleX)
+                combinedMatrix.m11(scaleY)
+                combinedMatrix.m22(-((zFar + zNear) / zLength))
+                combinedMatrix.m23(-1f)
+                combinedMatrix.m32(-(2 * zNear * zFar / zLength))
+                combinedMatrix.m33(0f)
 
                 combinedMatrix.rotate(Math.toRadians(Editor.currentTab.camera.pitch).toFloat(), Vector3f(-1f, 0f, 0f))
                 combinedMatrix.rotate(Math.toRadians(Editor.currentTab.camera.yaw).toFloat(), Vector3f(0f, -1f, 0f))

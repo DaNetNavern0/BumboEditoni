@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.io
 
+import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blockstate.BlockStateDictionary
 import me.danetnaverno.editoni.blocktype.BlockDictionary.getBlockType
 import me.danetnaverno.editoni.blocktype.BlockType
@@ -167,11 +168,11 @@ class Minecraft114WorldIO
         }
     }
 
-    private fun convertQChunk(world: World, mcaChunk: QuerzChunk): Chunk
+    fun convertQChunk(world: World, mcaChunk: QuerzChunk): Chunk
     {
         val data = getData(mcaChunk)
-        val posX: Int = data.getCompoundTag("Level").getInt("xPos")
-        val posZ: Int = data.getCompoundTag("Level").getInt("zPos")
+        val posX = data.getCompoundTag("Level").getInt("xPos")
+        val posZ = data.getCompoundTag("Level").getInt("zPos")
         val blockTypes = arrayOfNulls<Array<BlockType?>?>(16)
         val blockStates: MutableMap<Int, BlockState> = HashMap<Int, BlockState>()
         val tileEntities: MutableMap<Int, TileEntity> = HashMap<Int, TileEntity>()
@@ -219,12 +220,11 @@ class Minecraft114WorldIO
             {
                 val blockType = getBlockType(ResourceLocation(tag.getString("Name")))
                 val blockState = BlockStateDictionary.createBlockState(blockType, tag.getCompoundTag("Properties"))
-                val location = BlockLocation(chunk, x, y, z)
                 if (blockState != null)
-                    blockStates[location.toChunkBlockIndex()] = blockState
+                    blockStates[y * 256 + z * 16 + x] = blockState //chunkIndex formula
                 if (blockTypes[y / 16] == null)
                     blockTypes[y / 16] = arrayOfNulls(4096)
-                blockTypes[y / 16]!![location.toSectionBlockIndex()] = blockType
+                blockTypes[y / 16]!![(y % 16) * 256 + z * 16 + x] = blockType //sectionIndex formula
             }
         }
         chunk.load(blockTypes, blockStates, tileEntities)
@@ -277,8 +277,8 @@ class Minecraft114WorldIO
                 section.skyLight = null
             }
         }
-        val (x, z) = chunk.location.toRegionOffset()
-        mcaChunk.updateHandle(x, z)
+
+        mcaChunk.updateHandle(chunk.location.x, chunk.location.z)
         return mcaChunk
     }
 

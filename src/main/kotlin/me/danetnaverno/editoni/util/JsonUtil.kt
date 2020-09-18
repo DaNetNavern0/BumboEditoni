@@ -16,7 +16,7 @@ import java.nio.file.Path
 @Suppress("unused")
 object JsonUtil
 {
-    fun fromPair(key: String?, value: Any?): JSONObject
+    fun fromPair(key: String, value: Any?): JSONObject
     {
         val json = JSONObject()
         json[key] = value

@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.world
+package me.danetnaverno.editoni.blockstate
 
 import net.querz.nbt.tag.CompoundTag
 

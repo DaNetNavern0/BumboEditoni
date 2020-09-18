@@ -2,7 +2,7 @@
 
 BumboEditoni is a work-in-progress* open-source external tool made on Kotlin to edit Minecraft worlds in 1.14 and up.
 
-*It's VERY work-in-progress by 13 August 2020 
+*It's VERY work-in-progress by [See the last commit date] 
 
 ### It's an early prototype
 While it's technically working and usable, it lacks even basic functionality at this moment. Basically, at this stage, this is a prototype.

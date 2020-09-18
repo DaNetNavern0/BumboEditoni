@@ -44,7 +44,6 @@ class Texture(val location: ResourceLocation, path: Path)
 
     companion object
     {
-        @JvmStatic
         operator fun get(name: ResourceLocation): Texture
         {
             return TextureDictionary[name]

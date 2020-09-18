@@ -28,10 +28,10 @@ class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation
     }
 
     /**
-     * This iterator reuses the same [BlockLocation.Mutable] object through iteration for the optimization sake
+     * This iterator reuses the same [BlockLocationMutable] object through iteration for the optimization sake
      *
      * To consider: do we actually need this, since in many occasions we need an immutable version of this anyway?
-     * Look at the usages of [BlockLocation.immutable]
+     * Look at the usages of [IBlockLocation.toImmutable]
      */
     fun mutableIterator(): Iterator<BlockLocationMutable>
     {

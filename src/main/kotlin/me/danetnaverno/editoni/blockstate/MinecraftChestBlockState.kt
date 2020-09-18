@@ -1,6 +1,5 @@
 package me.danetnaverno.editoni.blockstate
 
-import me.danetnaverno.editoni.world.BlockState
 import net.querz.nbt.tag.CompoundTag
 
 class MinecraftChestBlockState(properties: CompoundTag) : BlockState(properties)

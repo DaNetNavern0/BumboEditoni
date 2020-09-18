@@ -20,7 +20,7 @@ object BlockDictionary
             {
                 for (file in Files.list(domainFolder))
                 {
-                    val resource = ResourceLocation(domainFolder.fileName.toString().removeSuffix("/"),
+                    val resource = ResourceLocation.fromTwo(domainFolder.fileName.toString().removeSuffix("/"),
                             file.fileName.toString().substringBeforeLast("."))
                     val json = JsonUtil.fromFile(file)
                     val renderer = BlockRendererDictionary.create(json.getJSONObject("renderer"))
@@ -37,7 +37,6 @@ object BlockDictionary
         return blockTypes.toMutableMap()
     }
 
-    @JvmStatic
     fun getBlockType(id: ResourceLocation): BlockType
     {
         var type = blockTypes[id]
@@ -50,7 +49,6 @@ object BlockDictionary
         return type
     }
 
-    @JvmStatic
     fun register(id: ResourceLocation, blockType: BlockType)
     {
         blockTypes[id] = blockType

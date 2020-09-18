@@ -1,6 +1,7 @@
 package me.danetnaverno.editoni.world
 
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
+import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.Minecraft114WorldIO
 import me.danetnaverno.editoni.location.*
@@ -12,7 +13,15 @@ import kotlin.collections.ArrayList
 @Suppress("unused")
 class World constructor(var version: String, var worldIOProvider: Minecraft114WorldIO, var path: Path)
 {
-    private val regions = HashMap<RegionLocation, Region>()
+    /**
+     * [RegionLocation.equals]/[RegionLocationMutable.equals] is rather slow, because it involves casting,
+     * and [HashMap] calls equals(Any?), rather than equals(RegionLocation)/equals(RegionLocationMutable).
+     *
+     * todo this has to be fixed, probably with a custom map implementation.
+     *   Creating a method like [IRegionLocation].toLong() and trying to use that would help, but not enough,
+     *   because then we'd create a [Long] wrapper every time we interact with this map
+     */
+    private val regions = HashMap<IRegionLocation, Region>()
 
     //======================
     // REGIONS
@@ -33,11 +42,14 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
     }
 
     //======================
-// CHUNKS
-//======================
+    // CHUNKS
+    //======================
     fun getLoadedChunks(): List<Chunk>
     {
-        return regions.values.flatMap { it.getLoadedChunks() }
+        val result = ArrayList<Chunk>()
+        for (value in regions.values)
+            value.getLoadedChunks(result)
+        return result
     }
 
     fun getChunkIfLoaded(location: IBlockLocation): Chunk?

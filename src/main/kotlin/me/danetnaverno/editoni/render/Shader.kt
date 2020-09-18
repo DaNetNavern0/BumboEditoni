@@ -4,8 +4,8 @@ import me.danetnaverno.editoni.Main
 import me.danetnaverno.editoni.editor.EditorApplication
 import me.danetnaverno.editoni.util.ResourceUtil.getBuiltInResourcePath
 import org.apache.logging.log4j.LogManager
-import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL44.*
+import org.lwjgl.system.MemoryStack
 import java.nio.file.Files
 
 object Shader
@@ -73,9 +73,10 @@ object Shader
         glUseProgram(program)
         glUniform1i(texture, 0)
 
-        val buffer = BufferUtils.createFloatBuffer(16)
-        EditorApplication.combinedMatrix.store(buffer)
-        buffer.flip()
-        glUniformMatrix4fv(proj, false, buffer)
+        MemoryStack.stackPush().use { stack ->
+            val buffer = stack.mallocFloat(16)
+            EditorApplication.combinedMatrix.get(buffer)
+            glUniformMatrix4fv(proj, false, buffer)
+        }
     }
 }

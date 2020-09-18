@@ -4,6 +4,7 @@ import me.danetnaverno.editoni.location.BlockLocationMutable
 import me.danetnaverno.editoni.world.Chunk
 import org.lwjgl.opengl.GL44.*
 import org.lwjgl.system.MemoryUtil
+import java.nio.BufferOverflowException
 import java.nio.FloatBuffer
 
 class ChunkRenderer(private val chunk: Chunk)
@@ -24,7 +25,8 @@ class ChunkRenderer(private val chunk: Chunk)
 
     fun updateVertices()
     {
-        var vertexBuffer = MemoryUtil.memAllocFloat(32768)
+        vertexBuffer.position(0)
+        vertexBuffer.limit(32768)
         val mutableLocation = BlockLocationMutable(0, 0, 0)
 
         try
@@ -39,9 +41,16 @@ class ChunkRenderer(private val chunk: Chunk)
                     val renderer = blockType.renderer
                     if (renderer.isVisible(chunk.world, mutableLocation))
                     {
-                        if (vertexBuffer.position() + renderer.getMaxVertexCount() * 6 >= vertexBuffer.capacity())
-                            vertexBuffer = growBuffer(vertexBuffer)
-                        renderer.bake(chunk.world, mutableLocation, vertexBuffer)
+                        try
+                        {
+                            if (vertexBuffer.position() + renderer.getMaxVertexCount() * 6 >= vertexBuffer.limit())
+                                vertexBuffer.limit(vertexBuffer.limit() + 32768)
+                            renderer.bake(chunk.world, mutableLocation, vertexBuffer)
+                        }
+                        catch (e: Exception)
+                        {
+                            throw e
+                        }
                     }
                 }
             }
@@ -58,15 +67,19 @@ class ChunkRenderer(private val chunk: Chunk)
 
             vbo = glGenBuffers()
             glBindBuffer(GL_ARRAY_BUFFER, vbo)
-            glBufferStorage(GL_ARRAY_BUFFER, vertexBuffer, 0)
+            glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW)
             glVertexAttribPointer(0, 3, GL_FLOAT, false, 4 * 6, 0)
             glEnableVertexAttribArray(0)
             glVertexAttribPointer(1, 3, GL_FLOAT, false, 4 * 6, 4 * 3)
             glEnableVertexAttribArray(1)
         }
+        catch (bufferException: BufferOverflowException)
+        {
+            //todo consider heuristics to shrink the buffer back if it gets too big but only for a rare occasion
+            vertexBuffer = growBuffer(vertexBuffer)
+        }
         finally
         {
-            MemoryUtil.memFree(vertexBuffer)
         }
     }
 
@@ -83,7 +96,7 @@ class ChunkRenderer(private val chunk: Chunk)
     {
         try
         {
-            val newCapacity = vertexBuffer.capacity() + 32768
+            val newCapacity = vertexBuffer.capacity() + 1048576
             val newVertexBuffer = MemoryUtil.memAllocFloat(newCapacity)
 
             val vertexBufferPos = vertexBuffer.position()
@@ -97,5 +110,10 @@ class ChunkRenderer(private val chunk: Chunk)
         {
             MemoryUtil.memFree(vertexBuffer)
         }
+    }
+
+    companion object
+    {
+        var vertexBuffer: FloatBuffer = MemoryUtil.memAllocFloat(1048576)
     }
 }

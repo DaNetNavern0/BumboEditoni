@@ -21,7 +21,8 @@ object EditorUserHandler
         if (corner != null)
         {
             val mouse = InputHandler.mouseCoords
-            val secondCorner = Editor.findBlock(Editor.currentTab.world, Editor.raycast(mouse.first.toInt(), mouse.second.toInt()))?.location
+            val raycast = Editor.raycast(mouse.first.toInt(), mouse.second.toInt()) ?: return
+            val secondCorner = Editor.findBlock(Editor.currentTab.world, raycast)?.location
             if (secondCorner != null && !InputHandler.mouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_LEFT))
             {
                 selectionRenderer.update(BlockArea(Editor.currentTab.world, corner.location, secondCorner)) //todo need to rebake the vertex data only when neccessary
@@ -98,7 +99,7 @@ object EditorUserHandler
             val mouseCoords = InputHandler.mouseCoords
             val x = mouseCoords.first.toInt()
             val y = mouseCoords.second.toInt()
-            val raycast = Editor.raycast(x, y)
+            val raycast = Editor.raycast(x, y) ?: return
             val entity = Editor.findEntity(Editor.currentTab.world, EntityLocation(raycast.x.toDouble(), raycast.y.toDouble(), raycast.z.toDouble()))
             if (entity != null)
             {
@@ -106,10 +107,10 @@ object EditorUserHandler
             else
             {
                 if (selectedCorner == null)
-                    selectedCorner = Editor.findBlock(Editor.currentTab.world, Editor.raycast(x, y))
+                    selectedCorner = Editor.findBlock(Editor.currentTab.world, raycast)
                 else
                 {
-                    val secondCorner = Editor.findBlock(Editor.currentTab.world, Editor.raycast(x, y))
+                    val secondCorner = Editor.findBlock(Editor.currentTab.world, raycast)
                     if (secondCorner != null)
                     {
                         val area = BlockArea(Editor.currentTab.world, selectedCorner!!.location, secondCorner.location)
@@ -121,5 +122,4 @@ object EditorUserHandler
             }
         }
     }
-
 }

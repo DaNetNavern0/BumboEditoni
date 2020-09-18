@@ -1,5 +1,6 @@
 package me.danetnaverno.editoni.world
 
+import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.io.MCAExtraInfo
 import me.danetnaverno.editoni.location.*
@@ -7,6 +8,10 @@ import me.danetnaverno.editoni.render.ChunkRenderer
 
 class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
 {
+    //Because JVM compresses references by default, we'd save no memory by indexing BlockType and using IntArray instead of
+    //  Array<BlockType?>, but we'd add additional overhead while converting indexes into BlockType`s.
+    //Maybe using Minecraft's palette approach would be a better way, but we don't use that much memory to make it urgent.
+
     /*private*/ lateinit var blockTypes: Array<Array<BlockType?>?>
     /*private*/ lateinit var blockStates: MutableMap<Int, BlockState>
     /*private*/ lateinit var tileEntities: MutableMap<Int, TileEntity>

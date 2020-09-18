@@ -9,13 +9,14 @@ import me.danetnaverno.editoni.world.Block
 import me.danetnaverno.editoni.world.Entity
 import me.danetnaverno.editoni.world.World
 import org.apache.logging.log4j.LogManager
+import org.joml.Matrix4f
+import org.joml.Vector3f
 import org.joml.Vector3i
-import org.lwjgl.BufferUtils
+import org.joml.Vector4f
 import org.lwjgl.opengl.GL44.*
-import org.lwjgl.util.glu.GLU
-import org.lwjgl.util.vector.Matrix4f
-import org.lwjgl.util.vector.Vector3f
+import org.lwjgl.system.MemoryStack
 import java.nio.file.Path
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 
@@ -105,60 +106,37 @@ object Editor
         return closest
     }
 
-    fun raycast(screenX: Int, screenY: Int): Vector3f
+    fun raycast(screenX: Int, screenY: Int): Vector3f?
     {
-        //todo Yes, this isn't particularly nice and quite buggy, and uses GLU which is heavily dated, but it will work for now
-        val viewport = BufferUtils.createIntBuffer(4)
-        val mvmatrix = BufferUtils.createFloatBuffer(16)
-        val projmatrix = BufferUtils.createFloatBuffer(16)
-        val output = BufferUtils.createFloatBuffer(4)
+        MemoryStack.stackPush().use { stack ->
+            val buf = stack.mallocFloat(1)
+            val reverseY = EditorApplication.HEIGHT - screenY
+            glReadPixels(screenX, reverseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, buf)
+            val screenZ = buf.get(0)
+            return unProject(screenX.toFloat(), reverseY.toFloat(), screenZ,
+                    EditorApplication.combinedMatrix,
+                    EditorApplication.PANEL_WIDTH.toFloat(), 0f, (EditorApplication.WIDTH - EditorApplication.PANEL_WIDTH * 2).toFloat(), EditorApplication.HEIGHT.toFloat())
+        }
+    }
 
-        val idMatrix = Matrix4f()
-        mvmatrix.put(idMatrix.m00)
-        mvmatrix.put(idMatrix.m01)
-        mvmatrix.put(idMatrix.m01)
-        mvmatrix.put(idMatrix.m03)
-        mvmatrix.put(idMatrix.m10)
-        mvmatrix.put(idMatrix.m11)
-        mvmatrix.put(idMatrix.m12)
-        mvmatrix.put(idMatrix.m13)
-        mvmatrix.put(idMatrix.m20)
-        mvmatrix.put(idMatrix.m21)
-        mvmatrix.put(idMatrix.m22)
-        mvmatrix.put(idMatrix.m23)
-        mvmatrix.put(idMatrix.m30)
-        mvmatrix.put(idMatrix.m31)
-        mvmatrix.put(idMatrix.m32)
-        mvmatrix.put(idMatrix.m33)
+    private fun unProject(screenX: Float, screenY: Float, screenZ: Float,
+                  combinedMatrix: Matrix4f,
+                  viewportOffsetX: Float, viewportOffsetY: Float, viewportWidth: Float, viewportHeight: Float): Vector3f?
+    {
+        val inVector = Vector4f()
+        val inv = Matrix4f()
+        combinedMatrix.invert(inv)
 
-        val projMatrix = EditorApplication.combinedMatrix
-        projmatrix.put(projMatrix.m00)
-        projmatrix.put(projMatrix.m01)
-        projmatrix.put(projMatrix.m01)
-        projmatrix.put(projMatrix.m03)
-        projmatrix.put(projMatrix.m10)
-        projmatrix.put(projMatrix.m11)
-        projmatrix.put(projMatrix.m12)
-        projmatrix.put(projMatrix.m13)
-        projmatrix.put(projMatrix.m20)
-        projmatrix.put(projMatrix.m21)
-        projmatrix.put(projMatrix.m22)
-        projmatrix.put(projMatrix.m23)
-        projmatrix.put(projMatrix.m30)
-        projmatrix.put(projMatrix.m31)
-        projmatrix.put(projMatrix.m32)
-        projmatrix.put(projMatrix.m33)
+        inVector.x = ((screenX - viewportOffsetX) / viewportWidth) * 2.0f - 1.0f
+        inVector.y = ((screenY - viewportOffsetY) / viewportHeight) * 2.0f - 1.0f
+        inVector.z = screenZ * 2.0f - 1.0f
+        inVector.w = 1.0f
 
-        mvmatrix.rewind()
-        projmatrix.rewind()
-        glGetIntegerv(GL_VIEWPORT, viewport)
-
-        val reverseY = viewport.get(3) - screenY
-        val winZ = BufferUtils.createFloatBuffer(1)
-        glReadPixels(screenX, reverseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, winZ)
-        val z = winZ.get(0)
-        GLU.gluUnProject(screenX.toFloat(), reverseY.toFloat(), z, mvmatrix, projmatrix, viewport, output)
-        return Vector3f(output.get(0), output.get(1), output.get(2))
+        val outVector = inv.transform(inVector)
+        if (abs(outVector.w) < 0.0001)
+            return null
+        outVector.w = 1.0f / outVector.w
+        return Vector3f(outVector.x * outVector.w, outVector.y * outVector.w, outVector.z * outVector.w)
     }
 
     /*fun selectEntity(entity: Entity?)

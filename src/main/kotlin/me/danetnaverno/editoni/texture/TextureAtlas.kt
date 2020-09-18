@@ -16,7 +16,7 @@ class TextureAtlas constructor(textures: Collection<Texture>)
 {
     var atlasTexture : TextureId = 0
         private set
-    var zLayerMap = mutableMapOf<ResourceLocation, Int>()
+    var zLayerMap = mutableMapOf<ResourceLocation, Int>() //todo - this is terrible
 
     init
     {
@@ -36,7 +36,7 @@ class TextureAtlas constructor(textures: Collection<Texture>)
             try
             {
                 if (texture.decodedImage != null)
-                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, 16, 16, 1, GL_RGBA, GL_UNSIGNED_BYTE, texture.decodedImage)
+                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, 16, 16, 1, GL_RGBA, GL_UNSIGNED_BYTE, texture.decodedImage!!)
             }
             catch (e: IOException)
             {

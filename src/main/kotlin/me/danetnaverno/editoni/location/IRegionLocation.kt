@@ -12,6 +12,6 @@ interface IRegionLocation
 
     fun isChunkLocationBelongs(location: IChunkLocation): Boolean
     {
-        return location.toRegionLocation() == this
+        return location.x shr 6 == x && location.z shr 6 == z
     }
 }

@@ -20,7 +20,7 @@ object TextureDictionary
             path.getName(path.nameCount - 1).toString().endsWith(".png")
         }).map { path ->
             val ass = path.getName(path.nameCount - 1).toString()
-            val resourceLocation = ResourceLocation(path.getName(path.nameCount - 2).toString(), ass.substring(0, ass.length - 4))
+            val resourceLocation = ResourceLocation.fromTwo(path.getName(path.nameCount - 2).toString(), ass.substring(0, ass.length - 4))
             Texture(resourceLocation, path)
         }.collect(Collectors.toList())
         TextureAtlas.mainAtlas = TextureAtlas(textures)
@@ -34,7 +34,7 @@ object TextureDictionary
 
         texture = try
         {
-            Texture(name, ResourceUtil.getBuiltInResourcePath("/assets/textures/${name.domain}/${name.path}.png"))
+            Texture(name, ResourceUtil.getBuiltInResourcePath("/assets/textures/${name.name.replace(":","/")}.png"))
         }
         catch (ex: Exception)
         {
