@@ -1,7 +1,8 @@
 package me.danetnaverno.editoni.render.blockrender
 
 import com.alibaba.fastjson.JSONObject
-import me.danetnaverno.editoni.util.ResourceLocation
+
+typealias ResourceLocation = String
 
 object BlockRendererDictionary
 {
@@ -14,7 +15,7 @@ object BlockRendererDictionary
 
     fun create(data: JSONObject): BlockRenderer
     {
-        val name = ResourceLocation(data.getString("type"))
+        val name = data.getString("type")
         var rendererClass = renderers[name]
         if (rendererClass == null)
             rendererClass = BlockRendererCube::class.java

@@ -5,7 +5,6 @@ import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.render.blockrender.BlockRendererAir
 import me.danetnaverno.editoni.render.blockrender.BlockRendererCube
 import me.danetnaverno.editoni.render.blockrender.BlockRendererDictionary.register
-import me.danetnaverno.editoni.util.ResourceLocation
 
 /**
  * todo I don't like this, the existence of this class feels hacky.
@@ -16,8 +15,8 @@ object MinecraftDictionaryFiller
 
     fun init()
     {
-        register(ResourceLocation("minecraft:air"), BlockRendererAir::class.java)
-        register(ResourceLocation("minecraft:cube"), BlockRendererCube::class.java)
-        AIR = getBlockType(ResourceLocation("minecraft:air"))
+        register("minecraft:air", BlockRendererAir::class.java)
+        register("minecraft:cube", BlockRendererCube::class.java)
+        AIR = getBlockType("minecraft:air")
     }
 }

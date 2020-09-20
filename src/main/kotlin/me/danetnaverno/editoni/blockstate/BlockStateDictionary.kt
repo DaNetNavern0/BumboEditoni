@@ -5,7 +5,7 @@ import net.querz.nbt.tag.CompoundTag
 
 object BlockStateDictionary
 {
-    private val stateTypes = mutableMapOf<BlockType, Class<out BlockState>>()
+    private val stateTypes = hashMapOf<BlockType, Class<out BlockState>>()
 
     fun register(blockType: BlockType, stateType: Class<out BlockState>)
     {

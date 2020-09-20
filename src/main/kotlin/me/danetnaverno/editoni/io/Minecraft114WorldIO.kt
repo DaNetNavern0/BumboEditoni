@@ -2,14 +2,13 @@ package me.danetnaverno.editoni.io
 
 import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blockstate.BlockStateDictionary
-import me.danetnaverno.editoni.blocktype.BlockDictionary.getBlockType
+import me.danetnaverno.editoni.blocktype.BlockDictionary
 import me.danetnaverno.editoni.blocktype.BlockType
 import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.location.BlockLocation
 import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
-import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.world.*
 import net.querz.mca.LoadFlags
 import net.querz.mca.MCAFile
@@ -221,7 +220,7 @@ class Minecraft114WorldIO
             }
             if (tag != null)
             {
-                val blockType = getBlockType(ResourceLocation(tag.getString("Name")))
+                val blockType = BlockDictionary.getBlockType(tag.getString("Name"))
                 val blockState = BlockStateDictionary.createBlockState(blockType, tag.getCompoundTag("Properties"))
                 if (blockState != null)
                     blockStates[y * 256 + z * 16 + x] = blockState //chunkIndex formula

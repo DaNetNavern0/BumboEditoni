@@ -3,7 +3,6 @@ package me.danetnaverno.editoni.render
 import me.danetnaverno.editoni.location.BlockArea
 import me.danetnaverno.editoni.location.EntityLocation
 import me.danetnaverno.editoni.texture.Texture
-import me.danetnaverno.editoni.util.ResourceLocation
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryStack
 
@@ -18,7 +17,7 @@ class SelectionRenderer
     private var vaoBoxVertices: Int = 0
     private var vboBoxVertices: Int = 0
 
-    private val textureIndex = Texture[ResourceLocation("common:select")].atlasZLayer
+    private val textureIndex = Texture["common:select"].atlasZLayer
 
     fun invalidate()
     {

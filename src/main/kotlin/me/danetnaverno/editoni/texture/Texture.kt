@@ -1,6 +1,5 @@
 package me.danetnaverno.editoni.texture
 
-import me.danetnaverno.editoni.util.ResourceLocation
 import java.nio.file.Path
 
 class Texture(val path: Path)
@@ -15,7 +14,7 @@ class Texture(val path: Path)
 
     companion object
     {
-        inline operator fun get(name: ResourceLocation): Texture
+        inline operator fun get(name: String): Texture
         {
             return TextureDictionary[name]
         }

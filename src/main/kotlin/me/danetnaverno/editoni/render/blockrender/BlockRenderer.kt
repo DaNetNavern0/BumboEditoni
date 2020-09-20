@@ -16,6 +16,11 @@ abstract class BlockRenderer
     {
         if (location.localY < 0 || location.localY > 255)
             return true
+
+        //todo These 2 lines result in full hierarchy walk from the world to a specific neighboring block,
+        //   and it's called 6 times per each block in a chunk that gets baked at this moment.
+        // This could definitely use some optimization, but it doesn't make the user experience horrible for now,
+        //   because it happens only when we bake a chunk, which happens only once when we load or alter a chunk.
         val chunk = world.getChunkIfLoaded(location) ?: return true
         val type = chunk.getBlockTypeAt(location) ?: return true
         return !type.isOpaque

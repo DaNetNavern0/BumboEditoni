@@ -3,7 +3,6 @@ package me.danetnaverno.editoni.render.blockrender
 import com.alibaba.fastjson.JSONObject
 import me.danetnaverno.editoni.location.BlockLocationMutable
 import me.danetnaverno.editoni.texture.Texture
-import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.world.World
 import java.nio.FloatBuffer
 
@@ -71,18 +70,18 @@ open class BlockRendererCube : BlockRenderer
     {
         when
         {
-            data.containsKey("texture") -> plainTexture(Texture[ResourceLocation(data.getString("texture"))])
+            data.containsKey("texture") -> plainTexture(Texture[data.getString("texture")])
             data.containsKey("side") -> withSideTexture(
-                    Texture[ResourceLocation(data.getString("top"))],
-                    Texture[ResourceLocation(data.getString("bottom"))],
-                    Texture[ResourceLocation(data.getString("side"))])
+                    Texture[data.getString("top")],
+                    Texture[data.getString("bottom")],
+                    Texture[data.getString("side")])
             data.containsKey("west") -> sixTextures(
-                    Texture[ResourceLocation(data.getString("top"))],
-                    Texture[ResourceLocation(data.getString("bottom"))],
-                    Texture[ResourceLocation(data.getString("north"))],
-                    Texture[ResourceLocation(data.getString("west"))],
-                    Texture[ResourceLocation(data.getString("south"))],
-                    Texture[ResourceLocation(data.getString("east"))])
+                    Texture[data.getString("top")],
+                    Texture[data.getString("bottom")],
+                    Texture[data.getString("north")],
+                    Texture[data.getString("west")],
+                    Texture[data.getString("south")],
+                    Texture[data.getString("east")])
         }
     }
 
@@ -91,6 +90,7 @@ open class BlockRendererCube : BlockRenderer
         return 1.0f
     }
 
+    //todo this could use some improvements, see [BlockRenderer.shouldRenderSideAgainst]
     override fun isVisible(world: World, location: BlockLocationMutable): Boolean
     {
         //A small trick to avoid creating new short-living BlockLocation instances

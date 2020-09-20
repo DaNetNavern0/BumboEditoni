@@ -1,7 +1,6 @@
 package me.danetnaverno.editoni.texture
 
 import me.danetnaverno.editoni.editor.Editor
-import me.danetnaverno.editoni.util.ResourceLocation
 import me.danetnaverno.editoni.util.ResourceUtil
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -9,7 +8,7 @@ import kotlin.streams.asSequence
 
 object TextureDictionary
 {
-    private val textures: Map<ResourceLocation, Texture>
+    private val textures: Map<String, Texture>
 
     init
     {
@@ -19,7 +18,7 @@ object TextureDictionary
                 .asSequence().associateBy(
                         {
                             val nameStr = root.relativize(it).toString().replace('\\', ':', false).replace('/', ':', false)
-                            ResourceLocation(nameStr.substring(0, nameStr.length - 4))
+                            nameStr.substring(0, nameStr.length - 4)
                         },
                         { Texture(it) })
         TextureAtlas.mainAtlas = TextureAtlas(textures.values)
@@ -27,15 +26,15 @@ object TextureDictionary
 
     /**
      * Because we don't call this method within the rendering loop,
-     * we can get away with using [ResourceLocation] as an argument and a Map key
+     * we can get away with using [String] as an argument and a Map key
      */
-    operator fun get(name: ResourceLocation): Texture
+    operator fun get(name: String): Texture
     {
         val texture = textures[name]
         if (texture != null)
             return texture
 
         Editor.logger.error("Texture has never been loaded: $name")
-        return get(ResourceLocation("common:error"))
+        return get("common:error")
     }
 }
