@@ -9,9 +9,8 @@ import me.danetnaverno.editoni.render.ChunkRenderer
 
 class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
 {
-    //Because JVM compresses references by default, we'd save no memory by indexing BlockType and using IntArray instead of
-    //  Array<BlockType?>, but we'd add additional overhead while converting indexes into BlockType`s.
-    //Maybe using Minecraft's palette approach would be a better way, but we don't use that much memory to make it urgent.
+    //todo using Minecraft's palette approach would be nice and save plenty of memory
+    // especially when it comes to Block States (things like Observer rotation, crop's groth stages etc, don't confuse with TileEntities)
 
     /*private*/ lateinit var blockTypes: Array<Array<BlockType?>?>
     /*private*/ lateinit var blockStates: MutableMap<Int, BlockState>

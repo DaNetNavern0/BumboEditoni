@@ -21,6 +21,7 @@ class WorldRenderer(private val tab: EditorTab)
             chunkLocation.add(-renderDistance * 2, 1)
         }
 
+        //todo this part could be better if we'd have a "queue for baking", instead of constantly checking each loaded chunk
         for (chunk in tab.world.getLoadedChunks())
             if (!chunk.vertexData.isBuilt)
                 chunk.vertexData.updateVertices()

@@ -35,7 +35,7 @@ data class BlockLocation(override val globalX: Int, override val globalY: Int, o
     //========================================
     // Yes, this is some hacky stuff right there.
     // By doing this, we make it possible to check if a collection has a BlockLocation,
-    // if we check collection#contains with a BlockLocationMutable.
+    //   when we check collection#contains with a BlockLocationMutable.
     // For an example, look at World#getRegion.
     // It's up to a programmer to make sure Mutable Locations are never placed into collections.
     //========================================

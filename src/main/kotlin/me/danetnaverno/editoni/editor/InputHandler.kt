@@ -24,7 +24,8 @@ object InputHandler
     internal fun init(window: Long)
     {
         resetKeyboard()
-        for (i in mouseStates.indices) mouseStates[i] = NO_STATE
+        for (i in mouseStates.indices)
+            mouseStates[i] = NO_STATE
         GLFW.glfwSetKeyCallback(window, keyboard)
         windowId = window
     }
@@ -35,14 +36,19 @@ object InputHandler
         resetKeyboard()
         for (i in mouseStates.indices)
         {
-            if (mouseStates[i] == GLFW.GLFW_PRESS) mouseStates[i] = GLFW.GLFW_REPEAT else if (mouseStates[i] == GLFW.GLFW_RELEASE) mouseStates[i] = NO_STATE
+            if (mouseStates[i] == GLFW.GLFW_PRESS)
+                mouseStates[i] = GLFW.GLFW_REPEAT
+            else if (mouseStates[i] == GLFW.GLFW_RELEASE)
+                mouseStates[i] = NO_STATE
         }
         GLFW.glfwPollEvents()
     }
 
     private fun resetKeyboard()
     {
-        for (i in keyStates.indices) if (keyStates[i] == GLFW.GLFW_RELEASE) keyStates[i] = NO_STATE
+        for (i in keyStates.indices)
+            if (keyStates[i] == GLFW.GLFW_RELEASE)
+                keyStates[i] = NO_STATE
     }
 
     fun registerMousePress(event: MouseEvent)

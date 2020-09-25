@@ -27,7 +27,7 @@ class RegionLocationMutable(x: Int, z: Int) : IRegionLocation
     //========================================
     // Yes, this is some hacky stuff right there.
     // By doing this, we make it possible to check if a collection has a RegionLocation,
-    // if we check collection#contains with a RegionLocationMutable.
+    //   when we check collection#contains with a RegionLocationMutable.
     // For an example, look at World#getRegion.
     // It's up to a programmer to make sure Mutable Locations are never placed into collections.
     //========================================

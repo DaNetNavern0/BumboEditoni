@@ -25,7 +25,7 @@ data class ChunkLocation(override val x: Int, override val z: Int) : IChunkLocat
     //========================================
     // Yes, this is some hacky stuff right there.
     // By doing this, we make it possible to check if a collection has a ChunkLocation,
-    // if we check collection#contains with a ChunkLocationMutable.
+    //   when we check collection#contains with a ChunkLocationMutable.
     // For an example, look at World#getRegion
     // It's up to a programmer to make sure Mutable Locations are never placed into collections.
     //========================================
