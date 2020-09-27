@@ -7,5 +7,5 @@ import org.apache.logging.log4j.LogManager
  */
 object RobertoGarbagio
 {
-    val logger = LogManager.getLogger("Roberto Garbagio")
+    val logger = LogManager.getLogger("Roberto Garbagio")!!
 }

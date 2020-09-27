@@ -3,25 +3,33 @@ package me.danetnaverno.editoni.world
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
 import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blocktype.BlockType
+import me.danetnaverno.editoni.editor.EditorTab
+import me.danetnaverno.editoni.editor.Settings
 import me.danetnaverno.editoni.io.Minecraft114WorldIO
 import me.danetnaverno.editoni.location.*
+import me.danetnaverno.editoni.render.WorldRenderer
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.nio.file.Path
 import java.util.*
 import kotlin.collections.ArrayList
 
-@Suppress("unused")
-class World constructor(var version: String, var worldIOProvider: Minecraft114WorldIO, var path: Path)
+class World constructor(val version: String, val worldIOProvider: Minecraft114WorldIO, val path: Path)
 {
+    val editorTab = EditorTab(this)
+    val worldRenderer = WorldRenderer(this)
+
     /**
      * [RegionLocation.equals]/[RegionLocationMutable.equals] is rather slow, because it involves casting,
      * and [HashMap] calls equals(Any?), rather than equals(RegionLocation)/equals(RegionLocationMutable).
      *
-     * todo this has to be fixed, probably with a custom map implementation.
+     * todo this gets called in extremely large amounts and has to be optimized. Probably with a custom map implementation.
      *   Creating a method like [IRegionLocation].toLong() and trying to use that would help, but not enough,
      *   because then we'd create a [Long] wrapper every time we interact with this map
      */
     private val regions = HashMap<IRegionLocation, Region>()
+
+    //todo It's not great having this field being public
+    val loadedChunksCache = ArrayList<Chunk>(Settings.renderDistance * Settings.renderDistance * 4)
 
     //======================
     // REGIONS
@@ -46,10 +54,7 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
     //======================
     fun getLoadedChunks(): List<Chunk>
     {
-        val result = ArrayList<Chunk>()
-        for (value in regions.values)
-            value.getLoadedChunks(result)
-        return result
+        return loadedChunksCache
     }
 
     fun getChunkIfLoaded(location: IBlockLocation): Chunk?
@@ -91,7 +96,7 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
         getRegion(chunk.location.toRegionLocation())?.unloadChunk(chunk)
     }
 
-    fun unloadChunks(chunks: List<Chunk>)
+    fun unloadChunks(chunks: Collection<Chunk>)
     {
         for (chunk in chunks)
             getRegion(chunk.location.toRegionLocation())!!.unloadChunk(chunk)
@@ -174,7 +179,7 @@ class World constructor(var version: String, var worldIOProvider: Minecraft114Wo
     //======================
     fun getEntitiesAt(location: EntityLocation, radius: Float): List<Entity>?
     {
-        return ArrayList(); //todo
+        return ArrayList() //todo
         /*return getLoadedChunks().stream()
                 .filter { chunk: Chunk -> chunk.location.distance(location.toChunkLocation()) <= 1 }
                 .flatMap<Any> { chunk: Chunk -> chunk.getEntitiesAt(location, radius).stream() }

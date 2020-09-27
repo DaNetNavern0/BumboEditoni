@@ -1,13 +1,10 @@
 package me.danetnaverno.editoni.world
 
-import com.sun.jmx.remote.internal.ArrayQueue
 import me.danetnaverno.editoni.editor.EditorApplication
 import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
 import java.nio.file.Path
-import java.util.*
-import kotlin.collections.ArrayList
 
 class Region(@JvmField val path: Path, @JvmField val world: World, @JvmField val location: RegionLocation)
 {
@@ -30,16 +27,14 @@ class Region(@JvmField val path: Path, @JvmField val world: World, @JvmField val
             ChunkManager.chunkLoadingExecutor.execute {
                 val chunk = world.worldIOProvider.readChunk(this, x, z)
                 if (chunk != null)
+                {
                     EditorApplication.mainThreadExecutor.addTask {
                         chunks[localX][localZ] = chunk
                         ChunkManager.addTicket(chunk, ticket)
-                        //todo this isn't particularly nice. Because we don't want visible blocks on chunk boundaries
-                        // we invalidate chunks around a newly loaded one, which makes tons of updates when we load
-                        // chunks on masses (e.g. opening a new world)
-                        for (ix in -1 .. +1)
-                            for (iz in -1 .. +1)
-                                world.getChunk(ChunkLocation(x + ix,z + iz))?.vertexData?.invalidate()
+                        world.loadedChunksCache.add(chunk)
+                        EditorApplication.chunksToBake.add(chunk)
                     }
+                }
             }
         }
     }
@@ -56,12 +51,8 @@ class Region(@JvmField val path: Path, @JvmField val world: World, @JvmField val
             val chunk = world.worldIOProvider.readChunk(this, chunkLocation) ?: return null
             chunks[localX][localZ] = chunk
             ChunkManager.addTicket(chunk, ticket)
-            //todo this isn't particularly nice. Because we don't want visible blocks on chunk boundaries
-            // we invalidate chunks around a newly loaded one, which makes tons of updates when we load
-            // chunks on masses (e.g. opening a new world)
-            for (ix in -1..+1)
-                for (iz in -1..+1)
-                    world.getChunk(ChunkLocation(chunkLocation.x + ix, chunkLocation.z + iz))?.vertexData?.invalidate()
+            world.loadedChunksCache.add(chunk)
+            EditorApplication.chunksToBake.add(chunk)
             return chunk
         }
         return null
@@ -77,6 +68,7 @@ class Region(@JvmField val path: Path, @JvmField val world: World, @JvmField val
         chunk.vertexData.invalidate()
         chunks[dx][dz] = null
         ChunkManager.clearTickets(chunk)
+        world.loadedChunksCache.remove(chunk)
     }
 
     fun getLoadedChunks(): Collection<Chunk>

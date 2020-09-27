@@ -3,14 +3,29 @@ package me.danetnaverno.editoni.editor
 import lwjgui.scene.Context
 import lwjgui.scene.Scene
 import lwjgui.scene.Window
+import me.danetnaverno.editoni.MinecraftDictionaryFiller
+import me.danetnaverno.editoni.editor.raw.LWJGUIApplicationPatched
+import me.danetnaverno.editoni.editor.raw.RawInputHandler
+import me.danetnaverno.editoni.location.ChunkLocationMutable
+import me.danetnaverno.editoni.render.Shader
+import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.ThreadExecutor
+import me.danetnaverno.editoni.world.Chunk
+import me.danetnaverno.editoni.world.ChunkTicketCamera
 import org.joml.Matrix4f
+import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
 import java.awt.Rectangle
+import java.nio.file.Paths
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.tan
 
-object EditorApplication : LWJGUIApplicationPatched()
+/**
+ * This class represents the backbones of the Editor - starting an app, rendering loop etc.
+ * For editor-related operations look at [Editor]
+ */
+object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
 {
     private const val WIDTH = 1500
     private const val HEIGHT = 768
@@ -18,10 +33,9 @@ object EditorApplication : LWJGUIApplicationPatched()
     private const val MENU_BAR_HEIGHT = 24
 
     val mainThreadExecutor = ThreadExecutor() //todo move this to a right place
+    val chunksToBake = ConcurrentLinkedQueue<Chunk>() //todo move this to a right place
 
     var fps = 0
-    var windowId: Long = 0
-        private set
     lateinit var combinedMatrix: Matrix4f //todo move this to a right place
 
     val windowWidth
@@ -35,20 +49,20 @@ object EditorApplication : LWJGUIApplicationPatched()
     val menuBarHeight
         get() = MENU_BAR_HEIGHT
 
-    private lateinit var doAfterStart: Runnable
     private lateinit var window: Window
+    private var frameStamp = System.currentTimeMillis()
 
-    fun main(args: Array<String>, doAfterStart: Runnable)
+    fun launch(args: Array<String>)
     {
-        this.doAfterStart = doAfterStart
         launch(this, args)
     }
 
     override fun start(args: Array<String>, window: Window)
     {
         //todo inspect lwjgui for the excessive creation of short-living StyleOperation-s
-        windowId = window.context.window.id
+
         this.window = window
+        val windowId = window.context.window.id
 
         window.setTitle("Bumbo Editoni")
         window.scene = Scene(EditorGUI.init(), WIDTH.toDouble(), HEIGHT.toDouble())
@@ -58,52 +72,99 @@ object EditorApplication : LWJGUIApplicationPatched()
         window.show()
         window.isWindowAutoClear = false
 
-        window.setRenderingCallback(Renderer())
-        doAfterStart.run()
+        window.setRenderingCallback(this)
+        RawInputHandler.init(windowId)
+
+        MinecraftDictionaryFiller.init()
+        Editor.openTab(Editor.loadWorldIntoTab(Paths.get("tests/1.14.2 survival world/region")).editorTab)
+        EditorGUI.refreshWorldList()
     }
 
-    internal class Renderer : lwjgui.gl.Renderer
+    override fun render(context: Context, width: Int, height: Int)
     {
-        private var frameStamp = System.currentTimeMillis()
-        override fun render(context: Context, width: Int, height: Int)
+        try
         {
-            try
-            {
-                glClearColor(0.8f, 0.9f, 1.0f, 1.0f)
-                glViewport(SIDE_PANEL_WIDTH, 0, width - SIDE_PANEL_WIDTH * 2, height - MENU_BAR_HEIGHT)
-                glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-                glEnable(GL_BLEND)
-                glEnable(GL_DEPTH_TEST)
-                glEnable(GL_CULL_FACE)
-                glCullFace(GL_NONE)
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            tickGeneral()
+            tickProjection()
+            tickBaking()
+            tickDisplay()
 
-                val fov = 90f
-                val aspect = (width - SIDE_PANEL_WIDTH.toFloat() * 2) / height.toFloat()
-                val zNear = 0.01f
-                val zFar = 1000f
-                val scaleY = 1f / tan(Math.toRadians(fov / 2.0)).toFloat()
-                val scaleX = scaleY / aspect
-                val zLength = zFar - zNear
-
-                combinedMatrix = Matrix4f()
-
-                combinedMatrix.m00(scaleX)
-                combinedMatrix.m11(scaleY)
-                combinedMatrix.m22(-((zFar + zNear) / zLength))
-                combinedMatrix.m23(-1f)
-                combinedMatrix.m32(-(2 * zNear * zFar / zLength))
-                combinedMatrix.m33(0f)
-
-                Editor.displayLoop()
-                val deltaTime = System.currentTimeMillis() - frameStamp
-                fps = (1000f / deltaTime).toInt()
-                frameStamp = System.currentTimeMillis()
-            }
-            catch (e: Throwable)
-            {
-                Editor.logger.error(e)
-            }
+            val deltaTime = System.currentTimeMillis() - frameStamp
+            fps = (1000f / deltaTime).toInt()
+            frameStamp = System.currentTimeMillis()
         }
+        catch (e: Throwable)
+        {
+            Editor.logger.error("Error!", e)
+        }
+    }
+
+    private fun tickProjection()
+    {
+        val fov = 90f
+        val aspect = (windowWidth - sidePanelWidth.toFloat() * 2) / windowHeight.toFloat()
+        val zNear = 0.01f
+        val zFar = 1000f
+        val scaleY = 1f / tan(Math.toRadians(fov / 2.0)).toFloat()
+        val scaleX = scaleY / aspect
+        val zLength = zFar - zNear
+
+        combinedMatrix = Matrix4f()
+
+        combinedMatrix.m00(scaleX)
+        combinedMatrix.m11(scaleY)
+        combinedMatrix.m22(-((zFar + zNear) / zLength))
+        combinedMatrix.m23(-1f)
+        combinedMatrix.m32(-(2 * zNear * zFar / zLength))
+        combinedMatrix.m33(0f)
+
+        combinedMatrix.rotate(Math.toRadians(Editor.currentTab.camera.pitch).toFloat(), Vector3f(-1f, 0f, 0f))
+        combinedMatrix.rotate(Math.toRadians(Editor.currentTab.camera.yaw).toFloat(), Vector3f(0f, -1f, 0f))
+        combinedMatrix.translate(Vector3f(-Editor.currentTab.camera.x.toFloat(), -Editor.currentTab.camera.y.toFloat(), -Editor.currentTab.camera.z.toFloat()))
+    }
+
+    private fun tickGeneral()
+    {
+        mainThreadExecutor.fireTasks()
+
+        val chunkLoadDistance = Settings.chunkLoadDistance
+        val cameraLocation = Editor.currentTab.camera.mutableLocation.toChunkLocation()
+        val chunkLocation = ChunkLocationMutable(cameraLocation.x - chunkLoadDistance, cameraLocation.z - chunkLoadDistance)
+
+        for (x in 0 until chunkLoadDistance * 2)
+        {
+            for (z in 0 until chunkLoadDistance * 2)
+                Editor.currentTab.world.loadChunkAsync(chunkLocation.add(1, 0), ChunkTicketCamera)
+            chunkLocation.add(-chunkLoadDistance * 2, 1)
+        }
+    }
+
+    private fun tickBaking()
+    {
+        Editor.currentTab.world.worldRenderer.bake()
+    }
+
+    private fun tickDisplay()
+    {
+        glClearColor(0.8f, 0.9f, 1.0f, 1.0f)
+        glViewport(
+                sidePanelWidth,
+                0,
+                windowWidth - sidePanelWidth * 2,
+                windowHeight - menuBarHeight)
+        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+        glEnable(GL_BLEND)
+        glEnable(GL_DEPTH_TEST)
+        glEnable(GL_CULL_FACE)
+        glCullFace(GL_NONE)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        Shader.use()
+        TextureAtlas.mainAtlas.bind()
+        Editor.currentTab.world.worldRenderer.render()
+
+        EditorUserInputHandler.controls()
+        EditorUserInputHandler.selections()
+        RawInputHandler.update()
     }
 }

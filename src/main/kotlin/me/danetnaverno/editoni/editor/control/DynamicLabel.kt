@@ -21,7 +21,7 @@ class DynamicLabel(private val frequency: Int, private val callable: Callable<St
             try
             {
                 textField = Labeled::class.java.getDeclaredField("text")
-                textField.setAccessible(true)
+                textField.isAccessible = true
             }
             catch (e: NoSuchFieldException)
             {

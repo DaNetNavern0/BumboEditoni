@@ -4,10 +4,5 @@ import net.querz.nbt.tag.CompoundTag
 
 class MinecraftLiquidState(properties: CompoundTag) : BlockState(properties)
 {
-    val level: Int
-
-    init
-    {
-        level = properties.getString("level").toInt()
-    }
+    val level = properties.getString("level").toInt() //properties.getInt("level") loves to throw an Exception for some reason
 }

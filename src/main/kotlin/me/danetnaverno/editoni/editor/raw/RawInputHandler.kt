@@ -1,17 +1,18 @@
-package me.danetnaverno.editoni.editor
+package me.danetnaverno.editoni.editor.raw
 
 import lwjgui.event.MouseEvent
+import me.danetnaverno.editoni.editor.Editor
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWKeyCallback
 
-object InputHandler
+internal object RawInputHandler
 {
     private const val KEYBOARD_SIZE = 512
     private const val MOUSE_SIZE = 16
     private const val NO_STATE = -1
     var lastMousePos = Pair(0.0, 0.0)
     private val keyStates = IntArray(KEYBOARD_SIZE)
-    internal var keyboard: GLFWKeyCallback = object : GLFWKeyCallback()
+    private var keyboard: GLFWKeyCallback = object : GLFWKeyCallback()
     {
         override fun invoke(window: Long, key: Int, scancode: Int, action: Int, mods: Int)
         {
@@ -21,7 +22,7 @@ object InputHandler
     private val mouseStates = IntArray(MOUSE_SIZE)
     private var windowId: Long = 0
 
-    internal fun init(window: Long)
+    fun init(window: Long)
     {
         resetKeyboard()
         for (i in mouseStates.indices)
@@ -96,7 +97,7 @@ object InputHandler
         return mouseStates[button] != NO_STATE
     }
 
-    //todo We can save some CPU time here
+    //todo We can save a smidge of CPU time here
     val mouseCoords: Pair<Double, Double>
         get()
         {

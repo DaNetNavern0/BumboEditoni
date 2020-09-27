@@ -4,7 +4,7 @@ data class ChunkLocation(override val x: Int, override val z: Int) : IChunkLocat
 {
     override fun toRegionLocation(): RegionLocation
     {
-        return RegionLocation(x shr 6, z shr 6)
+        return RegionLocation(x shr 5, z shr 5)
     }
 
     fun add(x: Int, z: Int): ChunkLocation

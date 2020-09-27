@@ -6,6 +6,6 @@ open class BlockType(val id: String, val renderer: BlockRenderer, val isOpaque: 
 {
     override fun toString(): String
     {
-        return id.toString()
+        return id
     }
 }

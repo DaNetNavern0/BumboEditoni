@@ -36,5 +36,4 @@ interface IChunkLocation
     {
         return pos.globalX shr 4 == x && pos.globalZ shr 4 == z
     }
-
 }

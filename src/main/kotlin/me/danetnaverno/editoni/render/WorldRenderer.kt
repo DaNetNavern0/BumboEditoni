@@ -1,35 +1,31 @@
 package me.danetnaverno.editoni.render
 
-import me.danetnaverno.editoni.editor.EditorTab
+import me.danetnaverno.editoni.editor.EditorApplication
 import me.danetnaverno.editoni.editor.Settings
-import me.danetnaverno.editoni.location.ChunkLocationMutable
-import me.danetnaverno.editoni.world.ChunkTicketCamera
+import me.danetnaverno.editoni.world.World
 import org.lwjgl.opengl.GL33.glBindVertexArray
 
-class WorldRenderer(private val tab: EditorTab)
+class WorldRenderer(private val world: World)
 {
+    //todo multi-threaded/off-threaded baking would be really nice
     fun bake()
     {
-        val renderDistance = Settings.renderDistance
-        val cameraLocation = tab.camera.mutableLocation.toChunkLocation()
-        val chunkLocation = ChunkLocationMutable(cameraLocation.x - renderDistance, cameraLocation.z - renderDistance)
+        val cameraLocation = world.editorTab.camera.mutableLocation.toChunkLocation()
 
-        for (x in 0 until renderDistance * 2)
-        {
-            for (z in 0 until renderDistance * 2)
-                tab.world.loadChunkAsync(chunkLocation.add(1, 0), ChunkTicketCamera)
-            chunkLocation.add(-renderDistance * 2, 1)
-        }
-
-        //todo this part could be better if we'd have a "queue for baking", instead of constantly checking each loaded chunk
-        for (chunk in tab.world.getLoadedChunks())
-            if (!chunk.vertexData.isBuilt)
+        EditorApplication.chunksToBake.removeIf { chunk ->
+            val renderDistance = Settings.renderDistance
+            if (!chunk.vertexData.isBuilt && cameraLocation.withinCubicDistance(chunk.location, renderDistance))
+            {
                 chunk.vertexData.updateVertices()
+                return@removeIf true
+            }
+            false
+        }
     }
 
     fun render()
     {
-        for (chunk in tab.world.getLoadedChunks())
+        for (chunk in world.editorTab.world.getLoadedChunks())
             chunk.vertexData.draw()
         glBindVertexArray(0)
     }

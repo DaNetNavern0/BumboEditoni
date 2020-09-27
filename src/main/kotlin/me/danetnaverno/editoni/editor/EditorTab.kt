@@ -3,13 +3,11 @@ package me.danetnaverno.editoni.editor
 import me.danetnaverno.editoni.location.BlockArea
 import me.danetnaverno.editoni.location.BlockLocationMutable
 import me.danetnaverno.editoni.operations.OperationList
-import me.danetnaverno.editoni.render.WorldRenderer
 import me.danetnaverno.editoni.world.Entity
 import me.danetnaverno.editoni.world.World
 
 class EditorTab(var world: World)
 {
-    val worldRenderer = WorldRenderer(this)
     var selectedEntity: Entity? = null
         private set
     var selectedArea: BlockArea? = null
@@ -21,7 +19,7 @@ class EditorTab(var world: World)
     {
         selectedArea = null
         selectedEntity = entity
-        EditorUserHandler.selectedCorner = null
+        EditorUserInputHandler.selectedCorner = null
         EditorGUI.refreshSelectInfoLabel()
     }
 
@@ -29,7 +27,7 @@ class EditorTab(var world: World)
     {
         selectedEntity = null
         selectedArea = area
-        EditorUserHandler.selectedCorner = null
+        EditorUserInputHandler.selectedCorner = null
         EditorGUI.refreshSelectInfoLabel()
     }
 
@@ -46,12 +44,11 @@ class EditorTab(var world: World)
         var pitch = 315.0
         var yaw = 74.0
 
-        val _location = BlockLocationMutable(0, 0, 0)
-        val mutableLocation: BlockLocationMutable
+        val mutableLocation: BlockLocationMutable = BlockLocationMutable(0, 0, 0)
             get()
             {
-                _location.set(x.toInt(), y.toInt(), z.toInt())
-                return _location
+                field.set(x.toInt(), y.toInt(), z.toInt())
+                return field
             }
     }
 }

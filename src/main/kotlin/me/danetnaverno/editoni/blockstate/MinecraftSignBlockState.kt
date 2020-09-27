@@ -4,12 +4,7 @@ import net.querz.nbt.tag.CompoundTag
 
 class MinecraftSignBlockState(properties: CompoundTag) : BlockState(properties)
 {
-    val facing: String
-    val waterlogged: Boolean
+    val facing = properties.getString("facing")
+    val waterlogged = properties.getBoolean("waterlogged")
 
-    init
-    {
-        facing = properties.getString("facing")
-        waterlogged = properties.getBoolean("waterlogged")
-    }
 }

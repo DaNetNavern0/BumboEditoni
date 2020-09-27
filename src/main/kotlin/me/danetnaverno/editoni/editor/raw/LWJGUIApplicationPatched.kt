@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.editor
+package me.danetnaverno.editoni.editor.raw
 
 import lwjgui.LWJGUIUtil
 import lwjgui.glfw.ClientSync
@@ -14,7 +14,7 @@ import org.lwjgl.glfw.GLFW
  */
 abstract class LWJGUIApplicationPatched
 {
-    abstract fun start(args: Array<String>, window: Window)
+    protected abstract fun start(args: Array<String>, window: Window)
 
     private fun loop()
     {
@@ -31,29 +31,26 @@ abstract class LWJGUIApplicationPatched
         WindowManager.dispose()
     }
 
-    companion object
+    protected fun launch(program: LWJGUIApplicationPatched, args: Array<String>)
     {
-        fun launch(program: LWJGUIApplicationPatched, args: Array<String>)
+        if (LWJGUIUtil.restartJVMOnFirstThread(true, program.javaClass, *args))
+            return
+
+        check(GLFW.glfwInit()) { "Unable to initialize GLFW" }
+        WindowManager.init()
+        val thread: WindowThread = object : WindowThread(100, 100, "lwjgui", false)
         {
-            if (LWJGUIUtil.restartJVMOnFirstThread(true, program.javaClass, *args))
-                return
-
-            check(GLFW.glfwInit()) { "Unable to initialize GLFW" }
-            WindowManager.init()
-            val thread: WindowThread = object : WindowThread(100, 100, "lwjgui", false)
+            override fun init(window: Window)
             {
-                override fun init(window: Window)
-                {
-                    super.init(window)
-                    program.start(args, window)
-                }
+                super.init(window)
+                program.start(args, window)
             }
-            thread.start()
-
-            program.loop()
-            program.dispose()
-
-            GLFW.glfwTerminate()
         }
+        thread.start()
+
+        program.loop()
+        program.dispose()
+
+        GLFW.glfwTerminate()
     }
 }

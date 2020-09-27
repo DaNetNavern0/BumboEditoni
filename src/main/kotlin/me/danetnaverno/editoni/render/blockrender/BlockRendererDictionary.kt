@@ -19,7 +19,6 @@ object BlockRendererDictionary
         var rendererClass = renderers[name]
         if (rendererClass == null)
             rendererClass = BlockRendererCube::class.java
-        requireNotNull(rendererClass) { "Renderer type '$name' not found!" }
         val constr = rendererClass.getConstructor()
         val instance = constr.newInstance() as BlockRenderer
         instance.fromJson(data)

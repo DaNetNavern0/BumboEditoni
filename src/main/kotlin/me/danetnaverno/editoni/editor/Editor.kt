@@ -3,8 +3,6 @@ package me.danetnaverno.editoni.editor
 import me.danetnaverno.editoni.io.Minecraft114WorldIO
 import me.danetnaverno.editoni.location.BlockLocation
 import me.danetnaverno.editoni.location.EntityLocation
-import me.danetnaverno.editoni.render.Shader
-import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.world.Block
 import me.danetnaverno.editoni.world.Entity
 import me.danetnaverno.editoni.world.World
@@ -20,58 +18,33 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 
+/**
+ * This class represents editor-related actions (opening tabs, raycasting etc)
+ * For the editor's core at [EditorApplication]
+ */
 object Editor
 {
     val logger = LogManager.getLogger("Editor")!!
 
-    val tabs = mutableMapOf<Path, EditorTab>()
+    val worlds = arrayListOf<World>()
     lateinit var currentTab: EditorTab
         private set
 
-    init
+    fun loadWorldIntoTab(worldPath: Path): World
     {
-        InputHandler.init(EditorApplication.windowId)
+        val world = Minecraft114WorldIO().readWorld(worldPath)
+        worlds.add(world)
+        return world
     }
 
     fun unloadWorld(world: World)
     {
-        tabs.remove(world.path)
-    }
-
-    fun loadWorld(worldPath: Path): World
-    {
-        return Minecraft114WorldIO().readWorld(worldPath)
-    }
-
-    fun createNewTab(world: World): EditorTab
-    {
-        val tab = EditorTab(world)
-        tabs[world.path] = tab
-        return tab
+        worlds.remove(world)
     }
 
     fun openTab(tab: EditorTab)
     {
         currentTab = tab
-    }
-
-    fun displayLoop()
-    {
-        EditorApplication.combinedMatrix.rotate(Math.toRadians(currentTab.camera.pitch).toFloat(), Vector3f(-1f, 0f, 0f))
-        EditorApplication.combinedMatrix.rotate(Math.toRadians(currentTab.camera.yaw).toFloat(), Vector3f(0f, -1f, 0f))
-        EditorApplication.combinedMatrix.translate(Vector3f(-currentTab.camera.x.toFloat(), -currentTab.camera.y.toFloat(), -currentTab.camera.z.toFloat()))
-
-        EditorApplication.mainThreadExecutor.fireTasks()
-
-        Shader.use()
-        TextureAtlas.mainAtlas.bind()
-
-        currentTab.worldRenderer.bake()
-        currentTab.worldRenderer.render()
-
-        EditorUserHandler.controls()
-        EditorUserHandler.selections()
-        InputHandler.update()
     }
 
     fun findEntity(world: World, location: EntityLocation): Entity?
@@ -126,8 +99,8 @@ object Editor
     }
 
     private fun unProject(screenX: Float, screenY: Float, screenZ: Float,
-                  combinedMatrix: Matrix4f,
-                  viewportOffsetX: Float, viewportOffsetY: Float, viewportWidth: Float, viewportHeight: Float): Vector3f?
+                          combinedMatrix: Matrix4f,
+                          viewportOffsetX: Float, viewportOffsetY: Float, viewportWidth: Float, viewportHeight: Float): Vector3f?
     {
         val inVector = Vector4f()
         val inv = Matrix4f()

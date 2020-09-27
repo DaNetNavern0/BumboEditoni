@@ -9,18 +9,22 @@ import lwjgui.scene.layout.*
 import lwjgui.style.BackgroundSolid
 import lwjgui.theme.ThemeWhite
 import me.danetnaverno.editoni.editor.control.DynamicLabel
+import me.danetnaverno.editoni.editor.raw.RawInputHandler
 import me.danetnaverno.editoni.util.Translation
 import me.danetnaverno.editoni.world.ChunkManager
 import net.querz.nbt.tag.CompoundTag
 import javax.swing.JFileChooser
 
+/**
+ * This class create the User Interface of the Editor.
+ */
 object EditorGUI
 {
     private lateinit var selectInfoBox: VBox
     private lateinit var operationHistory: ScrollPane
     private var worldList = ComboBox<EditorTab>()
 
-    fun init(): Pane
+    internal fun init(): Pane
     {
         val root = BorderPane()
         root.alignment = Pos.TOP_CENTER
@@ -42,9 +46,9 @@ object EditorGUI
         workArea.isFillToParentWidth = true
         workArea.background = null
         workArea.isMouseTransparent = false
-        workArea.setOnMousePressed { InputHandler.registerMousePress(it); }
-        workArea.setOnMouseReleased { InputHandler.registerMouseRelease(it); }
-        workArea.setOnMouseDragged { InputHandler.registerMouseDrag(it); }
+        workArea.setOnMousePressed { RawInputHandler.registerMousePress(it); }
+        workArea.setOnMouseReleased { RawInputHandler.registerMouseRelease(it); }
+        workArea.setOnMouseDragged { RawInputHandler.registerMouseDrag(it); }
         return workArea
     }
 
@@ -67,9 +71,7 @@ object EditorGUI
             val state = fc.showOpenDialog(null)
             if (state == JFileChooser.APPROVE_OPTION)
             {
-                val world = Editor.loadWorld(fc.selectedFile.toPath())
-                val tab = Editor.createNewTab(world)
-                Editor.openTab(tab)
+                Editor.openTab(Editor.loadWorldIntoTab(fc.selectedFile.toPath()).editorTab)
                 refreshWorldList()
             }
         }
@@ -79,9 +81,7 @@ object EditorGUI
         fileReload.setOnAction {
             val world = Editor.currentTab.world
             Editor.unloadWorld(world)
-            val newWorld = Editor.loadWorld(world.path)
-            val tab = Editor.createNewTab(newWorld)
-            Editor.openTab(tab)
+            Editor.openTab(Editor.loadWorldIntoTab(world.path).editorTab)
         }
         fileTab.items.add(fileReload)
 
@@ -121,9 +121,6 @@ object EditorGUI
         selectInfoBox = VBox()
         selectInfoBox.isFillToParentWidth = true
         leftPanel.children.add(selectInfoBox)
-
-        if (Editor.tabs.isNotEmpty()) //todo hacky check to prevent "lateinit property currentTab has not been initialized" exception. Gotta fix this
-            refreshSelectInfoLabel()
 
         val statusBar = VBox()
         statusBar.alignment = Pos.TOP_LEFT
@@ -351,8 +348,8 @@ object EditorGUI
     fun refreshWorldList()
     {
         worldList.items.clear()
-        for (entry in Editor.tabs.entries)
-            worldList.items.add(entry.value)
+        for (entry in Editor.worlds)
+            worldList.items.add(entry.editorTab)
         worldList.value = Editor.currentTab
     }
 }

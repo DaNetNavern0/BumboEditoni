@@ -1,6 +1,5 @@
 package me.danetnaverno.editoni.location
 
-import me.danetnaverno.editoni.world.Chunk
 import me.danetnaverno.editoni.world.World
 
 class ChunkArea(val world: World, cornerA: ChunkLocation, cornerB: ChunkLocation) : Iterable<ChunkLocation>

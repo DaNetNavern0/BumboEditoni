@@ -10,7 +10,7 @@ class ChunkLocationMutable(x: Int, z: Int) : IChunkLocation
     override var z: Int = z
         private set
 
-    private val regionLocation = RegionLocationMutable(x shr 6, z shr 6)
+    private val regionLocation = RegionLocationMutable(x shr 5, z shr 5)
 
     override fun toRegionLocation(): RegionLocationMutable
     {
@@ -21,7 +21,7 @@ class ChunkLocationMutable(x: Int, z: Int) : IChunkLocation
     {
         this.x += x
         this.z += z
-        regionLocation.set(this.x shr 6, this.z shr 6)
+        regionLocation.set(this.x shr 5, this.z shr 5)
         return this
     }
 
@@ -29,7 +29,7 @@ class ChunkLocationMutable(x: Int, z: Int) : IChunkLocation
     {
         this.x = x
         this.z = z
-        regionLocation.set(x shr 6, z shr 6)
+        regionLocation.set(x shr 5, z shr 5)
         return this
     }
 

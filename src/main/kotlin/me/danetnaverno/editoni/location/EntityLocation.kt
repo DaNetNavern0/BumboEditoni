@@ -31,7 +31,7 @@ data class EntityLocation(@JvmField val globalX: Double, @JvmField val globalY: 
 
     fun distance(other: EntityLocation): Double
     {
-        return sqrt(distanceSquared(other));
+        return sqrt(distanceSquared(other))
     }
 
     fun distanceSquared(other: EntityLocation): Double
