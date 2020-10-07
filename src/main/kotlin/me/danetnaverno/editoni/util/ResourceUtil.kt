@@ -23,4 +23,9 @@ object ResourceUtil
         }
         throw IllegalArgumentException("Unknown resource scheme: " + resourceURI.scheme)
     }
+
+    fun toResourceLocation(resourcePath: Path, root: Path) : String
+    {
+        return root.relativize(resourcePath).toString().replace('\\', ':').replace('/', ':').substringBeforeLast(".")
+    }
 }

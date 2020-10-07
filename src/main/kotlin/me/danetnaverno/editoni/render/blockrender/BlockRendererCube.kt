@@ -8,12 +8,12 @@ import java.nio.FloatBuffer
 
 open class BlockRendererCube : BlockRenderer
 {
-    private lateinit var top: Texture
-    private lateinit var bottom: Texture
-    private lateinit var north: Texture
-    private lateinit var west: Texture
-    private lateinit var south: Texture
-    private lateinit var east: Texture
+    protected lateinit var top: Texture
+    protected lateinit var bottom: Texture
+    protected lateinit var north: Texture
+    protected lateinit var west: Texture
+    protected lateinit var south: Texture
+    protected lateinit var east: Texture
 
     @Suppress("unused")
     constructor()
@@ -70,6 +70,7 @@ open class BlockRendererCube : BlockRenderer
     {
         when
         {
+            //todo this code compiles into something rather ugly looking, have to check how it affects the performance.
             data.containsKey("texture") -> plainTexture(Texture[data.getString("texture")])
             data.containsKey("side") -> withSideTexture(
                     Texture[data.getString("top")],
@@ -126,6 +127,7 @@ open class BlockRendererCube : BlockRenderer
         if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
         {
             val tIndex = top.atlasZLayer
+
             //I don't like how it looks, but it seems to be the most optimized way of doing this.
             //Method put(<float_array>) has individual put(float) calls under the hood anyway.
             vertexBuffer.put(x1).put(y2).put(z1).put(0f).put(0f).put(tIndex)

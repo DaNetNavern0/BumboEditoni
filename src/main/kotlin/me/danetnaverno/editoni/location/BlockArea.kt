@@ -2,6 +2,11 @@ package me.danetnaverno.editoni.location
 
 import me.danetnaverno.editoni.world.World
 
+/**
+ * This class represents an area of blocks. Or rather, [BlockLocation]s.
+ * 
+ * It does not hold the block objects themselves, but you can get an iterator that will iterate over [BlockLocation]s or [BlockLocationMutable]s
+ */
 class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation)
 {
     val min = BlockLocation(
@@ -14,6 +19,9 @@ class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation
             Math.max(cornerA.globalY, cornerB.globalY),
             Math.max(cornerA.globalZ, cornerB.globalZ))
 
+    /**
+     * Returns all chunks intersection with this [BlockArea]
+     */
     fun toChunkArea() : ChunkArea
     {
         return ChunkArea(world, min.toChunkLocation(), max.toChunkLocation())

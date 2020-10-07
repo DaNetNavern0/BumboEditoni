@@ -16,7 +16,7 @@ class SelectAreaOperation(val area: BlockArea?) : Operation(), IObservingOperati
 
     override fun initialApply()
     {
-        val operations = operationList.all
+        val operations = world.editorTab.operationList.all
         var lastSelect : SelectAreaOperation? = null
         for (operation in operations)
         {
@@ -31,11 +31,11 @@ class SelectAreaOperation(val area: BlockArea?) : Operation(), IObservingOperati
 
     override fun reapply()
     {
-        operationList.editorTab.selectArea(area)
+        world.editorTab.selectArea(area)
     }
 
     override fun rollback()
     {
-        operationList.editorTab.selectArea(previousArea)
+        world.editorTab.selectArea(previousArea)
     }
 }

@@ -58,8 +58,7 @@ class SelectionRenderer
             vaoLines = glGenVertexArrays()
             glBindVertexArray(vaoLines)
 
-            //I don't like how it looks, but it seems to be the most optimized way of doing this.
-            //Method put(<float_array>) has individual put(float) calls under the hood anyway.
+            //I don't like how it looks - a better method would probably be to have a box VBO and reshape it in a shader.
             lineBuffer.put(minX).put(minY).put(minZ)
             lineBuffer.put(minX).put(minY).put(maxZ)
 
@@ -115,8 +114,7 @@ class SelectionRenderer
             vaoBoxVertices = glGenVertexArrays()
             glBindVertexArray(vaoBoxVertices)
 
-            //I don't like how it looks, but it seems to be the most optimized way of doing this.
-            //Method put(<float_array>) has individual put(float) calls under the hood anyway.
+            //I don't like how it looks - a better method would probably be to have a box VBO and reshape it in a shader.
             vertexBuffer.put(minX).put(maxY).put(minZ).put(0f).put(0f).put(tIndex)
             vertexBuffer.put(minX).put(maxY).put(maxZ).put(0f).put(uvZ).put(tIndex)
             vertexBuffer.put(maxX).put(maxY).put(maxZ).put(uvX).put(uvZ).put(tIndex)

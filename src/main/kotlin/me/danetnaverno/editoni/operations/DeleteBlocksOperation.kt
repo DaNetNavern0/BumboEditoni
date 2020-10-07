@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.operations
 
-import me.danetnaverno.editoni.util.Translation
 import me.danetnaverno.editoni.location.BlockArea
+import me.danetnaverno.editoni.util.Translation
 import me.danetnaverno.editoni.world.Block
 
 open class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
@@ -13,7 +13,7 @@ open class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
 
     override fun initialApply()
     {
-        deletedBlocks = area.mutableIterator().asSequence().mapNotNull { area.world.getLoadedBlockAt(it) }.toList()
+        deletedBlocks = area.mutableIterator().asSequence().mapNotNull { area.world.getBlockAt(it) }.toList()
         reapply()
     }
 

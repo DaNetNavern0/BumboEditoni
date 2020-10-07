@@ -2,13 +2,11 @@ package me.danetnaverno.editoni.render.blockrender
 
 import com.alibaba.fastjson.JSONObject
 
-typealias ResourceLocation = String
-
 object BlockRendererDictionary
 {
-    private val renderers = mutableMapOf<ResourceLocation, Class<out BlockRenderer>>()
+    private val renderers = mutableMapOf<String, Class<out BlockRenderer>>()
 
-    fun register(id: ResourceLocation, type: Class<out BlockRenderer>)
+    fun register(id: String, type: Class<out BlockRenderer>)
     {
         renderers[id] = type
     }

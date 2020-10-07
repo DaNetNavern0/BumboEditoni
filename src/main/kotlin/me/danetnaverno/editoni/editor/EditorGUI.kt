@@ -24,8 +24,10 @@ object EditorGUI
     private lateinit var operationHistory: ScrollPane
     private var worldList = ComboBox<EditorTab>()
 
-    internal fun init(): Pane
+    internal fun initialize(): Pane
     {
+        check(!this::selectInfoBox.isInitialized) { "EditorGUI had already been initialized"}
+
         val root = BorderPane()
         root.alignment = Pos.TOP_CENTER
         root.background = null
@@ -37,6 +39,36 @@ object EditorGUI
         root.setRight(rightPanel())
 
         return root
+    }
+
+    //Buttons don't update for some reason, had to re-create the entire UI section
+    fun refreshSelectInfoLabel()
+    {
+        selectInfoBox.children.clear()
+
+        if (Editor.currentTab.selectedEntity != null)
+        {
+            refreshEntityInfoLabel()
+            return
+        }
+        val selectedArea = Editor.currentTab.selectedArea
+        if (selectedArea != null)
+        {
+            if (selectedArea.min != selectedArea.max)
+            {
+                refreshAreaInfoLabel()
+                return
+            }
+        }
+        refreshBlockInfoLabel()
+    }
+
+    fun refreshWorldList()
+    {
+        worldList.items.clear()
+        for (entry in Editor.worlds)
+            worldList.items.add(entry.editorTab)
+        worldList.value = Editor.currentTab
     }
 
     private fun workArea(): Node
@@ -79,9 +111,8 @@ object EditorGUI
 
         val fileReload = MenuItem(Translation.translate("top_bar.file.reload"))
         fileReload.setOnAction {
-            val world = Editor.currentTab.world
-            Editor.unloadWorld(world)
-            Editor.openTab(Editor.loadWorldIntoTab(world.path).editorTab)
+            Editor.unloadWorld(Editor.currentWorld)
+            Editor.openTab(Editor.loadWorldIntoTab(Editor.currentWorld.path).editorTab)
         }
         fileTab.items.add(fileReload)
 
@@ -92,8 +123,8 @@ object EditorGUI
             val state = fc.showOpenDialog(null)
             if (state == JFileChooser.APPROVE_OPTION)
             {
-                Editor.currentTab.world.worldIOProvider.writeWorld(Editor.currentTab, fc.selectedFile.toPath())
-                ChunkManager.unloadExcessChunks(Editor.currentTab.world)
+                Editor.currentWorld.worldIO.writeWorld(Editor.currentWorld, fc.selectedFile.toPath())
+                ChunkManager.unloadExcessChunks(Editor.currentWorld)
                 Editor.currentTab.operationList.savePosition = Editor.currentTab.operationList.getPosition()
             }
         }
@@ -126,7 +157,7 @@ object EditorGUI
         statusBar.alignment = Pos.TOP_LEFT
         val fpsLabel = DynamicLabel(500) { Translation.translate("status_bar.fps", EditorApplication.fps) }
         statusBar.children.add(fpsLabel)
-        val chunkLabel = DynamicLabel(500) { Translation.translate("status_bar.loaded_chunks", Editor.currentTab.world.getLoadedChunks().size) }
+        val chunkLabel = DynamicLabel(500) { Translation.translate("status_bar.loaded_chunks", Editor.currentWorld.getLoadedChunks().size) }
         statusBar.children.add(chunkLabel)
 
         leftPanel.children.add(statusBar)
@@ -185,33 +216,11 @@ object EditorGUI
         return rightPanelBcg
     }
 
-    //Buttons don't update for some reason, had to re-create the entire UI section
-    fun refreshSelectInfoLabel()
-    {
-        selectInfoBox.children.clear()
-
-        if (Editor.currentTab.selectedEntity != null)
-        {
-            refreshEntityInfoLabel()
-            return
-        }
-        val selectedArea = Editor.currentTab.selectedArea
-        if (selectedArea != null)
-        {
-            if (selectedArea.min != selectedArea.max)
-            {
-                refreshAreaInfoLabel()
-                return
-            }
-        }
-        refreshBlockInfoLabel()
-    }
-
     private fun refreshBlockInfoLabel()
     {
         val sidePanelWidth = EditorApplication.sidePanelWidth.toDouble()
 
-        val selectedBlock = Editor.currentTab.selectedArea?.world?.getLoadedBlockAt(Editor.currentTab.selectedArea!!.min)
+        val selectedBlock = Editor.currentTab.selectedArea?.world?.getBlockAt(Editor.currentTab.selectedArea!!.min)
 
         val blockInfoLabel = Label(Translation.translate("gui.block_info.type", selectedBlock?.type ?: "-"))
         blockInfoLabel.isFillToParentWidth = true
@@ -343,13 +352,5 @@ object EditorGUI
         }
 
         return mainPane
-    }
-
-    fun refreshWorldList()
-    {
-        worldList.items.clear()
-        for (entry in Editor.worlds)
-            worldList.items.add(entry.editorTab)
-        worldList.value = Editor.currentTab
     }
 }

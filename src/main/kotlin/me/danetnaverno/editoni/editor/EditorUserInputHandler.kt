@@ -23,10 +23,10 @@ object EditorUserInputHandler
         {
             val mouse = RawInputHandler.mouseCoords
             val raycast = Editor.raycast(mouse.first.toInt(), mouse.second.toInt()) ?: return
-            val secondCorner = Editor.findBlock(Editor.currentTab.world, raycast)?.location
+            val secondCorner = Editor.currentWorld.findBlock(raycast)?.location
             if (secondCorner != null && !RawInputHandler.mouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_LEFT))
             {
-                selectionRenderer.update(BlockArea(Editor.currentTab.world, corner.location, secondCorner)) //todo need to rebake the vertex data only when neccessary
+                selectionRenderer.update(BlockArea(Editor.currentWorld, corner.location, secondCorner)) //todo need to rebake the vertex data only when neccessary
                 selectionRenderer.draw()
             }
         }
@@ -76,9 +76,8 @@ object EditorUserInputHandler
             camera.pitch -= 142f / EditorApplication.fps
         if (RawInputHandler.keyDown(GLFW.GLFW_KEY_R))
         {
-            val world = Editor.currentTab.world
-            Editor.unloadWorld(world)
-            Editor.openTab(Editor.loadWorldIntoTab(world.path).editorTab)
+            Editor.unloadWorld(Editor.currentWorld)
+            Editor.openTab(Editor.loadWorldIntoTab(Editor.currentWorld.path).editorTab)
         }
 
         if (RawInputHandler.keyReleased(GLFW.GLFW_KEY_DELETE))
@@ -104,20 +103,20 @@ object EditorUserInputHandler
             val x = mouseCoords.first.toInt()
             val y = mouseCoords.second.toInt()
             val raycast = Editor.raycast(x, y) ?: return
-            val entity = Editor.findEntity(Editor.currentTab.world, EntityLocation(raycast.x.toDouble(), raycast.y.toDouble(), raycast.z.toDouble()))
+            val entity = Editor.currentWorld.findEntity(EntityLocation(raycast.x.toDouble(), raycast.y.toDouble(), raycast.z.toDouble()))
             if (entity != null)
             {
             }
             else
             {
                 if (selectedCorner == null)
-                    selectedCorner = Editor.findBlock(Editor.currentTab.world, raycast)
+                    selectedCorner = Editor.currentWorld.findBlock(raycast)
                 else
                 {
-                    val secondCorner = Editor.findBlock(Editor.currentTab.world, raycast)
+                    val secondCorner = Editor.currentWorld.findBlock(raycast)
                     if (secondCorner != null)
                     {
-                        val area = BlockArea(Editor.currentTab.world, selectedCorner!!.location, secondCorner.location)
+                        val area = BlockArea(Editor.currentWorld, selectedCorner!!.location, secondCorner.location)
                         Editor.currentTab.operationList.apply(SelectAreaOperation(area))
                         Editor.currentTab.selectArea(area)
                         selectedCorner = null

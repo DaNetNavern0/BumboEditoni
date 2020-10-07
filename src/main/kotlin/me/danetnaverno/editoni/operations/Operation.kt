@@ -1,11 +1,12 @@
 package me.danetnaverno.editoni.operations
 
 import me.danetnaverno.editoni.location.ChunkArea
+import me.danetnaverno.editoni.world.World
 
 
 abstract class Operation
 {
-    lateinit var operationList: OperationList
+    lateinit var world: World
         internal set
     abstract val displayName: String
     abstract val alteredChunks: ChunkArea?

@@ -24,13 +24,13 @@ class RegionLocationMutable(x: Int, z: Int) : IRegionLocation
         return this
     }
 
-    //========================================
+    //===============================================================================================
     // Yes, this is some hacky stuff right there.
     // By doing this, we make it possible to check if a collection has a RegionLocation,
     //   when we check collection#contains with a RegionLocationMutable.
     // For an example, look at World#getRegion.
     // It's up to a programmer to make sure Mutable Locations are never placed into collections.
-    //========================================
+    //===============================================================================================
     override fun hashCode(): Int
     {
         return x * 31 + z

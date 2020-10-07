@@ -6,7 +6,7 @@ import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
 import java.nio.file.Path
 
-class Region(@JvmField val path: Path, @JvmField val world: World, @JvmField val location: RegionLocation)
+class Region(val path: Path, val world: World, val location: RegionLocation)
 {
     private val chunks = Array<Array<Any?>>(32) { arrayOfNulls(32) }
 
@@ -25,7 +25,7 @@ class Region(@JvmField val path: Path, @JvmField val world: World, @JvmField val
         {
             chunks[localX][localZ] = Chunk.Placeholder
             ChunkManager.chunkLoadingExecutor.execute {
-                val chunk = world.worldIOProvider.readChunk(this, x, z)
+                val chunk = world.worldIO.readChunk(this, x, z)
                 if (chunk != null)
                 {
                     EditorApplication.mainThreadExecutor.addTask {
@@ -39,7 +39,7 @@ class Region(@JvmField val path: Path, @JvmField val world: World, @JvmField val
         }
     }
 
-    fun loadChunkAt(chunkLocation: ChunkLocation, ticket: ChunkTicket): Chunk?
+    fun loadChunkSync(chunkLocation: ChunkLocation, ticket: ChunkTicket): Chunk?
     {
         require(this.location.isChunkLocationBelongs(chunkLocation)) {
             "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${chunkLocation}"
@@ -48,7 +48,7 @@ class Region(@JvmField val path: Path, @JvmField val world: World, @JvmField val
         val localZ = chunkLocation.z - chunkOffset.z
         if (chunks[localX][localZ] == null)
         {
-            val chunk = world.worldIOProvider.readChunk(this, chunkLocation) ?: return null
+            val chunk = world.worldIO.readChunk(this, chunkLocation) ?: return null
             chunks[localX][localZ] = chunk
             ChunkManager.addTicket(chunk, ticket)
             world.loadedChunksCache.add(chunk)

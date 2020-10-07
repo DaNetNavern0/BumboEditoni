@@ -29,6 +29,7 @@ class ChunkRenderer(private val chunk: Chunk)
         vertexBuffer.limit(32768)
         val mutableLocation = BlockLocationMutable(0, 0, 0)
 
+        //todo I think this entire section isn't nice. Once my Chunk will store data in a palette way, I'll redo this.
         for (section in 0..15)
         {
             val blockTypes = chunk.blockTypes[section] ?: continue

@@ -5,6 +5,9 @@ import me.danetnaverno.editoni.editor.Editor
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWKeyCallback
 
+/**
+ * todo this class would like some prettifying
+ */
 internal object RawInputHandler
 {
     private const val KEYBOARD_SIZE = 512
@@ -22,8 +25,10 @@ internal object RawInputHandler
     private val mouseStates = IntArray(MOUSE_SIZE)
     private var windowId: Long = 0
 
-    fun init(window: Long)
+    internal fun initialize(window: Long)
     {
+        check(windowId == 0L) { "RawInputHandler had already been initialized" }
+
         resetKeyboard()
         for (i in mouseStates.indices)
             mouseStates[i] = NO_STATE

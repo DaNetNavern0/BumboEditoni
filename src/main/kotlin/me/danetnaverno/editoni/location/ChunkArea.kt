@@ -2,6 +2,11 @@ package me.danetnaverno.editoni.location
 
 import me.danetnaverno.editoni.world.World
 
+/**
+ * This class represents an area of chunks. Or rather, [ChunkLocation]s.
+ *
+ * It does not hold the chunk objects themselves, but you can get an iterator that will iterate over [ChunkLocation]s
+ */
 class ChunkArea(val world: World, cornerA: ChunkLocation, cornerB: ChunkLocation) : Iterable<ChunkLocation>
 {
     val min = ChunkLocation(

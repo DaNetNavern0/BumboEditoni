@@ -22,7 +22,7 @@ class OperationList constructor(val editorTab: EditorTab)
 
     fun apply(operation: Operation)
     {
-        operation.operationList = this
+        operation.world = editorTab.world
         if (currentPosition >= operationList.size - 1)
         {
             val isObserving = operation is IObservingOperation

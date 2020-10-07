@@ -12,6 +12,9 @@ class WorldRenderer(private val world: World)
     {
         val cameraLocation = world.editorTab.camera.mutableLocation.toChunkLocation()
 
+        //Here we're iterating over loaded, but unrendered chunks and trying to render them
+        //However, we leave chunks which are loaded, but outside of the render distance not baked.
+        //For more info see [Settings.chunkLoadDistance]
         EditorApplication.chunksToBake.removeIf { chunk ->
             val renderDistance = Settings.renderDistance
             if (!chunk.vertexData.isBuilt && cameraLocation.withinCubicDistance(chunk.location, renderDistance))
@@ -25,7 +28,7 @@ class WorldRenderer(private val world: World)
 
     fun render()
     {
-        for (chunk in world.editorTab.world.getLoadedChunks())
+        for (chunk in world.getLoadedChunks())
             chunk.vertexData.draw()
         glBindVertexArray(0)
     }

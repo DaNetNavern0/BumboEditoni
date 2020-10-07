@@ -3,17 +3,22 @@ package me.danetnaverno.editoni.world
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
 import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blocktype.BlockType
+import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.editor.Settings
-import me.danetnaverno.editoni.io.Minecraft114WorldIO
+import me.danetnaverno.editoni.io.IMinecraftWorldIO
 import me.danetnaverno.editoni.location.*
 import me.danetnaverno.editoni.render.WorldRenderer
+import org.joml.Vector3f
+import org.joml.Vector3i
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.nio.file.Path
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.ceil
+import kotlin.math.floor
 
-class World constructor(val version: String, val worldIOProvider: Minecraft114WorldIO, val path: Path)
+class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val path: Path)
 {
     val editorTab = EditorTab(this)
     val worldRenderer = WorldRenderer(this)
@@ -52,21 +57,20 @@ class World constructor(val version: String, val worldIOProvider: Minecraft114Wo
     //======================
     // CHUNKS
     //======================
+
+    fun loadChunkAsync(chunkLocation: IChunkLocation, ticket: ChunkTicket)
+    {
+        getRegion(chunkLocation.toRegionLocation())?.loadChunkAsync(chunkLocation, ticket)
+    }
+
+    fun loadChunkSync(chunkLocation: ChunkLocation, ticket: ChunkTicket): Chunk?
+    {
+        return getRegion(chunkLocation.toRegionLocation())?.loadChunkSync(chunkLocation, ticket)
+    }
+
     fun getLoadedChunks(): List<Chunk>
     {
         return loadedChunksCache
-    }
-
-    fun getChunkIfLoaded(location: IBlockLocation): Chunk?
-    {
-        val region = getRegion(location.toRegionLocation()) ?: return null
-        return region.getChunk(location.toChunkLocation())
-    }
-
-    fun getChunkIfLoaded(location: ChunkLocation): Chunk?
-    {
-        val region = getRegion(location.toRegionLocation()) ?: return null
-        return region.getChunk(location)
     }
 
     fun getChunk(location: IBlockLocation): Chunk?
@@ -75,20 +79,10 @@ class World constructor(val version: String, val worldIOProvider: Minecraft114Wo
         return region.getChunk(location.toChunkLocation())
     }
 
-    fun getChunk(location: IChunkLocation): Chunk?
+    fun getChunk(location: ChunkLocation): Chunk?
     {
         val region = getRegion(location.toRegionLocation()) ?: return null
         return region.getChunk(location)
-    }
-
-    fun loadChunkAsync(chunkLocation: IChunkLocation, ticket: ChunkTicket)
-    {
-        getRegion(chunkLocation.toRegionLocation())?.loadChunkAsync(chunkLocation, ticket)
-    }
-
-    fun loadChunkAt(chunkLocation: ChunkLocation, ticket: ChunkTicket): Chunk?
-    {
-        return getRegion(chunkLocation.toRegionLocation())?.loadChunkAt(chunkLocation, ticket)
     }
 
     fun unloadChunk(chunk: Chunk)
@@ -134,29 +128,6 @@ class World constructor(val version: String, val worldIOProvider: Minecraft114Wo
         return chunk.getTileEntityAt(location)
     }
 
-    fun getLoadedBlockAt(location: IBlockLocation): Block?
-    {
-        val chunk = getChunkIfLoaded(location) ?: return null
-        return chunk.getBlockAt(location)
-    }
-
-    fun getLoadedBlockTypeAt(location: IBlockLocation): BlockType?
-    {
-        val chunk = getChunkIfLoaded(location) ?: return null
-        return chunk.getBlockTypeAt(location)
-    }
-
-    fun getLoadedBlockStateAt(location: BlockLocation): BlockState?
-    {
-        val chunk = getChunkIfLoaded(location) ?: return null
-        return chunk.getBlockStateAt(location)
-    }
-
-    fun getLoadedTileEntityAt(location: BlockLocation): TileEntity?
-    {
-        val chunk = getChunkIfLoaded(location) ?: return null
-        return chunk.getTileEntityAt(location)
-    }
 
     fun setBlock(block: Block)
     {
@@ -168,9 +139,40 @@ class World constructor(val version: String, val worldIOProvider: Minecraft114Wo
 
     fun deleteBlock(location: IBlockLocation)
     {
-        val chunk = getChunk(location.toChunkLocation())
+        val chunk = getChunk(location)
         if (chunk != null)
             setBlock(Block(chunk, location.toImmutable(), MinecraftDictionaryFiller.AIR, null, null))
+    }
+
+    fun findBlock(point: Vector3f): Block?
+    {
+        if (point.y < 0 || point.y > 255)
+            return null
+        val floor = Vector3i(floor(point.x).toInt() - 1, floor(point.y).toInt() - 1, floor(point.z).toInt() - 1)
+        val ceiling = Vector3i(ceil(point.x).toInt() + 1, ceil(point.y).toInt() + 1, ceil(point.z).toInt() + 1)
+
+        var closest: Block? = null
+        var min = Double.MAX_VALUE
+
+        for (x in floor.x..ceiling.x)
+            for (y in floor.y..ceiling.y)
+                for (z in floor.z..ceiling.z)
+                {
+                    val dx = point.x - (x + 0.5)
+                    val dy = point.y - (y + 0.5)
+                    val dz = point.z - (z + 0.5)
+                    val distance = dx * dx + dy * dy + dz * dz
+                    if (distance < min)
+                    {
+                        val block = this.getBlockAt(BlockLocation(x, y, z))
+                        if (block != null && !block.type.isHidden /*&& !hiddenBlocks.contains(block.location)*/)
+                        {
+                            closest = block
+                            min = distance
+                        }
+                    }
+                }
+        return closest
     }
 
 
@@ -185,6 +187,11 @@ class World constructor(val version: String, val worldIOProvider: Minecraft114Wo
                 .flatMap<Any> { chunk: Chunk -> chunk.getEntitiesAt(location, radius).stream() }
                 .sorted(Comparator.comparingDouble { entity: Any -> entity.getLocation().distanceSquared(location) })
                 .collect(Collectors.toList<Any>())*/
+    }
+
+    fun findEntity(location: EntityLocation): Entity?
+    {
+        return getEntitiesAt(location.add(0.0, -0.5, 0.0), 1f)?.firstOrNull()
     }
 
     //======================
@@ -204,5 +211,13 @@ class World constructor(val version: String, val worldIOProvider: Minecraft114Wo
             return path.fileName.toString() + " (" + version + ")"
         }
         return path.fileName.toString() + " (" + version + ")"
+    }
+
+    companion object
+    {
+        fun getWorlds() : List<World>
+        {
+            return Editor.worlds
+        }
     }
 }

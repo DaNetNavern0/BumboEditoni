@@ -3,6 +3,7 @@ package me.danetnaverno.editoni.world
 import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.EditorApplication
 import me.danetnaverno.editoni.editor.Settings
+import me.danetnaverno.editoni.location.ChunkLocationMutable
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -21,6 +22,25 @@ object ChunkManager
         }, 0, Settings.chunkCleanupPeriod, TimeUnit.SECONDS)
     }
 
+    fun loadChunksInLoadingDistance(world: World)
+    {
+        val chunkLoadDistance = Settings.chunkLoadDistance
+        val cameraLocation = world.editorTab.camera.mutableLocation.toChunkLocation()
+        val chunkLocation = ChunkLocationMutable(cameraLocation.x - chunkLoadDistance, cameraLocation.z - chunkLoadDistance)
+
+        for (x in 0 until chunkLoadDistance * 2)
+        {
+            for (z in 0 until chunkLoadDistance * 2)
+                world.loadChunkAsync(chunkLocation.add(1, 0), ChunkTicketCamera)
+            chunkLocation.add(-chunkLoadDistance * 2, 1)
+        }
+    }
+
+    fun isLoadedByCamera(chunk: Chunk): Boolean
+    {
+        val cameraLocation = chunk.world.editorTab.camera.mutableLocation.toChunkLocation()
+        return chunk.location.withinCubicDistance(cameraLocation, Settings.chunkLoadDistance)
+    }
 
     fun addTicket(chunk: Chunk, chunkTicket: ChunkTicket)
     {
@@ -50,12 +70,6 @@ object ChunkManager
     fun clearTickets(chunk: Chunk)
     {
         tickets.remove(chunk)
-    }
-
-    fun isLoadedByCamera(chunk: Chunk): Boolean
-    {
-        val cameraLocation = chunk.world.editorTab.camera.mutableLocation.toChunkLocation()
-        return chunk.location.withinCubicDistance(cameraLocation, Settings.chunkLoadDistance)
     }
 
     fun unloadExcessChunks()

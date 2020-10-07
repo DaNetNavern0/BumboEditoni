@@ -2,7 +2,7 @@ package me.danetnaverno.editoni.location
 
 import kotlin.math.sqrt
 
-data class EntityLocation(@JvmField val globalX: Double, @JvmField val globalY: Double, @JvmField val globalZ: Double)
+data class EntityLocation(val globalX: Double, val globalY: Double, val globalZ: Double)
 {
     fun add(x: Double, y: Double, z: Double): EntityLocation
     {

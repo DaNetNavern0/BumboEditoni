@@ -4,18 +4,14 @@ import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blockstate.BlockStateDictionary
 import me.danetnaverno.editoni.blocktype.BlockDictionary
 import me.danetnaverno.editoni.blocktype.BlockType
-import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.location.BlockLocation
 import me.danetnaverno.editoni.location.ChunkLocation
-import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
 import me.danetnaverno.editoni.world.*
 import net.querz.mca.LoadFlags
 import net.querz.mca.MCAFile
-import net.querz.mca.MCAUtil
 import net.querz.nbt.tag.CompoundTag
 import net.querz.nbt.tag.ListTag
-import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.file.Files
 import java.nio.file.Path
@@ -27,13 +23,15 @@ import net.querz.mca.Chunk as QuerzChunk
 /**
  * todo A huge disclaimer - this class in in heavy development - saving doesn't work, the idea of how it's going to work isn't solidified etc
  */
-class Minecraft114WorldIO
+class Minecraft114WorldIO : IMinecraftWorldIO
 {
-    fun isAppropriateToRead(path: Path): Boolean
+    override fun isAppropriateToRead(path: Path): Boolean
     {
-        try
+        TODO()
+        /*try
         {
-            if (!Files.isDirectory(path)) return false
+            if (!Files.isDirectory(path))
+                return false
             val minVersion = intArrayOf(Int.MAX_VALUE)
             val maxVersion = intArrayOf(0)
             Files.list(path).forEach {
@@ -62,11 +60,14 @@ class Minecraft114WorldIO
         catch (ignored: Exception)
         {
         }
-        return false
+        return false*/
     }
 
-    @Throws(IOException::class)
-    fun readWorld(path: Path): World
+    //====================================
+    // World reading
+    //====================================
+
+    override fun openWorld(path: Path): World
     {
         val world = World("v.todo", this, path)
         for (regionFile in Objects.requireNonNull(path.toFile().listFiles()))
@@ -76,84 +77,45 @@ class Minecraft114WorldIO
             {
                 val x = matcher.group(1).toInt()
                 val z = matcher.group(2).toInt()
-                world.addRegion(readRegion(world, regionFile.toPath(), x, z))
+                world.addRegion(openRegion(world, regionFile.toPath(), x, z))
             }
         }
         return world
     }
 
-    @Throws(IOException::class)
-    private fun readRegion(world: World, regionFile: Path, x: Int, z: Int): Region
+    private fun openRegion(world: World, regionFile: Path, x: Int, z: Int): Region
     {
         return Region(regionFile, world, RegionLocation(x, z))
     }
 
-    fun readChunk(region: Region, location: IChunkLocation): Chunk?
+    override fun readChunk(region: Region, globalX: Int, globalZ: Int): Chunk?
     {
-        return readChunk(region, location.x, location.z)
+        val qChunk = readQChunkFromFile(region, globalX, globalZ) ?: return null
+        return convertFromQChunk(region.world, qChunk)
     }
 
-    fun readChunk(region: Region, globalX: Int, globalZ: Int): Chunk?
-    {
-        val qChunk = readQChunk(region, globalX, globalZ) ?: return null
-        return convertQChunk(region.world, qChunk)
-    }
+    //====================================
+    // World writing
+    //====================================
 
-    @Throws(IOException::class)
-    fun writeWorld(worldTab: EditorTab, path: Path)
+    override fun writeWorld(world: World, targetPath: Path)
     {
-        val regionFolder = path.resolve("region")
+        val regionFolder = targetPath.resolve("region")
         Files.createDirectories(regionFolder)
 
-        worldTab.operationList.getAllTrulyAlteredChunks()
-                .mapNotNull { worldTab.world.getChunk(it) }
+        world.editorTab.operationList.getAllTrulyAlteredChunks().asSequence()
+                .mapNotNull { world.getChunk(it) }
                 .forEach {
-                    writeQChunk(regionFolder, it.region, composeQChunk(it), it.location.x, it.location.z)
+                    writeQChunkToFile(regionFolder, it.region, composeQChunk(it), it.location.x, it.location.z)
                 }
-
-        /*val executor = ForkJoinPool()
-        val regionFolder = path.resolve("region")
-        Files.createDirectories(regionFolder)
-        for (region in world.getRegions())
-            executor.execute {
-                try
-                {
-                    writeRegion(region, regionFolder.resolve("r." + region.location.x.toString() + "." + region.location.z.toString() + ".mca"))
-                }
-                catch (e: IOException)
-                {
-                    e.printStackTrace()
-                }
-            }
-        try
-        {
-            executor.shutdown()
-            executor.awaitTermination(9999, TimeUnit.SECONDS)
-        }
-        catch (e: InterruptedException)
-        {
-            e.printStackTrace()
-        }*/
     }
-
-    /*@Throws(IOException::class)
-    private fun writeRegion(region: Region, regionFile: Path)
-    {
-        val mcaFile = MCAUtil.newMCAFile(regionFile.toFile())
-        for (chunk in region.getLoadedChunks())
-        {
-            val (x, z) = chunk.location.toRegionOffset()
-            mcaFile.setChunk(x, z, composeQChunk(chunk))
-        }
-        MCAUtil.write(mcaFile, regionFile.toFile())
-    }*/
 
 
     //====================================
     //QuerzChunk-related methods
     //====================================
 
-    private fun readQChunk(region: Region, globalX: Int, globalZ: Int): QuerzChunk?
+    private fun readQChunkFromFile(region: Region, globalX: Int, globalZ: Int): QuerzChunk?
     {
         RandomAccessFile(region.path.toFile(), "r").use { raf ->
             val index = MCAFile.getChunkIndex(globalX - region.chunkOffset.x, globalZ - region.chunkOffset.z)
@@ -173,7 +135,7 @@ class Minecraft114WorldIO
         }
     }
 
-    fun convertQChunk(world: World, mcaChunk: QuerzChunk): Chunk
+    private fun convertFromQChunk(world: World, mcaChunk: QuerzChunk): Chunk
     {
         val data = getData(mcaChunk)
         val posX = data.getCompoundTag("Level").getInt("xPos")
@@ -187,7 +149,7 @@ class Minecraft114WorldIO
         //Entities
         /*for (tag in mcaChunk.getEntities())
         {
-            val type = EntityDictionary.getEntityType(ResourceLocation(tag.getString("id")))
+            val type = EntityDictionary.getEntityType(tag.getString("id"))
             val posTag: ListTag<DoubleTag> = tag.getListTag("Pos") as ListTag<DoubleTag>
             val location = EntityLocation(
                     posTag.get(0).asDouble(),
@@ -233,14 +195,14 @@ class Minecraft114WorldIO
         return chunk
     }
 
-    private fun writeQChunk(saveFolder: Path, region: Region, qChunk: QuerzChunk, globalX: Int, globalZ: Int)
+    private fun writeQChunkToFile(saveFolder: Path, region: Region, qChunk: QuerzChunk, globalX: Int, globalZ: Int)
     {
         val savePath = saveFolder.resolve(region.path.fileName)
         if (!Files.exists(savePath))
             return //todo
 
-        //todo WIP
-        RandomAccessFile(savePath.toFile(), "rw").use { raf ->
+        TODO()
+        /*RandomAccessFile(savePath.toFile(), "rw").use { raf ->
             var globalOffset = 2
             var lastWritten = 0
             val timestamp = (System.currentTimeMillis() / 1000L).toInt()
@@ -249,7 +211,7 @@ class Minecraft114WorldIO
             val index = MCAFile.getChunkIndex(globalX - region.chunkOffset.x, globalZ - region.chunkOffset.z) + 1
             raf.seek(4096L * globalOffset * index)
             qChunk.serialize(raf, globalX, globalZ)
-        }
+        }*/
     }
 
     private fun composeQChunk(chunk: Chunk): QuerzChunk
@@ -260,11 +222,16 @@ class Minecraft114WorldIO
         for (entity in chunk.getEntities()) entities.add(entity.tag)
         for (x in 0..15) for (y in 0..255) for (z in 0..15)
         {
+            //todo maybe we should replace getBlockAt with something that doesn't create a short-living [Block] object
             val block = chunk.getBlockAt(BlockLocation(chunk, x, y, z)) ?: continue
-            val properties = if (block.state != null) block.state.tag else null
+            val properties = if (block.state != null)
+                block.state.tag
+            else
+                null
             val blockState = CompoundTag()
             blockState.putString("Name", block.type.toString())
-            if (properties != null) blockState.put("Properties", properties)
+            if (properties != null)
+                blockState.put("Properties", properties)
             mcaChunk.setBlockStateAt(block.location.globalX, block.location.globalY, block.location.globalZ, blockState, false)
         }
         mcaChunk.entities = entities
@@ -284,7 +251,7 @@ class Minecraft114WorldIO
         return mcaChunk
     }
 
-    companion object
+    private companion object
     {
         private val mcaRegex = Pattern.compile("r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca")
         private val dataField = QuerzChunk::class.java.getDeclaredField("data")

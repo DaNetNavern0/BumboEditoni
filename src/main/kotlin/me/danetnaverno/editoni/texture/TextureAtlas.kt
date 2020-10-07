@@ -1,19 +1,19 @@
 package me.danetnaverno.editoni.texture
 
 import me.danetnaverno.editoni.editor.Editor
+import me.danetnaverno.editoni.util.ResourceUtil
 import org.lwjgl.opengl.ARBTextureStorage.glTexStorage3D
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.stb.STBImage
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.stream.Collectors
 
-typealias TextureId = Int
-
-class TextureAtlas constructor(textures: Collection<Texture>)
+class TextureAtlas constructor(private val textures: Map<String, Texture>)
 {
-    var atlasTexture : TextureId = 0
-        private set
+    private var atlasTexture = 0
 
     init
     {
@@ -33,7 +33,7 @@ class TextureAtlas constructor(textures: Collection<Texture>)
         {
             MemoryStack.stackPush().use { memoryStack ->
                 val trash = memoryStack.mallocInt(1)
-                for ((i, texture) in textures.withIndex())
+                for ((i, texture) in textures.values.withIndex())
                 {
                     try
                     {
@@ -76,8 +76,33 @@ class TextureAtlas constructor(textures: Collection<Texture>)
         glBindTexture(GL_TEXTURE_2D_ARRAY, atlasTexture)
     }
 
+    /**
+     * Because we don't call this method within the rendering loop,
+     * we can get away with using [String] as an argument and as a Map key
+     */
+    operator fun get(name: String): Texture
+    {
+        val texture = textures[name]
+        if (texture != null)
+            return texture
+
+        Editor.logger.error("Texture has never been loaded: $name")
+        return get("common:error")
+    }
+
     companion object
     {
-        lateinit var mainAtlas: TextureAtlas
+        var mainAtlas: TextureAtlas
+
+        init
+        {
+            val root = ResourceUtil.getBuiltInResourcePath("/assets/textures")
+            val textures = Files.walk(Paths.get(root.toUri()))
+                    .filter(Files::isRegularFile)
+                    .collect(Collectors.toMap(
+                            { ResourceUtil.toResourceLocation(it, root) },
+                            { Texture(it) }))
+            mainAtlas = TextureAtlas(textures)
+        }
     }
 }

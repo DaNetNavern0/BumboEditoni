@@ -7,11 +7,11 @@ import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.IBlockLocation
 import me.danetnaverno.editoni.render.ChunkRenderer
 
-class Chunk(@JvmField val world: World, @JvmField val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
+class Chunk(val world: World, val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
 {
     //todo using Minecraft's palette approach would be nice and save plenty of memory
     // especially when it comes to Block States (things like Observer rotation, crop's groth stages etc, don't confuse with TileEntities)
-
+    // also, making these fields private would be nice, but again, WIP
     /*private*/ lateinit var blockTypes: Array<Array<BlockType?>?>
     /*private*/ lateinit var blockStates: MutableMap<Int, BlockState>
     /*private*/ lateinit var tileEntities: MutableMap<Int, TileEntity>

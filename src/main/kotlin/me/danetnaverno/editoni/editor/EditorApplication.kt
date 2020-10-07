@@ -6,12 +6,11 @@ import lwjgui.scene.Window
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
 import me.danetnaverno.editoni.editor.raw.LWJGUIApplicationPatched
 import me.danetnaverno.editoni.editor.raw.RawInputHandler
-import me.danetnaverno.editoni.location.ChunkLocationMutable
 import me.danetnaverno.editoni.render.Shader
 import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.ThreadExecutor
 import me.danetnaverno.editoni.world.Chunk
-import me.danetnaverno.editoni.world.ChunkTicketCamera
+import me.danetnaverno.editoni.world.ChunkManager
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
@@ -32,7 +31,11 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
     private const val SIDE_PANEL_WIDTH = 250
     private const val MENU_BAR_HEIGHT = 24
 
-    val mainThreadExecutor = ThreadExecutor() //todo move this to a right place
+    /**
+     * todo I'm really not sure about this thing. It opens endless possibilities for multiple types of pasta
+     *   Also, move this to a right place
+     */
+    val mainThreadExecutor = ThreadExecutor()
     val chunksToBake = ConcurrentLinkedQueue<Chunk>() //todo move this to a right place
 
     var fps = 0
@@ -60,12 +63,12 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
     override fun start(args: Array<String>, window: Window)
     {
         //todo inspect lwjgui for the excessive creation of short-living StyleOperation-s
+        check(!this::window.isInitialized) { "EditorApplication had already been initialized" }
 
         this.window = window
         val windowId = window.context.window.id
-
         window.setTitle("Bumbo Editoni")
-        window.scene = Scene(EditorGUI.init(), WIDTH.toDouble(), HEIGHT.toDouble())
+        window.scene = Scene(EditorGUI.initialize(), WIDTH.toDouble(), HEIGHT.toDouble())
         val vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor())!!
         glfwSwapInterval(1)
         glfwSetWindowPos(windowId, (vidMode.width() - WIDTH) / 2, (vidMode.height() - HEIGHT) / 2)
@@ -73,9 +76,9 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
         window.isWindowAutoClear = false
 
         window.setRenderingCallback(this)
-        RawInputHandler.init(windowId)
+        RawInputHandler.initialize(windowId)
 
-        MinecraftDictionaryFiller.init()
+        MinecraftDictionaryFiller.initialize()
         Editor.openTab(Editor.loadWorldIntoTab(Paths.get("tests/1.14.2 survival world/region")).editorTab)
         EditorGUI.refreshWorldList()
     }
@@ -84,8 +87,8 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
     {
         try
         {
+            setUpProjection()
             tickGeneral()
-            tickProjection()
             tickBaking()
             tickDisplay()
 
@@ -99,7 +102,7 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
         }
     }
 
-    private fun tickProjection()
+    private fun setUpProjection()
     {
         val fov = 90f
         val aspect = (windowWidth - sidePanelWidth.toFloat() * 2) / windowHeight.toFloat()
@@ -126,22 +129,12 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
     private fun tickGeneral()
     {
         mainThreadExecutor.fireTasks()
-
-        val chunkLoadDistance = Settings.chunkLoadDistance
-        val cameraLocation = Editor.currentTab.camera.mutableLocation.toChunkLocation()
-        val chunkLocation = ChunkLocationMutable(cameraLocation.x - chunkLoadDistance, cameraLocation.z - chunkLoadDistance)
-
-        for (x in 0 until chunkLoadDistance * 2)
-        {
-            for (z in 0 until chunkLoadDistance * 2)
-                Editor.currentTab.world.loadChunkAsync(chunkLocation.add(1, 0), ChunkTicketCamera)
-            chunkLocation.add(-chunkLoadDistance * 2, 1)
-        }
+        ChunkManager.loadChunksInLoadingDistance(Editor.currentWorld)
     }
 
     private fun tickBaking()
     {
-        Editor.currentTab.world.worldRenderer.bake()
+        Editor.currentWorld.worldRenderer.bake()
     }
 
     private fun tickDisplay()
@@ -161,7 +154,7 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
 
         Shader.use()
         TextureAtlas.mainAtlas.bind()
-        Editor.currentTab.world.worldRenderer.render()
+        Editor.currentWorld.worldRenderer.render()
 
         EditorUserInputHandler.controls()
         EditorUserInputHandler.selections()

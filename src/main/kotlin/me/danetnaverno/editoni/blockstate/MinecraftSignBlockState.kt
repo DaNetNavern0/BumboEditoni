@@ -6,5 +6,4 @@ class MinecraftSignBlockState(properties: CompoundTag) : BlockState(properties)
 {
     val facing = properties.getString("facing")
     val waterlogged = properties.getBoolean("waterlogged")
-
 }

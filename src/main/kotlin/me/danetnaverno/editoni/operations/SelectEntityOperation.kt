@@ -15,11 +15,11 @@ class SelectEntityOperation(private val entity: Entity?) : Operation(), IObservi
 
     override fun reapply()
     {
-        operationList.editorTab.selectEntity(entity)
+        world.editorTab.selectEntity(entity)
     }
 
     override fun rollback()
     {
-        operationList.editorTab.selectEntity(null)
+        world.editorTab.selectEntity(null)
     }
 }

@@ -64,13 +64,13 @@ class BlockLocationMutable(globalX: Int, globalY: Int, globalZ: Int) : IBlockLoc
         return this
     }
 
-    //========================================
+    //===============================================================================================
     // Yes, this is some hacky stuff right there.
     // By doing this, we make it possible to check if a collection has a BlockLocation,
     //   when we check collection#contains with a BlockLocationMutable.
     // For an example, look at World#getRegion.
     // It's up to a programmer to make sure Mutable Locations are never placed into collections.
-    //========================================
+    //===============================================================================================
     override fun hashCode(): Int
     {
         return (globalX * 31 + globalY) * 31 + globalZ

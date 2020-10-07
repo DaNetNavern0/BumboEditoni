@@ -21,7 +21,7 @@ abstract class BlockRenderer
         //   and it's called 6 times per each block in a chunk that gets baked at this moment.
         // This could definitely use some optimization, but it doesn't make the user experience horrible for now,
         //   because it happens only when we bake a chunk, which happens only once when we load or alter a chunk.
-        val chunk = world.getChunkIfLoaded(location) ?: return false
+        val chunk = world.getChunk(location) ?: return false
         val type = chunk.getBlockTypeAt(location) ?: return true
         return !type.isOpaque
     }

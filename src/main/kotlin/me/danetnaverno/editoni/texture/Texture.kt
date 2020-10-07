@@ -14,9 +14,9 @@ class Texture(val path: Path)
 
     companion object
     {
-        inline operator fun get(name: String): Texture
+        operator fun get(name: String): Texture
         {
-            return TextureDictionary[name]
+            return TextureAtlas.mainAtlas[name]
         }
     }
 }

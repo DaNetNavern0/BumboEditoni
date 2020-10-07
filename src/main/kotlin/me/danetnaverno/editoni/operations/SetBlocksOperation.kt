@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.operations
 
-import me.danetnaverno.editoni.util.Translation
 import me.danetnaverno.editoni.location.BlockArea
+import me.danetnaverno.editoni.util.Translation
 import me.danetnaverno.editoni.world.Block
 
 open class SetBlocksOperation(area: BlockArea, protected val blocks: Collection<Block>) : Operation()
@@ -16,7 +16,7 @@ open class SetBlocksOperation(area: BlockArea, protected val blocks: Collection<
 
     override fun initialApply()
     {
-        replacedBlocks = blocks.mapNotNull { it.chunk.world.getLoadedBlockAt(it.location) }.toList()
+        replacedBlocks = blocks.mapNotNull { it.chunk.world.getBlockAt(it.location) }
         reapply()
     }
 

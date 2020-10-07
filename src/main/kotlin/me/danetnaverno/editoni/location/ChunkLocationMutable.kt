@@ -33,13 +33,13 @@ class ChunkLocationMutable(x: Int, z: Int) : IChunkLocation
         return this
     }
 
-    //========================================
+    //===============================================================================================
     // Yes, this is some hacky stuff right there.
     // By doing this, we make it possible to check if a collection has a ChunkLocation,
     //   when we check collection#contains with a ChunkLocationMutable.
     // For an example, look at World#getRegion.
     // It's up to a programmer to make sure Mutable Locations are never placed into collections.
-    //========================================
+    //===============================================================================================
     override fun hashCode(): Int
     {
         return x * 31 + z

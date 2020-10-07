@@ -10,9 +10,9 @@ import java.nio.file.Files
 
 object Shader
 {
-    var program = 0
-    private var texture = 0
-    private var proj = 0
+    private var program = 0
+    private var textureLocation = 0
+    private var matrixLocation = 0
 
     init
     {
@@ -44,8 +44,8 @@ object Shader
         glDeleteShader(vertShader)
         glDeleteShader(fragShader)
 
-        texture = glGetUniformLocation(program, "in_texture")
-        proj = glGetUniformLocation(program, "combined_matrix")
+        textureLocation = glGetUniformLocation(program, "in_texture")
+        matrixLocation = glGetUniformLocation(program, "combined_matrix")
     }
 
     private fun loadShader(program: Int, shaderStr: String, type: Int) : Int
@@ -71,12 +71,12 @@ object Shader
     fun use()
     {
         glUseProgram(program)
-        glUniform1i(texture, 0)
+        glUniform1i(textureLocation, 0)
 
         MemoryStack.stackPush().use { stack ->
             val buffer = stack.mallocFloat(16)
             EditorApplication.combinedMatrix.get(buffer)
-            glUniformMatrix4fv(proj, false, buffer)
+            glUniformMatrix4fv(matrixLocation, false, buffer)
         }
     }
 }

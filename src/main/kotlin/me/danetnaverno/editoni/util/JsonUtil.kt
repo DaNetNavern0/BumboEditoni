@@ -8,7 +8,6 @@ import com.alibaba.fastjson.parser.Feature
 import com.alibaba.fastjson.serializer.JSONSerializer
 import com.alibaba.fastjson.serializer.SerializeWriter
 import com.alibaba.fastjson.serializer.SerializerFeature
-import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -29,13 +28,12 @@ object JsonUtil
         var i = 0
         while (i < pairs.size)
         {
-            json[pairs[i] as String?] = pairs[i + 1]
+            json[pairs[i].toString()] = pairs[i + 1]
             i += 2
         }
         return json
     }
 
-    @Throws(IOException::class)
     fun fromFile(path: Path): JSONObject
     {
         return try
@@ -48,7 +46,6 @@ object JsonUtil
         }
     }
 
-    @Throws(IOException::class)
     fun fromFileArray(path: Path): JSONArray
     {
         return try
@@ -61,7 +58,6 @@ object JsonUtil
         }
     }
 
-    @Throws(IOException::class)
     fun saveJSONToFile(path: Path, json: JSON)
     {
         val writer = SerializeWriter()
@@ -69,7 +65,8 @@ object JsonUtil
         writer.config(SerializerFeature.WriteEnumUsingName, true)
         JSONSerializer(writer).write(json)
         val parentDir = path.parent
-        if (parentDir != null && !Files.exists(parentDir)) Files.createDirectories(parentDir)
+        if (parentDir != null && !Files.exists(parentDir))
+            Files.createDirectories(parentDir)
         Files.write(path, writer.toBytes(StandardCharsets.UTF_8))
     }
 

@@ -33,7 +33,7 @@ class EditorTab(var world: World)
 
     override fun toString(): String
     {
-        return world.path.parent.fileName.toString()
+        return world.toString()
     }
 
     class Camera

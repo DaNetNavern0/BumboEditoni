@@ -29,16 +29,16 @@ data class BlockLocation(override val globalX: Int, override val globalY: Int, o
 
     override fun toRegionLocation(): RegionLocation
     {
-        return RegionLocation(globalX shr 10, globalZ shr 10)
+        return RegionLocation(globalX shr 9, globalZ shr 9)
     }
 
-    //========================================
+    //===============================================================================================
     // Yes, this is some hacky stuff right there.
     // By doing this, we make it possible to check if a collection has a BlockLocation,
     //   when we check collection#contains with a BlockLocationMutable.
     // For an example, look at World#getRegion.
     // It's up to a programmer to make sure Mutable Locations are never placed into collections.
-    //========================================
+    //===============================================================================================
     override fun hashCode(): Int
     {
         return (globalX * 31 + globalY) * 31 + globalZ
@@ -47,6 +47,11 @@ data class BlockLocation(override val globalX: Int, override val globalY: Int, o
     override fun equals(other: Any?): Boolean
     {
         return other is IBlockLocation && other.globalX == globalX && other.globalY == globalY && globalZ == globalZ
+    }
+
+    override fun toString(): String
+    {
+        return "BlockLocation(Global: $globalX, $globalY, $globalZ; Local: $localX, $localY, $localZ)"
     }
 
     companion object

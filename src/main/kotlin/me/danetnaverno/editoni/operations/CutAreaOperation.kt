@@ -10,7 +10,7 @@ class CutAreaOperation(area: BlockArea) : DeleteBlocksOperation(area)
 
     override fun initialApply()
     {
-        area.mutableIterator().asSequence().mapNotNull { area.world.getLoadedBlockAt(it) }.forEach { ClipboardPrototype.add(it) }
+        area.mutableIterator().asSequence().mapNotNull { area.world.getBlockAt(it) }.forEach { ClipboardPrototype.add(it) }
         super.initialApply()
     }
 }
