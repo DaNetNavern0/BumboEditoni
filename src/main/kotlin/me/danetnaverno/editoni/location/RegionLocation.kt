@@ -5,12 +5,12 @@ import kotlin.math.sqrt
 
 data class RegionLocation(override val x: Int, override val z: Int) : IRegionLocation
 {
-    fun distance(other: RegionLocation): Double
+    fun distance(other: IRegionLocation): Double
     {
         return sqrt(distanceSquared(other).toDouble())
     }
 
-    fun distanceSquared(other: RegionLocation): Int
+    fun distanceSquared(other: IRegionLocation): Int
     {
         val dx = this.x - other.x
         val dz = this.z - other.z

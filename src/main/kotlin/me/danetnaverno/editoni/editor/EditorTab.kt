@@ -2,7 +2,6 @@ package me.danetnaverno.editoni.editor
 
 import me.danetnaverno.editoni.location.BlockArea
 import me.danetnaverno.editoni.location.BlockLocationMutable
-import me.danetnaverno.editoni.operations.OperationList
 import me.danetnaverno.editoni.world.Entity
 import me.danetnaverno.editoni.world.World
 
@@ -13,7 +12,6 @@ class EditorTab(var world: World)
     var selectedArea: BlockArea? = null
         private set
     var camera = Camera()
-    val operationList = OperationList(this)
 
     fun selectEntity(entity: Entity?)
     {

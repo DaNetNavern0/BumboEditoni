@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.world
 
-import me.danetnaverno.editoni.operations.Operation
+import me.danetnaverno.editoni.operation.Operation
 
 open class ChunkTicket
 

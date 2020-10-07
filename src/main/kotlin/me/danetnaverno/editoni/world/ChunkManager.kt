@@ -25,7 +25,7 @@ object ChunkManager
     fun loadChunksInLoadingDistance(world: World)
     {
         val chunkLoadDistance = Settings.chunkLoadDistance
-        val cameraLocation = world.editorTab.camera.mutableLocation.toChunkLocation()
+        val cameraLocation = Editor.getTab(world).camera.mutableLocation.toChunkLocation()
         val chunkLocation = ChunkLocationMutable(cameraLocation.x - chunkLoadDistance, cameraLocation.z - chunkLoadDistance)
 
         for (x in 0 until chunkLoadDistance * 2)
@@ -38,7 +38,7 @@ object ChunkManager
 
     fun isLoadedByCamera(chunk: Chunk): Boolean
     {
-        val cameraLocation = chunk.world.editorTab.camera.mutableLocation.toChunkLocation()
+        val cameraLocation = Editor.getTab(chunk.world).camera.mutableLocation.toChunkLocation()
         return chunk.location.withinCubicDistance(cameraLocation, Settings.chunkLoadDistance)
     }
 
@@ -74,9 +74,9 @@ object ChunkManager
 
     fun unloadExcessChunks()
     {
-        for (value in Editor.worlds)
+        for (value in Editor.editorTabs)
         {
-            unloadExcessChunks(value)
+            unloadExcessChunks(value.world)
         }
     }
 

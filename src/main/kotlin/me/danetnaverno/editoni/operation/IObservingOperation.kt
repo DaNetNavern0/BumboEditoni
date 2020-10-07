@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.operations
+package me.danetnaverno.editoni.operation
 
 /**
  * We have a setting that makes "observing operations" (like "select") not being considered as an actual operation:

@@ -1,4 +1,4 @@
-package me.danetnaverno.editoni.operations
+package me.danetnaverno.editoni.operation
 
 import me.danetnaverno.editoni.clipboard.ClipboardPrototype
 import me.danetnaverno.editoni.location.BlockArea

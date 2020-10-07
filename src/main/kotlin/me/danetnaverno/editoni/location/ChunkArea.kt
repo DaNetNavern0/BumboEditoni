@@ -7,7 +7,7 @@ import me.danetnaverno.editoni.world.World
  *
  * It does not hold the chunk objects themselves, but you can get an iterator that will iterate over [ChunkLocation]s
  */
-class ChunkArea(val world: World, cornerA: ChunkLocation, cornerB: ChunkLocation) : Iterable<ChunkLocation>
+class ChunkArea(val world: World, cornerA: IChunkLocation, cornerB: IChunkLocation) : Iterable<ChunkLocation>
 {
     val min = ChunkLocation(
             Math.min(cornerA.x, cornerB.x),

@@ -1,20 +1,19 @@
-package me.danetnaverno.editoni.operations
+package me.danetnaverno.editoni.operation
 
-import me.danetnaverno.editoni.editor.EditorApplication
-import me.danetnaverno.editoni.editor.EditorGUI.refreshOperationHistory
-import me.danetnaverno.editoni.editor.EditorTab
+import me.danetnaverno.editoni.editor.EditorGUI
 import me.danetnaverno.editoni.editor.Settings
 import me.danetnaverno.editoni.location.ChunkArea
 import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.util.Translation.translate
 import me.danetnaverno.editoni.world.ChunkManager
 import me.danetnaverno.editoni.world.ChunkTicketOperation
+import me.danetnaverno.editoni.world.World
 import java.lang.Integer.max
 import java.lang.Integer.min
 import java.util.*
 import javax.swing.JOptionPane
 
-class OperationList constructor(val editorTab: EditorTab)
+class OperationList constructor(val world: World)
 {
     var savePosition = 0
     private val operationList: MutableList<Operation> = ArrayList()
@@ -22,7 +21,7 @@ class OperationList constructor(val editorTab: EditorTab)
 
     fun apply(operation: Operation)
     {
-        operation.world = editorTab.world
+        operation.world = world
         if (currentPosition >= operationList.size - 1)
         {
             val isObserving = operation is IObservingOperation
@@ -36,7 +35,7 @@ class OperationList constructor(val editorTab: EditorTab)
                 redrawChunkArea(chunks)
                 if (!isObserving)
                     chunks.iterator().asSequence()
-                            .mapNotNull { editorTab.world.getChunk(it) }
+                            .mapNotNull { world.getChunk(it) }
                             .forEach { ChunkManager.addTicket(it, ChunkTicketOperation(operation)) }
             }
         }
@@ -47,7 +46,7 @@ class OperationList constructor(val editorTab: EditorTab)
                     "", JOptionPane.YES_NO_OPTION)
             if (dialogButton == JOptionPane.YES_OPTION) applyForced(operation)
         }
-        refreshOperationHistory()
+        EditorGUI.refreshOperationHistory()
     }
 
     /**
@@ -123,11 +122,8 @@ class OperationList constructor(val editorTab: EditorTab)
     private fun redrawChunkArea(chunkArea: ChunkArea)
     {
         ChunkArea(chunkArea.world, chunkArea.min.add(-1, -1), chunkArea.max.add(1, 1)).iterator().asSequence()
-                .mapNotNull { chunkLoc -> editorTab.world.getChunk(chunkLoc) }
-                .forEach {
-                    it.vertexData.invalidate()
-                    EditorApplication.chunksToBake.add(it)
-                }
+                .mapNotNull { chunkLoc -> world.getChunk(chunkLoc) }
+                .forEach { chunkArea.world.worldRenderer.bakeChunk(it) }
     }
 
     fun getAllAlteredChunks() : List<ChunkLocation>

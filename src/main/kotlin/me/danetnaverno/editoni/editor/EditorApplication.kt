@@ -9,7 +9,6 @@ import me.danetnaverno.editoni.editor.raw.RawInputHandler
 import me.danetnaverno.editoni.render.Shader
 import me.danetnaverno.editoni.texture.TextureAtlas
 import me.danetnaverno.editoni.util.ThreadExecutor
-import me.danetnaverno.editoni.world.Chunk
 import me.danetnaverno.editoni.world.ChunkManager
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -17,7 +16,6 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
 import java.awt.Rectangle
 import java.nio.file.Paths
-import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.tan
 
 /**
@@ -36,7 +34,6 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
      *   Also, move this to a right place
      */
     val mainThreadExecutor = ThreadExecutor()
-    val chunksToBake = ConcurrentLinkedQueue<Chunk>() //todo move this to a right place
 
     var fps = 0
     lateinit var combinedMatrix: Matrix4f //todo move this to a right place
@@ -79,7 +76,7 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
         RawInputHandler.initialize(windowId)
 
         MinecraftDictionaryFiller.initialize()
-        Editor.openTab(Editor.loadWorldIntoTab(Paths.get("tests/1.14.2 survival world/region")).editorTab)
+        Editor.switchTab(Editor.loadWorldIntoTab(Paths.get("tests/1.14.2 survival world/region")))
         EditorGUI.refreshWorldList()
     }
 
@@ -134,7 +131,7 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
 
     private fun tickBaking()
     {
-        Editor.currentWorld.worldRenderer.bake()
+        Editor.currentWorld.worldRenderer.tickBaking()
     }
 
     private fun tickDisplay()

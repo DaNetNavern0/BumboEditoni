@@ -12,12 +12,12 @@ data class BlockLocation(override val globalX: Int, override val globalY: Int, o
         return BlockLocation(globalX + x, globalY + y, globalZ + z)
     }
 
-    fun add(location: BlockLocation): BlockLocation
+    fun add(location: IBlockLocation): BlockLocation
     {
         return BlockLocation(globalX + location.globalX, globalY + location.localY, globalZ + location.localZ)
     }
 
-    fun subtract(location: BlockLocation): BlockLocation
+    fun subtract(location: IBlockLocation): BlockLocation
     {
         return BlockLocation(globalX - location.globalX, globalY - location.localY, globalZ - location.localZ)
     }

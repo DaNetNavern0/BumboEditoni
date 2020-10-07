@@ -3,8 +3,8 @@ package me.danetnaverno.editoni.editor
 import me.danetnaverno.editoni.editor.raw.RawInputHandler
 import me.danetnaverno.editoni.location.BlockArea
 import me.danetnaverno.editoni.location.EntityLocation
-import me.danetnaverno.editoni.operations.DeleteBlocksOperation
-import me.danetnaverno.editoni.operations.SelectAreaOperation
+import me.danetnaverno.editoni.operation.DeleteBlocksOperation
+import me.danetnaverno.editoni.operation.SelectAreaOperation
 import me.danetnaverno.editoni.render.SelectionRenderer
 import me.danetnaverno.editoni.world.Block
 import org.lwjgl.glfw.GLFW
@@ -76,22 +76,21 @@ object EditorUserInputHandler
             camera.pitch -= 142f / EditorApplication.fps
         if (RawInputHandler.keyDown(GLFW.GLFW_KEY_R))
         {
-            Editor.unloadWorld(Editor.currentWorld)
-            Editor.openTab(Editor.loadWorldIntoTab(Editor.currentWorld.path).editorTab)
+            Editor.closeTabAndSwitch(Editor.currentTab, Editor.loadWorldIntoTab(Editor.currentWorld.path))
         }
 
         if (RawInputHandler.keyReleased(GLFW.GLFW_KEY_DELETE))
         {
             val area = Editor.currentTab.selectedArea
             if (area != null)
-                Editor.currentTab.operationList.apply(DeleteBlocksOperation(area))
+                Editor.currentWorld.operationList.apply(DeleteBlocksOperation(area))
         }
 
         if (RawInputHandler.keyReleased(GLFW.GLFW_KEY_ESCAPE))
         {
             if (Editor.currentTab.selectedArea != null)
             {
-                Editor.currentTab.operationList.apply(SelectAreaOperation(null))
+                Editor.currentWorld.operationList.apply(SelectAreaOperation(null))
                 Editor.currentTab.selectArea(null)
             }
             selectedCorner = null
@@ -117,7 +116,7 @@ object EditorUserInputHandler
                     if (secondCorner != null)
                     {
                         val area = BlockArea(Editor.currentWorld, selectedCorner!!.location, secondCorner.location)
-                        Editor.currentTab.operationList.apply(SelectAreaOperation(area))
+                        Editor.currentWorld.operationList.apply(SelectAreaOperation(area))
                         Editor.currentTab.selectArea(area)
                         selectedCorner = null
                     }

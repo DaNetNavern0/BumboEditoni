@@ -103,7 +103,7 @@ class Minecraft114WorldIO : IMinecraftWorldIO
         val regionFolder = targetPath.resolve("region")
         Files.createDirectories(regionFolder)
 
-        world.editorTab.operationList.getAllTrulyAlteredChunks().asSequence()
+        world.operationList.getAllTrulyAlteredChunks().asSequence()
                 .mapNotNull { world.getChunk(it) }
                 .forEach {
                     writeQChunkToFile(regionFolder, it.region, composeQChunk(it), it.location.x, it.location.z)

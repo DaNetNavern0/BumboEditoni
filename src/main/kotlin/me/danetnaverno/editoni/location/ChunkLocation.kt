@@ -12,12 +12,12 @@ data class ChunkLocation(override val x: Int, override val z: Int) : IChunkLocat
         return ChunkLocation(this.x + x, this.z + z)
     }
 
-    fun add(location: ChunkLocation): ChunkLocation
+    fun add(location: IChunkLocation): ChunkLocation
     {
         return ChunkLocation(this.x + location.x, this.z + location.z)
     }
 
-    fun subtract(location: ChunkLocation): ChunkLocation
+    fun subtract(location: IChunkLocation): ChunkLocation
     {
         return ChunkLocation(this.x - location.x, this.z - location.z)
     }

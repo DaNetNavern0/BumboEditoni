@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.texture
 
-import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.util.ResourceUtil
+import org.apache.logging.log4j.LogManager
 import org.lwjgl.opengl.ARBTextureStorage.glTexStorage3D
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.stb.STBImage
@@ -57,7 +57,7 @@ class TextureAtlas constructor(private val textures: Map<String, Texture>)
                     }
                     catch (e: Exception)
                     {
-                        Editor.logger.error("Failed to load a texture: $texture", e)
+                        logger.error("Failed to load a texture: $texture", e)
                     }
                 }
             }
@@ -86,12 +86,14 @@ class TextureAtlas constructor(private val textures: Map<String, Texture>)
         if (texture != null)
             return texture
 
-        Editor.logger.error("Texture has never been loaded: $name")
+        logger.error("Texture has never been loaded: $name")
         return get("common:error")
     }
 
     companion object
     {
+        val logger = LogManager.getLogger("TextureAtlas")!!
+
         var mainAtlas: TextureAtlas
 
         init

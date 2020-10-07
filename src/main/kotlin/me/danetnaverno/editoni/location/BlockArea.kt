@@ -7,7 +7,7 @@ import me.danetnaverno.editoni.world.World
  * 
  * It does not hold the block objects themselves, but you can get an iterator that will iterate over [BlockLocation]s or [BlockLocationMutable]s
  */
-class BlockArea(val world: World, cornerA: BlockLocation, cornerB: BlockLocation)
+class BlockArea(val world: World, cornerA: IBlockLocation, cornerB: IBlockLocation)
 {
     val min = BlockLocation(
             Math.min(cornerA.globalX, cornerB.globalX),

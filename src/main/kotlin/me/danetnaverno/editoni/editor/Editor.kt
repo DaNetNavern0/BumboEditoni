@@ -1,6 +1,6 @@
 package me.danetnaverno.editoni.editor
 
-import me.danetnaverno.editoni.io.Minecraft114WorldIO
+import me.danetnaverno.editoni.io.IMinecraftWorldIO
 import me.danetnaverno.editoni.world.World
 import org.apache.logging.log4j.LogManager
 import org.joml.Matrix4f
@@ -19,27 +19,35 @@ object Editor
 {
     val logger = LogManager.getLogger("Editor")!!
 
-    val worlds : List<World> = arrayListOf()
+    val editorTabs : List<EditorTab> = arrayListOf()
     lateinit var currentTab: EditorTab
         private set
     val currentWorld: World
         get() = currentTab.world
 
-    fun loadWorldIntoTab(worldPath: Path): World
+
+    fun loadWorldIntoTab(worldPath: Path): EditorTab
     {
-        val world = Minecraft114WorldIO().openWorld(worldPath)
-        (worlds as MutableList<World>).add(world)
-        return world
+        val world = IMinecraftWorldIO.getWorldIO(worldPath).openWorld(worldPath)
+        val editorTab = EditorTab(world)
+        (editorTabs as MutableList<EditorTab>).add(editorTab)
+        return editorTab
     }
 
-    fun unloadWorld(world: World)
+    fun closeTabAndSwitch(tabToClose: EditorTab, tabToOpen: EditorTab)
     {
-        (worlds as MutableList<World>).remove(world)
+        (editorTabs as MutableList<EditorTab>).remove(tabToClose)
+        switchTab(tabToOpen)
     }
 
-    fun openTab(tab: EditorTab)
+    fun switchTab(tab: EditorTab)
     {
         currentTab = tab
+    }
+
+    fun getTab(world: World) : EditorTab
+    {
+        return editorTabs.first { it.world == world }
     }
 
     fun raycast(screenX: Int, screenY: Int): Vector3f?

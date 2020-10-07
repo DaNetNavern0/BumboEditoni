@@ -1,5 +1,6 @@
-package me.danetnaverno.editoni.operations
+package me.danetnaverno.editoni.operation
 
+import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.util.Translation
 import me.danetnaverno.editoni.world.Entity
 
@@ -15,11 +16,11 @@ class SelectEntityOperation(private val entity: Entity?) : Operation(), IObservi
 
     override fun reapply()
     {
-        world.editorTab.selectEntity(entity)
+        Editor.getTab(world).selectEntity(entity)
     }
 
     override fun rollback()
     {
-        world.editorTab.selectEntity(null)
+        Editor.getTab(world).selectEntity(null)
     }
 }

@@ -66,8 +66,8 @@ object EditorGUI
     fun refreshWorldList()
     {
         worldList.items.clear()
-        for (entry in Editor.worlds)
-            worldList.items.add(entry.editorTab)
+        for (entry in Editor.editorTabs)
+            worldList.items.add(entry)
         worldList.value = Editor.currentTab
     }
 
@@ -103,7 +103,7 @@ object EditorGUI
             val state = fc.showOpenDialog(null)
             if (state == JFileChooser.APPROVE_OPTION)
             {
-                Editor.openTab(Editor.loadWorldIntoTab(fc.selectedFile.toPath()).editorTab)
+                Editor.switchTab(Editor.loadWorldIntoTab(fc.selectedFile.toPath()))
                 refreshWorldList()
             }
         }
@@ -111,8 +111,7 @@ object EditorGUI
 
         val fileReload = MenuItem(Translation.translate("top_bar.file.reload"))
         fileReload.setOnAction {
-            Editor.unloadWorld(Editor.currentWorld)
-            Editor.openTab(Editor.loadWorldIntoTab(Editor.currentWorld.path).editorTab)
+            Editor.closeTabAndSwitch(Editor.currentTab, Editor.loadWorldIntoTab(Editor.currentWorld.path))
         }
         fileTab.items.add(fileReload)
 
@@ -123,9 +122,10 @@ object EditorGUI
             val state = fc.showOpenDialog(null)
             if (state == JFileChooser.APPROVE_OPTION)
             {
-                Editor.currentWorld.worldIO.writeWorld(Editor.currentWorld, fc.selectedFile.toPath())
-                ChunkManager.unloadExcessChunks(Editor.currentWorld)
-                Editor.currentTab.operationList.savePosition = Editor.currentTab.operationList.getPosition()
+                val world = Editor.currentWorld
+                world.worldIO.writeWorld(Editor.currentWorld, fc.selectedFile.toPath())
+                ChunkManager.unloadExcessChunks(world)
+                world.operationList.savePosition = world.operationList.getPosition()
             }
         }
         fileTab.items.add(fileSaveAs)
@@ -204,7 +204,7 @@ object EditorGUI
         worldList.alignment = Pos.CENTER
         worldList.setOnAction {
             if (Editor.currentTab != worldList.value)
-                Editor.openTab(worldList.value)
+                Editor.switchTab(worldList.value)
         }
         rightPanel.children.add(worldList)
 
@@ -306,7 +306,7 @@ object EditorGUI
 
     fun refreshOperationHistory()
     {
-        val operations = Editor.currentTab.operationList
+        val operations = Editor.currentWorld.operationList
         val ohContainer = TreeView<String>()
         for ((i, operation) in operations.all.withIndex())
         {

@@ -28,18 +28,19 @@ class Region(val path: Path, val world: World, val location: RegionLocation)
                 val chunk = world.worldIO.readChunk(this, x, z)
                 if (chunk != null)
                 {
+                    // todo I'm really not sure about this thing. It opens endless possibilities for multiple types of pasta
                     EditorApplication.mainThreadExecutor.addTask {
                         chunks[localX][localZ] = chunk
                         ChunkManager.addTicket(chunk, ticket)
                         world.loadedChunksCache.add(chunk)
-                        EditorApplication.chunksToBake.add(chunk)
+                        world.worldRenderer.bakeChunk(chunk)
                     }
                 }
             }
         }
     }
 
-    fun loadChunkSync(chunkLocation: ChunkLocation, ticket: ChunkTicket): Chunk?
+    fun loadChunkSync(chunkLocation: IChunkLocation, ticket: ChunkTicket): Chunk?
     {
         require(this.location.isChunkLocationBelongs(chunkLocation)) {
             "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${chunkLocation}"
@@ -52,7 +53,7 @@ class Region(val path: Path, val world: World, val location: RegionLocation)
             chunks[localX][localZ] = chunk
             ChunkManager.addTicket(chunk, ticket)
             world.loadedChunksCache.add(chunk)
-            EditorApplication.chunksToBake.add(chunk)
+            world.worldRenderer.bakeChunk(chunk)
             return chunk
         }
         return null

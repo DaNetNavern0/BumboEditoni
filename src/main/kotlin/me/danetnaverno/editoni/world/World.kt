@@ -3,11 +3,10 @@ package me.danetnaverno.editoni.world
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
 import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blocktype.BlockType
-import me.danetnaverno.editoni.editor.Editor
-import me.danetnaverno.editoni.editor.EditorTab
 import me.danetnaverno.editoni.editor.Settings
 import me.danetnaverno.editoni.io.IMinecraftWorldIO
 import me.danetnaverno.editoni.location.*
+import me.danetnaverno.editoni.operation.OperationList
 import me.danetnaverno.editoni.render.WorldRenderer
 import org.joml.Vector3f
 import org.joml.Vector3i
@@ -20,8 +19,8 @@ import kotlin.math.floor
 
 class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val path: Path)
 {
-    val editorTab = EditorTab(this)
     val worldRenderer = WorldRenderer(this)
+    val operationList = OperationList(this)
 
     /**
      * [RegionLocation.equals]/[RegionLocationMutable.equals] is rather slow, because it involves casting,
@@ -63,7 +62,7 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
         getRegion(chunkLocation.toRegionLocation())?.loadChunkAsync(chunkLocation, ticket)
     }
 
-    fun loadChunkSync(chunkLocation: ChunkLocation, ticket: ChunkTicket): Chunk?
+    fun loadChunkSync(chunkLocation: IChunkLocation, ticket: ChunkTicket): Chunk?
     {
         return getRegion(chunkLocation.toRegionLocation())?.loadChunkSync(chunkLocation, ticket)
     }
@@ -79,7 +78,7 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
         return region.getChunk(location.toChunkLocation())
     }
 
-    fun getChunk(location: ChunkLocation): Chunk?
+    fun getChunk(location: IChunkLocation): Chunk?
     {
         val region = getRegion(location.toRegionLocation()) ?: return null
         return region.getChunk(location)
@@ -211,13 +210,5 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
             return path.fileName.toString() + " (" + version + ")"
         }
         return path.fileName.toString() + " (" + version + ")"
-    }
-
-    companion object
-    {
-        fun getWorlds() : List<World>
-        {
-            return Editor.worlds
-        }
     }
 }

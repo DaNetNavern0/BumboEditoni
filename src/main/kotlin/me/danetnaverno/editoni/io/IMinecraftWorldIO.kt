@@ -20,4 +20,12 @@ interface IMinecraftWorldIO
     fun readChunk(region: Region, globalX: Int, globalZ: Int): Chunk?
 
     fun writeWorld(world: World, targetPath: Path)
+
+    companion object
+    {
+        fun getWorldIO(path: Path): IMinecraftWorldIO
+        {
+            return Minecraft114WorldIO() //todo
+        }
+    }
 }
