@@ -4,6 +4,7 @@ import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.EditorApplication
 import me.danetnaverno.editoni.editor.Settings
 import me.danetnaverno.editoni.location.ChunkLocationMutable
+import me.danetnaverno.editoni.location.IChunkLocation
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -22,11 +23,10 @@ object ChunkManager
         }, 0, Settings.chunkCleanupPeriod, TimeUnit.SECONDS)
     }
 
-    fun loadChunksInLoadingDistance(world: World)
+    fun loadChunksInLoadingDistance(world: World, cameraChunkLocation: IChunkLocation)
     {
         val chunkLoadDistance = Settings.chunkLoadDistance
-        val cameraLocation = Editor.getTab(world).camera.mutableLocation.toChunkLocation()
-        val chunkLocation = ChunkLocationMutable(cameraLocation.x - chunkLoadDistance, cameraLocation.z - chunkLoadDistance)
+        val chunkLocation = ChunkLocationMutable(cameraChunkLocation.x - chunkLoadDistance, cameraChunkLocation.z - chunkLoadDistance)
 
         for (x in 0 until chunkLoadDistance * 2)
         {
@@ -36,10 +36,9 @@ object ChunkManager
         }
     }
 
-    fun isLoadedByCamera(chunk: Chunk): Boolean
+    fun isLoadedByCamera(chunk: Chunk, cameraChunkLocation: IChunkLocation): Boolean
     {
-        val cameraLocation = Editor.getTab(chunk.world).camera.mutableLocation.toChunkLocation()
-        return chunk.location.withinCubicDistance(cameraLocation, Settings.chunkLoadDistance)
+        return chunk.chunkLocation.withinCubicDistance(cameraChunkLocation, Settings.chunkLoadDistance)
     }
 
     fun addTicket(chunk: Chunk, chunkTicket: ChunkTicket)
@@ -87,9 +86,10 @@ object ChunkManager
 
     fun getExcessChunks(world: World) : List<Chunk>
     {
+        val cameraLocation = Editor.getTab(world).camera.mutableLocation.toChunkLocation()
         return world.getLoadedChunks().filter {
             val list = tickets[it]
-            (list == null || list.isEmpty()) && !isLoadedByCamera(it)
+            (list == null || list.isEmpty()) && !isLoadedByCamera(it, cameraLocation)
         }
     }
 }

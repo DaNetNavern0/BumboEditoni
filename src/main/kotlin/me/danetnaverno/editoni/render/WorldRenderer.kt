@@ -1,7 +1,7 @@
 package me.danetnaverno.editoni.render
 
-import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.editor.Settings
+import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.world.Chunk
 import me.danetnaverno.editoni.world.World
 import org.lwjgl.opengl.GL33.glBindVertexArray
@@ -12,16 +12,14 @@ class WorldRenderer(private val world: World)
     private val chunksToBake = ConcurrentLinkedQueue<Chunk>()
 
     //todo multi-threaded/off-threaded baking would be really nice
-    fun tickBaking()
+    fun tickBaking(cameraChunkLocation: IChunkLocation)
     {
-        val cameraLocation = Editor.getTab(world).camera.mutableLocation.toChunkLocation()
-
         //Here we're iterating over loaded, but unrendered chunks and trying to render them
         //However, we leave chunks which are loaded, but outside of the render distance not baked.
         //For more info see [Settings.chunkLoadDistance]
         chunksToBake.removeIf { chunk ->
             val renderDistance = Settings.renderDistance
-            if (!chunk.vertexData.isBuilt && cameraLocation.withinCubicDistance(chunk.location, renderDistance))
+            if (!chunk.vertexData.isBuilt && cameraChunkLocation.withinCubicDistance(chunk.chunkLocation, renderDistance))
             {
                 chunk.vertexData.updateVertices()
                 return@removeIf true

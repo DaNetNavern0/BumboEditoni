@@ -7,7 +7,7 @@ import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.IBlockLocation
 import me.danetnaverno.editoni.render.ChunkRenderer
 
-class Chunk(val world: World, val location: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
+class Chunk(val world: World, val chunkLocation: ChunkLocation, val extras: MCAExtraInfo, private val entities: Collection<Entity>)
 {
     //todo using Minecraft's palette approach would be nice and save plenty of memory
     // especially when it comes to Block States (things like Observer rotation, crop's groth stages etc, don't confuse with TileEntities)
@@ -19,7 +19,7 @@ class Chunk(val world: World, val location: ChunkLocation, val extras: MCAExtraI
     val vertexData = ChunkRenderer(this)
 
     val region
-        get() = world.getRegion(location.toRegionLocation())!!
+        get() = world.getRegion(chunkLocation.toRegionLocation())!!
 
     fun load(blockTypes: Array<Array<BlockType?>?>, blockStates: MutableMap<Int, BlockState>, tileEntities: MutableMap<Int, TileEntity>)
     {
@@ -28,60 +28,60 @@ class Chunk(val world: World, val location: ChunkLocation, val extras: MCAExtraI
         this.tileEntities = tileEntities
     }
 
-    fun getBlockAt(location: IBlockLocation): Block?
+    fun getBlockAt(blockLocation: IBlockLocation): Block?
     {
-        if (!location.isValid())
+        if (!blockLocation.isValid())
             return null
-        require(this.location.isBlockLocationBelongs(location)) {
-            "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
+        require(this.chunkLocation.isBlockLocationBelongs(blockLocation)) {
+            "Location is out of chunk boundaries: chunkLocation=${this.chunkLocation} blockLocation=$blockLocation"
         }
-        val index = (location.localY % 16) * 256 + location.localZ * 16 + location.localX
-        val section = location.localY / 16
+        val index = (blockLocation.localY % 16) * 256 + blockLocation.localZ * 16 + blockLocation.localX
+        val section = blockLocation.localY / 16
         val array = blockTypes[section]
         if (array == null || array[index] == null)
             return null
 
 
-        return Block(this, location.toImmutable(), array[index]!!, getBlockStateAt(location), getTileEntityAt(location))
+        return Block(this, blockLocation.toImmutable(), array[index]!!, getBlockStateAt(blockLocation), getTileEntityAt(blockLocation))
     }
 
-    fun getBlockTypeAt(location: IBlockLocation): BlockType?
+    fun getBlockTypeAt(blockLocation: IBlockLocation): BlockType?
     {
-        require(this.location.isBlockLocationBelongs(location)) {
-            "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
+        require(this.chunkLocation.isBlockLocationBelongs(blockLocation)) {
+            "Location is out of chunk boundaries: chunkLocation=${this.chunkLocation}; blockLocation=$blockLocation"
         }
-        val section = blockTypes[location.localY / 16] ?: return null
-        return section[location.toSectionBlockIndex()]
+        val section = blockTypes[blockLocation.localY / 16] ?: return null
+        return section[blockLocation.toSectionBlockIndex()]
     }
 
-    fun getBlockStateAt(location: IBlockLocation): BlockState?
+    fun getBlockStateAt(blockLocation: IBlockLocation): BlockState?
     {
-        require(this.location.isBlockLocationBelongs(location)) {
-            "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
+        require(this.chunkLocation.isBlockLocationBelongs(blockLocation)) {
+            "Location is out of chunk boundaries: chunkLocation=${this.chunkLocation}; blockLocation=$blockLocation"
         }
-        return blockStates[location.toChunkBlockIndex()]
+        return blockStates[blockLocation.toChunkBlockIndex()]
     }
 
 
-    fun getTileEntityAt(location: IBlockLocation): TileEntity?
+    fun getTileEntityAt(blockLocation: IBlockLocation): TileEntity?
     {
-        require(this.location.isBlockLocationBelongs(location)) {
-            "Position is out of chunk boundaries: chunkLocation=${this.location} location=$location"
+        require(this.chunkLocation.isBlockLocationBelongs(blockLocation)) {
+            "Location is out of chunk boundaries: chunkLocation=${this.chunkLocation} blockLocation=$blockLocation"
         }
-        return tileEntities[location.toChunkBlockIndex()]
+        return tileEntities[blockLocation.toChunkBlockIndex()]
     }
 
     fun setBlock(block: Block)
     {
-        val sectionId = block.location.localY / 16
-        val cindex = block.location.toChunkBlockIndex()
+        val sectionId = block.blockLocation.localY / 16
+        val cindex = block.blockLocation.toChunkBlockIndex()
         var section = blockTypes[sectionId]
         if (section == null)
         {
             section = arrayOfNulls(4096)
             blockTypes[sectionId] = section
         }
-        section[block.location.toSectionBlockIndex()] = block.type
+        section[block.blockLocation.toSectionBlockIndex()] = block.type
         if (block.state != null)
             blockStates[cindex] = block.state
         if (block.tileEntity != null)

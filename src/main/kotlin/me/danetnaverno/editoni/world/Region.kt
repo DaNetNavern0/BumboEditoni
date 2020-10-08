@@ -6,16 +6,16 @@ import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
 import java.nio.file.Path
 
-class Region(val path: Path, val world: World, val location: RegionLocation)
+class Region(val path: Path, val world: World, val regionLocation: RegionLocation)
 {
     private val chunks = Array<Array<Any?>>(32) { arrayOfNulls(32) }
 
-    val chunkOffset = ChunkLocation(location.x shl 5, location.z shl 5)
+    val chunkOffset = ChunkLocation(regionLocation.x shl 5, regionLocation.z shl 5)
 
     fun loadChunkAsync(chunkLocation: IChunkLocation, ticket: ChunkTicket)
     {
-        require(this.location.isChunkLocationBelongs(chunkLocation)) {
-            "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${chunkLocation}"
+        require(this.regionLocation.isChunkLocationBelongs(chunkLocation)) {
+            "ChunkLocation is out of region  boundaries: regionLocation=${this.regionLocation} chunkLocation=${chunkLocation}"
         }
         val x = chunkLocation.x
         val z = chunkLocation.z
@@ -42,8 +42,8 @@ class Region(val path: Path, val world: World, val location: RegionLocation)
 
     fun loadChunkSync(chunkLocation: IChunkLocation, ticket: ChunkTicket): Chunk?
     {
-        require(this.location.isChunkLocationBelongs(chunkLocation)) {
-            "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${chunkLocation}"
+        require(this.regionLocation.isChunkLocationBelongs(chunkLocation)) {
+            "ChunkLocation is out of region  boundaries: regionLocation=${this.regionLocation} chunkLocation=${chunkLocation}"
         }
         val localX = chunkLocation.x - chunkOffset.x
         val localZ = chunkLocation.z - chunkOffset.z
@@ -61,11 +61,11 @@ class Region(val path: Path, val world: World, val location: RegionLocation)
 
     fun unloadChunk(chunk: Chunk)
     {
-        require(this.location.isChunkLocationBelongs(chunk.location)) {
-            "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${chunk.location}"
+        require(this.regionLocation.isChunkLocationBelongs(chunk.chunkLocation)) {
+            "ChunkLocation is out of region  boundaries: regionLocation=${this.regionLocation} chunkLocation=${chunk.chunkLocation}"
         }
-        val dx = chunk.location.x - chunkOffset.x
-        val dz = chunk.location.z - chunkOffset.z
+        val dx = chunk.chunkLocation.x - chunkOffset.x
+        val dz = chunk.chunkLocation.z - chunkOffset.z
         chunk.vertexData.invalidate()
         chunks[dx][dz] = null
         ChunkManager.clearTickets(chunk)
@@ -96,20 +96,20 @@ class Region(val path: Path, val world: World, val location: RegionLocation)
             }
     }
 
-    fun getChunk(location: IChunkLocation): Chunk?
+    fun getChunk(chunkLocation: IChunkLocation): Chunk?
     {
-        require(this.location.isChunkLocationBelongs(location)) {
-            "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${location}"
+        require(this.regionLocation.isChunkLocationBelongs(chunkLocation)) {
+            "ChunkLocation is out of region  boundaries: regionLocation=${this.regionLocation} chunkLocation=${chunkLocation}"
         }
-        return chunks[location.x - chunkOffset.x][location.z - chunkOffset.z] as? Chunk
+        return chunks[chunkLocation.x - chunkOffset.x][chunkLocation.z - chunkOffset.z] as? Chunk
     }
 
     fun setChunk(chunk: Chunk): Chunk
     {
-        require(this.location.isChunkLocationBelongs(chunk.location)) {
-            "ChunkLocation is out of region  boundaries: regionLocation=${this.location} chunkLocation=${chunk.location}"
+        require(this.regionLocation.isChunkLocationBelongs(chunk.chunkLocation)) {
+            "ChunkLocation is out of region  boundaries: regionLocation=${this.regionLocation} chunkLocation=${chunk.chunkLocation}"
         }
-        chunks[chunk.location.x - chunkOffset.x][chunk.location.z - chunkOffset.z] = chunk
+        chunks[chunk.chunkLocation.x - chunkOffset.x][chunk.chunkLocation.z - chunkOffset.z] = chunk
         return chunk
     }
 }

@@ -1,6 +1,5 @@
 package me.danetnaverno.editoni.operation
 
-import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.location.BlockArea
 import me.danetnaverno.editoni.util.Translation
 
@@ -17,7 +16,7 @@ class SelectAreaOperation(val area: BlockArea?) : Operation(), IObservingOperati
 
     override fun initialApply()
     {
-        val operations = world.operationList.all
+        val operations = editorTab.operationList.all
         var lastSelect : SelectAreaOperation? = null
         for (operation in operations)
         {
@@ -32,11 +31,11 @@ class SelectAreaOperation(val area: BlockArea?) : Operation(), IObservingOperati
 
     override fun reapply()
     {
-        Editor.getTab(world).selectArea(area)
+        editorTab.selectArea(area)
     }
 
     override fun rollback()
     {
-        Editor.getTab(world).selectArea(previousArea)
+        editorTab.selectArea(previousArea)
     }
 }

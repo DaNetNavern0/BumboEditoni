@@ -4,6 +4,7 @@ import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blockstate.BlockStateDictionary
 import me.danetnaverno.editoni.blocktype.BlockDictionary
 import me.danetnaverno.editoni.blocktype.BlockType
+import me.danetnaverno.editoni.editor.Editor
 import me.danetnaverno.editoni.location.BlockLocation
 import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
@@ -103,10 +104,10 @@ class Minecraft114WorldIO : IMinecraftWorldIO
         val regionFolder = targetPath.resolve("region")
         Files.createDirectories(regionFolder)
 
-        world.operationList.getAllTrulyAlteredChunks().asSequence()
+        Editor.getTab(world).operationList.getAllTrulyAlteredChunks().asSequence()
                 .mapNotNull { world.getChunk(it) }
                 .forEach {
-                    writeQChunkToFile(regionFolder, it.region, composeQChunk(it), it.location.x, it.location.z)
+                    writeQChunkToFile(regionFolder, it.region, composeQChunk(it), it.chunkLocation.x, it.chunkLocation.z)
                 }
     }
 
@@ -232,7 +233,7 @@ class Minecraft114WorldIO : IMinecraftWorldIO
             blockState.putString("Name", block.type.toString())
             if (properties != null)
                 blockState.put("Properties", properties)
-            mcaChunk.setBlockStateAt(block.location.globalX, block.location.globalY, block.location.globalZ, blockState, false)
+            mcaChunk.setBlockStateAt(block.blockLocation.globalX, block.blockLocation.globalY, block.blockLocation.globalZ, blockState, false)
         }
         mcaChunk.entities = entities
         tileEntities.addAll(chunk.tileEntities.values.map { it.tag })
@@ -247,7 +248,7 @@ class Minecraft114WorldIO : IMinecraftWorldIO
             }
         }
 
-        mcaChunk.updateHandle(chunk.location.x, chunk.location.z)
+        mcaChunk.updateHandle(chunk.chunkLocation.x, chunk.chunkLocation.z)
         return mcaChunk
     }
 

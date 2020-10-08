@@ -82,6 +82,6 @@ compileKotlin {
         //Because this is a pure Kotlin project, we can remove Kotlin's intrinsics assertions
         //Actually, maybe it'd be better to keep it during the development stage,
         //  but for the sake of optimization testing, I keep them removed
-        freeCompilerArgs = ["-Xinline-classes", "-Xno-param-assertions", "-Xno-call-assertions", "-Xno-receiver-assertions"]
+        freeCompilerArgs = ["-Xno-param-assertions", "-Xno-call-assertions", "-Xno-receiver-assertions"]
     }
 }

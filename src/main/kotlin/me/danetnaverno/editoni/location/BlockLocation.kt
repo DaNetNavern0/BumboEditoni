@@ -5,21 +5,21 @@ import me.danetnaverno.editoni.world.Chunk
 data class BlockLocation(override val globalX: Int, override val globalY: Int, override val globalZ: Int) : IBlockLocation
 {
     constructor(chunk: Chunk, localX: Int, localY: Int, localZ: Int)
-            : this(chunk.location.x shl 4 or (localX and 15), localY, chunk.location.z shl 4 or (localZ and 15))
+            : this(chunk.chunkLocation.x shl 4 or (localX and 15), localY, chunk.chunkLocation.z shl 4 or (localZ and 15))
 
     fun add(x: Int, y: Int, z: Int): BlockLocation
     {
         return BlockLocation(globalX + x, globalY + y, globalZ + z)
     }
 
-    fun add(location: IBlockLocation): BlockLocation
+    fun add(blockLocation: IBlockLocation): BlockLocation
     {
-        return BlockLocation(globalX + location.globalX, globalY + location.localY, globalZ + location.localZ)
+        return BlockLocation(globalX + blockLocation.globalX, globalY + blockLocation.localY, globalZ + blockLocation.localZ)
     }
 
-    fun subtract(location: IBlockLocation): BlockLocation
+    fun subtract(blockLocation: IBlockLocation): BlockLocation
     {
-        return BlockLocation(globalX - location.globalX, globalY - location.localY, globalZ - location.localZ)
+        return BlockLocation(globalX - blockLocation.globalX, globalY - blockLocation.localY, globalZ - blockLocation.localZ)
     }
 
     override fun toChunkLocation(): ChunkLocation

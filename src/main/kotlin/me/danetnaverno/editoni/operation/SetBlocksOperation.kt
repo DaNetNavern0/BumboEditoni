@@ -7,8 +7,8 @@ import me.danetnaverno.editoni.world.Block
 open class SetBlocksOperation(area: BlockArea, protected val blocks: Collection<Block>) : Operation()
 {
     override val displayName = Translation.translate("operation.set",
-            blocks.minByOrNull { it.location.localX + it.location.localY + it.location.localZ },
-            blocks.maxByOrNull { it.location.localX + it.location.localY + it.location.localZ })
+            blocks.minByOrNull { it.blockLocation.localX + it.blockLocation.localY + it.blockLocation.localZ },
+            blocks.maxByOrNull { it.blockLocation.localX + it.blockLocation.localY + it.blockLocation.localZ })
 
     override val alteredChunks = area.toChunkArea()
 
@@ -16,7 +16,7 @@ open class SetBlocksOperation(area: BlockArea, protected val blocks: Collection<
 
     override fun initialApply()
     {
-        replacedBlocks = blocks.mapNotNull { it.chunk.world.getBlockAt(it.location) }
+        replacedBlocks = blocks.mapNotNull { it.chunk.world.getBlockAt(it.blockLocation) }
         reapply()
     }
 

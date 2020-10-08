@@ -122,10 +122,11 @@ object EditorGUI
             val state = fc.showOpenDialog(null)
             if (state == JFileChooser.APPROVE_OPTION)
             {
-                val world = Editor.currentWorld
+                val editorTab = Editor.currentTab
+                val world = editorTab.world
                 world.worldIO.writeWorld(Editor.currentWorld, fc.selectedFile.toPath())
                 ChunkManager.unloadExcessChunks(world)
-                world.operationList.savePosition = world.operationList.getPosition()
+                editorTab.operationList.savePosition = editorTab.operationList.getPosition()
             }
         }
         fileTab.items.add(fileSaveAs)
@@ -229,17 +230,17 @@ object EditorGUI
         val blockGlobalLocLabel = if (selectedBlock == null)
             Label(Translation.translate("gui.block_info.location.global", "-", "-", "-"))
         else
-            Label(Translation.translate("gui.block_info.location.global", selectedBlock.location.globalX, selectedBlock.location.globalY, selectedBlock.location.globalZ))
+            Label(Translation.translate("gui.block_info.location.global", selectedBlock.blockLocation.globalX, selectedBlock.blockLocation.globalY, selectedBlock.blockLocation.globalZ))
 
         val blockChunkLocLabel = if (selectedBlock == null)
             Label(Translation.translate("gui.block_info.location.local", "-", "-", "-"))
         else
-            Label(Translation.translate("gui.block_info.location.local", selectedBlock.location.localX, selectedBlock.location.localY, selectedBlock.location.localZ))
+            Label(Translation.translate("gui.block_info.location.local", selectedBlock.blockLocation.localX, selectedBlock.blockLocation.localY, selectedBlock.blockLocation.localZ))
 
         val blockChunkPosLabel = if (selectedBlock == null)
             Label(Translation.translate("gui.block_info.location.chunk", "-", "-"))
         else
-            Label(Translation.translate("gui.block_info.location.chunk", selectedBlock.chunk.location.x, selectedBlock.chunk.location.z))
+            Label(Translation.translate("gui.block_info.location.chunk", selectedBlock.chunk.chunkLocation.x, selectedBlock.chunk.chunkLocation.z))
 
         blockGlobalLocLabel.isFillToParentWidth = true
         blockGlobalLocLabel.alignment = Pos.TOP_LEFT
@@ -293,7 +294,7 @@ object EditorGUI
         infoLabel.isFillToParentWidth = true
         infoLabel.alignment = Pos.TOP_LEFT
 
-        val locationLabel = Label(Translation.translate("gui.block_info.location.global", selectedEntity.location.globalX, selectedEntity.location.globalY, selectedEntity.location.globalZ))
+        val locationLabel = Label(Translation.translate("gui.block_info.location.global", selectedEntity.entityLocation.globalX, selectedEntity.entityLocation.globalY, selectedEntity.entityLocation.globalZ))
         locationLabel.isFillToParentWidth = true
         locationLabel.alignment = Pos.TOP_LEFT
 
@@ -306,7 +307,7 @@ object EditorGUI
 
     fun refreshOperationHistory()
     {
-        val operations = Editor.currentWorld.operationList
+        val operations = Editor.currentTab.operationList
         val ohContainer = TreeView<String>()
         for ((i, operation) in operations.all.withIndex())
         {

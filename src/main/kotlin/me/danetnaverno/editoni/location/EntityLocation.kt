@@ -9,14 +9,14 @@ data class EntityLocation(val globalX: Double, val globalY: Double, val globalZ:
         return EntityLocation(this.globalX + x, this.globalY + y, this.globalZ + z)
     }
 
-    fun add(location: EntityLocation): EntityLocation
+    fun add(entityLocation: EntityLocation): EntityLocation
     {
-        return EntityLocation(this.globalX + location.globalX, this.globalY + location.globalY, this.globalZ + location.globalZ)
+        return EntityLocation(this.globalX + entityLocation.globalX, this.globalY + entityLocation.globalY, this.globalZ + entityLocation.globalZ)
     }
 
-    fun subtract(location: EntityLocation): EntityLocation
+    fun subtract(entityLocation: EntityLocation): EntityLocation
     {
-        return EntityLocation(this.globalX - location.globalX, this.globalY - location.globalY, this.globalZ - location.globalZ)
+        return EntityLocation(this.globalX - entityLocation.globalX, this.globalY - entityLocation.globalY, this.globalZ - entityLocation.globalZ)
     }
 
     fun toBlockLocation(): BlockLocation

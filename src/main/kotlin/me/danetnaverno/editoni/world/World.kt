@@ -3,14 +3,11 @@ package me.danetnaverno.editoni.world
 import me.danetnaverno.editoni.MinecraftDictionaryFiller
 import me.danetnaverno.editoni.blockstate.BlockState
 import me.danetnaverno.editoni.blocktype.BlockType
-import me.danetnaverno.editoni.editor.Settings
 import me.danetnaverno.editoni.io.IMinecraftWorldIO
 import me.danetnaverno.editoni.location.*
-import me.danetnaverno.editoni.operation.OperationList
 import me.danetnaverno.editoni.render.WorldRenderer
 import org.joml.Vector3f
 import org.joml.Vector3i
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.nio.file.Path
 import java.util.*
 import kotlin.collections.ArrayList
@@ -20,7 +17,6 @@ import kotlin.math.floor
 class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val path: Path)
 {
     val worldRenderer = WorldRenderer(this)
-    val operationList = OperationList(this)
 
     /**
      * [RegionLocation.equals]/[RegionLocationMutable.equals] is rather slow, because it involves casting,
@@ -33,7 +29,7 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
     private val regions = HashMap<IRegionLocation, Region>()
 
     //todo It's not great having this field being public
-    val loadedChunksCache = ArrayList<Chunk>(Settings.renderDistance * Settings.renderDistance * 4)
+    internal val loadedChunksCache = ArrayList<Chunk>()
 
     //======================
     // REGIONS
@@ -43,14 +39,14 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
         return regions.values
     }
 
-    fun getRegion(location: IRegionLocation): Region?
+    fun getRegion(regionLocation: IRegionLocation): Region?
     {
-        return regions[location]
+        return regions[regionLocation]
     }
 
     fun addRegion(region: Region)
     {
-        regions[region.location] = region
+        regions[region.regionLocation] = region
     }
 
     //======================
@@ -72,78 +68,78 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
         return loadedChunksCache
     }
 
-    fun getChunk(location: IBlockLocation): Chunk?
+    fun getChunk(chunkLocation: IBlockLocation): Chunk?
     {
-        val region = getRegion(location.toRegionLocation()) ?: return null
-        return region.getChunk(location.toChunkLocation())
+        val region = getRegion(chunkLocation.toRegionLocation()) ?: return null
+        return region.getChunk(chunkLocation.toChunkLocation())
     }
 
-    fun getChunk(location: IChunkLocation): Chunk?
+    fun getChunk(chunkLocation: IChunkLocation): Chunk?
     {
-        val region = getRegion(location.toRegionLocation()) ?: return null
-        return region.getChunk(location)
+        val region = getRegion(chunkLocation.toRegionLocation()) ?: return null
+        return region.getChunk(chunkLocation)
     }
 
     fun unloadChunk(chunk: Chunk)
     {
-        getRegion(chunk.location.toRegionLocation())?.unloadChunk(chunk)
+        getRegion(chunk.chunkLocation.toRegionLocation())?.unloadChunk(chunk)
     }
 
     fun unloadChunks(chunks: Collection<Chunk>)
     {
         for (chunk in chunks)
-            getRegion(chunk.location.toRegionLocation())!!.unloadChunk(chunk)
+            getRegion(chunk.chunkLocation.toRegionLocation())!!.unloadChunk(chunk)
     }
 
-    fun createChunk(location: ChunkLocation): Chunk
+    fun createChunk(chunkLocation: ChunkLocation): Chunk
     {
-        throw NotImplementedException()
+        TODO()
     }
 
     //======================
     // BLOCKS
     //======================
-    fun getBlockAt(location: IBlockLocation): Block?
+    fun getBlockAt(blockLocation: IBlockLocation): Block?
     {
-        val chunk = getChunk(location) ?: return null
-        return chunk.getBlockAt(location)
+        val chunk = getChunk(blockLocation) ?: return null
+        return chunk.getBlockAt(blockLocation)
     }
 
-    fun getBlockTypeAt(location: IBlockLocation): BlockType?
+    fun getBlockTypeAt(blockLocation: IBlockLocation): BlockType?
     {
-        val chunk = getChunk(location) ?: return null
-        return chunk.getBlockTypeAt(location)
+        val chunk = getChunk(blockLocation) ?: return null
+        return chunk.getBlockTypeAt(blockLocation)
     }
 
-    fun getBlockStateAt(location: IBlockLocation): BlockState?
+    fun getBlockStateAt(blockLocation: IBlockLocation): BlockState?
     {
-        val chunk = getChunk(location) ?: return null
-        return chunk.getBlockStateAt(location)
+        val chunk = getChunk(blockLocation) ?: return null
+        return chunk.getBlockStateAt(blockLocation)
     }
 
-    fun getTileEntityAt(location: IBlockLocation): TileEntity?
+    fun getTileEntityAt(blockLocation: IBlockLocation): TileEntity?
     {
-        val chunk = getChunk(location) ?: return null
-        return chunk.getTileEntityAt(location)
+        val chunk = getChunk(blockLocation) ?: return null
+        return chunk.getTileEntityAt(blockLocation)
     }
 
 
     fun setBlock(block: Block)
     {
-        var chunk = getChunk(block.location)
+        var chunk = getChunk(block.blockLocation)
         if (chunk == null)
-            chunk = createChunk(block.location.toChunkLocation())
+            chunk = createChunk(block.blockLocation.toChunkLocation())
         chunk.setBlock(block)
     }
 
-    fun deleteBlock(location: IBlockLocation)
+    fun deleteBlock(blockLocation: IBlockLocation)
     {
-        val chunk = getChunk(location)
+        val chunk = getChunk(blockLocation)
         if (chunk != null)
-            setBlock(Block(chunk, location.toImmutable(), MinecraftDictionaryFiller.AIR, null, null))
+            setBlock(Block(chunk, blockLocation.toImmutable(), MinecraftDictionaryFiller.AIR, null, null))
     }
 
-    fun findBlock(point: Vector3f): Block?
+    fun findClosestBlock(point: Vector3f): Block?
     {
         if (point.y < 0 || point.y > 255)
             return null
@@ -164,7 +160,7 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
                     if (distance < min)
                     {
                         val block = this.getBlockAt(BlockLocation(x, y, z))
-                        if (block != null && !block.type.isHidden /*&& !hiddenBlocks.contains(block.location)*/)
+                        if (block != null && !block.type.isHidden)
                         {
                             closest = block
                             min = distance
@@ -178,7 +174,7 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
     //======================
     // ENTITIES
     //======================
-    fun getEntitiesAt(location: EntityLocation, radius: Float): List<Entity>?
+    fun getEntitiesAt(entityLocation: EntityLocation, radius: Float): List<Entity>?
     {
         return ArrayList() //todo
         /*return getLoadedChunks().stream()
@@ -188,9 +184,9 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
                 .collect(Collectors.toList<Any>())*/
     }
 
-    fun findEntity(location: EntityLocation): Entity?
+    fun findClosestEntity(entityLocation: EntityLocation): Entity?
     {
-        return getEntitiesAt(location.add(0.0, -0.5, 0.0), 1f)?.firstOrNull()
+        return getEntitiesAt(entityLocation.add(0.0, -0.5, 0.0), 1f)?.firstOrNull()
     }
 
     //======================
@@ -201,9 +197,12 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
     {
         try
         {
-            if (path.parent.fileName.toString().contains("DIM1")) return path.parent.parent.fileName.toString() + " (End; " + version + ")"
-            if (path.parent.fileName.toString().contains("DIM-1")) return path.parent.parent.fileName.toString() + " (Nether; " + version + ")"
-            if (path.fileName.toString().contains("region")) return path.parent.fileName.toString() + " (" + version + ")"
+            if (path.parent.fileName.toString().contains("DIM1"))
+                return path.parent.parent.fileName.toString() + " (End; " + version + ")"
+            if (path.parent.fileName.toString().contains("DIM-1"))
+                return path.parent.parent.fileName.toString() + " (Nether; " + version + ")"
+            if (path.fileName.toString().contains("region"))
+                return path.parent.fileName.toString() + " (" + version + ")"
         }
         catch (e: Exception)
         {

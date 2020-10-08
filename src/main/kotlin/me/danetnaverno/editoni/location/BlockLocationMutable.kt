@@ -39,9 +39,9 @@ class BlockLocationMutable(globalX: Int, globalY: Int, globalZ: Int) : IBlockLoc
 
     fun blockLocationFromSectionIndex(chunk: Chunk, section: Int, index: Int): BlockLocationMutable
     {
-        globalX = chunk.location.x shl 4 or ((index % 16) and 15)
+        globalX = chunk.chunkLocation.x shl 4 or ((index % 16) and 15)
         globalY = index / 256 + section * 16
-        globalZ = chunk.location.z shl 4 or ((index % 256 / 16) and 15)
+        globalZ = chunk.chunkLocation.z shl 4 or ((index % 256 / 16) and 15)
         chunkLocation.set(globalX shr 4, globalZ shr 4)
         return this
     }

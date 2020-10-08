@@ -97,10 +97,10 @@ class BlockAreaImmutableIterator(min: BlockLocation, max: BlockLocation) : Block
 
 class BlockAreaMutableIterator(min: BlockLocation, max: BlockLocation) : BlockAreaIterator<BlockLocationMutable>(min, max)
 {
-    private val currentLocation = BlockLocationMutable(currentX, currentY, currentZ)
+    private val currentBlockLocation = BlockLocationMutable(currentX, currentY, currentZ)
     override fun next(): BlockLocationMutable
     {
         shiftIndex()
-        return currentLocation.set(currentX, currentY, currentZ)
+        return currentBlockLocation.set(currentX, currentY, currentZ)
     }
 }

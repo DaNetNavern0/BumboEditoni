@@ -126,12 +126,12 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
     private fun tickGeneral()
     {
         mainThreadExecutor.fireTasks()
-        ChunkManager.loadChunksInLoadingDistance(Editor.currentWorld)
+        ChunkManager.loadChunksInLoadingDistance(Editor.currentWorld, Editor.currentTab.camera.mutableLocation.toChunkLocation())
     }
 
     private fun tickBaking()
     {
-        Editor.currentWorld.worldRenderer.tickBaking()
+        Editor.currentWorld.worldRenderer.tickBaking(Editor.currentTab.camera.mutableLocation.toChunkLocation())
     }
 
     private fun tickDisplay()

@@ -12,9 +12,9 @@ interface IMinecraftWorldIO
 
     fun openWorld(path: Path): World
 
-    fun readChunk(region: Region, location: IChunkLocation): Chunk?
+    fun readChunk(region: Region, chunkLocation: IChunkLocation): Chunk?
     {
-        return readChunk(region, location.x, location.z)
+        return readChunk(region, chunkLocation.x, chunkLocation.z)
     }
 
     fun readChunk(region: Region, globalX: Int, globalZ: Int): Chunk?

@@ -11,6 +11,6 @@ import me.danetnaverno.editoni.world.Block
 class PasteBlocksOperation(area: BlockArea, blocks: Collection<Block>) : SetBlocksOperation(area, blocks)
 {
     override val displayName = Translation.translate("operation.paste",
-            blocks.minByOrNull { it.location.localX + it.location.localY + it.location.localZ },
-            blocks.maxByOrNull { it.location.localX + it.location.localY + it.location.localZ })
+            blocks.minByOrNull { it.blockLocation.localX + it.blockLocation.localY + it.blockLocation.localZ },
+            blocks.maxByOrNull { it.blockLocation.localX + it.blockLocation.localY + it.blockLocation.localZ })
 }

@@ -19,8 +19,8 @@ open class DeleteBlocksOperation(protected val area: BlockArea) : Operation()
 
     override fun reapply()
     {
-        for (location in area.mutableIterator())
-            area.world.deleteBlock(location)
+        for (blockLocation in area.mutableIterator())
+            area.world.deleteBlock(blockLocation)
     }
 
     override fun rollback()

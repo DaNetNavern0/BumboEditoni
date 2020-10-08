@@ -10,8 +10,8 @@ interface IRegionLocation
         return RegionLocation(x, z)
     }
 
-    fun isChunkLocationBelongs(location: IChunkLocation): Boolean
+    fun isChunkLocationBelongs(chunkLocation: IChunkLocation): Boolean
     {
-        return location.x shr 5 == x && location.z shr 5 == z
+        return chunkLocation.x shr 5 == x && chunkLocation.z shr 5 == z
     }
 }

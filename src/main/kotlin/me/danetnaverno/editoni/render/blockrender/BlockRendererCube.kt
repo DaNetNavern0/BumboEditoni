@@ -92,19 +92,19 @@ open class BlockRendererCube : BlockRenderer
     }
 
     //todo this could use some improvements, see [BlockRenderer.shouldRenderSideAgainst]
-    override fun isVisible(world: World, location: BlockLocationMutable): Boolean
+    override fun isVisible(world: World, blockLocation: BlockLocationMutable): Boolean
     {
         //A small trick to avoid creating new short-living BlockLocation instances
-        val x = location.globalX
-        val y = location.globalY
-        val z = location.globalZ
-        val result = shouldRenderSideAgainst(world, location.add(0, 1, 0)) ||
-                shouldRenderSideAgainst(world, location.add(0, -2, 0)) ||
-                shouldRenderSideAgainst(world, location.add(0, 1, 1)) ||
-                shouldRenderSideAgainst(world, location.add(0, 0, -2)) ||
-                shouldRenderSideAgainst(world, location.add(1, 0, 1)) ||
-                shouldRenderSideAgainst(world, location.add(-2, 0, 0))
-        location.set(x, y, z)
+        val x = blockLocation.globalX
+        val y = blockLocation.globalY
+        val z = blockLocation.globalZ
+        val result = shouldRenderSideAgainst(world, blockLocation.add(0, 1, 0)) ||
+                shouldRenderSideAgainst(world, blockLocation.add(0, -2, 0)) ||
+                shouldRenderSideAgainst(world, blockLocation.add(0, 1, 1)) ||
+                shouldRenderSideAgainst(world, blockLocation.add(0, 0, -2)) ||
+                shouldRenderSideAgainst(world, blockLocation.add(1, 0, 1)) ||
+                shouldRenderSideAgainst(world, blockLocation.add(-2, 0, 0))
+        blockLocation.set(x, y, z)
         return result
     }
 
@@ -113,18 +113,18 @@ open class BlockRendererCube : BlockRenderer
         return 6 * 4 * 4
     }
 
-    override fun bake(world: World, location: BlockLocationMutable, vertexBuffer: FloatBuffer)
+    override fun bake(world: World, blockLocation: BlockLocationMutable, vertexBuffer: FloatBuffer)
     {
         val size = getSize()
-        val x1 = location.globalX.toFloat()
-        val y1 = location.globalY.toFloat()
-        val z1 = location.globalZ.toFloat()
+        val x1 = blockLocation.globalX.toFloat()
+        val y1 = blockLocation.globalY.toFloat()
+        val z1 = blockLocation.globalZ.toFloat()
 
-        val x2 = location.globalX + size
-        val y2 = location.globalY + size
-        val z2 = location.globalZ + size
+        val x2 = blockLocation.globalX + size
+        val y2 = blockLocation.globalY + size
+        val z2 = blockLocation.globalZ + size
 
-        if (shouldRenderSideAgainst(world, location.add(0, 1, 0)))
+        if (shouldRenderSideAgainst(world, blockLocation.add(0, 1, 0)))
         {
             val tIndex = top.atlasZLayer
 
@@ -139,7 +139,7 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.put(x1).put(y2).put(z1).put(0f).put(0f).put(tIndex)
         }
 
-        if (shouldRenderSideAgainst(world, location.add(0, -2, 0)))
+        if (shouldRenderSideAgainst(world, blockLocation.add(0, -2, 0)))
         {
             val tIndex = bottom.atlasZLayer
 
@@ -152,7 +152,7 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.put(x2).put(y1).put(z2).put(1f).put(1f).put(tIndex)
         }
 
-        if (shouldRenderSideAgainst(world, location.add(0, 1, 1)))
+        if (shouldRenderSideAgainst(world, blockLocation.add(0, 1, 1)))
         {
             val tIndex = south.atlasZLayer
 
@@ -166,7 +166,7 @@ open class BlockRendererCube : BlockRenderer
 
         }
 
-        if (shouldRenderSideAgainst(world, location.add(0, 0, -2)))
+        if (shouldRenderSideAgainst(world, blockLocation.add(0, 0, -2)))
         {
             val tIndex = north.atlasZLayer
 
@@ -179,7 +179,7 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.put(x2).put(y1).put(z1).put(0f).put(0f).put(tIndex)
         }
 
-        if (shouldRenderSideAgainst(world, location.add(-1, 0, 1)))
+        if (shouldRenderSideAgainst(world, blockLocation.add(-1, 0, 1)))
         {
             val tIndex = west.atlasZLayer
 
@@ -192,7 +192,7 @@ open class BlockRendererCube : BlockRenderer
             vertexBuffer.put(x1).put(y2).put(z2).put(0f).put(0f).put(tIndex)
         }
 
-        if (shouldRenderSideAgainst(world, location.add(2, 0, 0)))
+        if (shouldRenderSideAgainst(world, blockLocation.add(2, 0, 0)))
         {
             val tIndex = east.atlasZLayer
 

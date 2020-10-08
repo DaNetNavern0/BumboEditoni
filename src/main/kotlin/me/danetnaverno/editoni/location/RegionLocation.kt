@@ -2,7 +2,6 @@ package me.danetnaverno.editoni.location
 
 import kotlin.math.sqrt
 
-
 data class RegionLocation(override val x: Int, override val z: Int) : IRegionLocation
 {
     fun distance(other: IRegionLocation): Double

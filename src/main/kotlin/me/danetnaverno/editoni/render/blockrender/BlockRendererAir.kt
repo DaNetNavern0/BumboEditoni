@@ -11,7 +11,7 @@ class BlockRendererAir : BlockRenderer()
     {
     }
 
-    override fun isVisible(world: World, location: BlockLocationMutable): Boolean
+    override fun isVisible(world: World, blockLocation: BlockLocationMutable): Boolean
     {
         return false
     }
@@ -21,11 +21,11 @@ class BlockRendererAir : BlockRenderer()
         return 0
     }
 
-    override fun bake(world: World, location: BlockLocationMutable, vertexBuffer: FloatBuffer)
+    override fun bake(world: World, blockLocation: BlockLocationMutable, vertexBuffer: FloatBuffer)
     {
     }
 
-    override fun shouldRenderSideAgainst(world: World, location: BlockLocationMutable): Boolean
+    override fun shouldRenderSideAgainst(world: World, blockLocation: BlockLocationMutable): Boolean
     {
         return false
     }
