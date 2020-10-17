@@ -58,11 +58,6 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
         getRegion(chunkLocation.toRegionLocation())?.loadChunkAsync(chunkLocation, ticket)
     }
 
-    fun loadChunkSync(chunkLocation: IChunkLocation, ticket: ChunkTicket): Chunk?
-    {
-        return getRegion(chunkLocation.toRegionLocation())?.loadChunkSync(chunkLocation, ticket)
-    }
-
     fun getLoadedChunks(): List<Chunk>
     {
         return loadedChunksCache

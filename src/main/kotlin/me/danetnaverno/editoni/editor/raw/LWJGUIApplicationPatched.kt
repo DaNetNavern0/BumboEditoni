@@ -38,7 +38,7 @@ abstract class LWJGUIApplicationPatched
 
         check(GLFW.glfwInit()) { "Unable to initialize GLFW" }
         WindowManager.init()
-        val thread: WindowThread = object : WindowThread(100, 100, "lwjgui", false)
+        val thread = object : WindowThread(100, 100, "lwjgui", false)
         {
             override fun init(window: Window)
             {

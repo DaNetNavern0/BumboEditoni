@@ -12,12 +12,12 @@ interface IMinecraftWorldIO
 
     fun openWorld(path: Path): World
 
-    fun readChunk(region: Region, chunkLocation: IChunkLocation): Chunk?
+    suspend fun readChunk(region: Region, chunkLocation: IChunkLocation): Chunk?
     {
         return readChunk(region, chunkLocation.x, chunkLocation.z)
     }
 
-    fun readChunk(region: Region, globalX: Int, globalZ: Int): Chunk?
+    suspend fun readChunk(region: Region, globalX: Int, globalZ: Int): Chunk?
 
     fun writeWorld(world: World, targetPath: Path)
 
@@ -25,7 +25,7 @@ interface IMinecraftWorldIO
     {
         fun getWorldIO(path: Path): IMinecraftWorldIO
         {
-            return Minecraft114WorldIO() //todo
+            return Minecraft114WorldIO(QChunkReader114) //todo
         }
     }
 }

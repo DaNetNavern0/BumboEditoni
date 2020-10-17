@@ -1,5 +1,7 @@
 package me.danetnaverno.editoni.editor
 
+import kotlinx.coroutines.CoroutineDispatcher
+import lwjgui.gl.Renderer
 import lwjgui.scene.Context
 import lwjgui.scene.Scene
 import lwjgui.scene.Window
@@ -8,7 +10,6 @@ import me.danetnaverno.editoni.editor.raw.LWJGUIApplicationPatched
 import me.danetnaverno.editoni.editor.raw.RawInputHandler
 import me.danetnaverno.editoni.render.Shader
 import me.danetnaverno.editoni.texture.TextureAtlas
-import me.danetnaverno.editoni.util.ThreadExecutor
 import me.danetnaverno.editoni.world.ChunkManager
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -16,24 +17,22 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL33.*
 import java.awt.Rectangle
 import java.nio.file.Paths
+import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.tan
+
+typealias MainThreadContext = EditorApplication.MainThreadContext
 
 /**
  * This class represents the backbones of the Editor - starting an app, rendering loop etc.
  * For editor-related operations look at [Editor]
  */
-object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
+object EditorApplication : LWJGUIApplicationPatched(), Renderer
 {
     private const val WIDTH = 1500
     private const val HEIGHT = 768
     private const val SIDE_PANEL_WIDTH = 250
     private const val MENU_BAR_HEIGHT = 24
-
-    /**
-     * todo I'm really not sure about this thing. It opens endless possibilities for multiple types of pasta
-     *   Also, move this to a right place
-     */
-    val mainThreadExecutor = ThreadExecutor()
 
     var fps = 0
     lateinit var combinedMatrix: Matrix4f //todo move this to a right place
@@ -51,6 +50,7 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
 
     private lateinit var window: Window
     private var frameStamp = System.currentTimeMillis()
+    private val mainThreadTasks = ConcurrentLinkedQueue<Runnable>()
 
     fun launch(args: Array<String>)
     {
@@ -62,6 +62,7 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
         //todo inspect lwjgui for the excessive creation of short-living StyleOperation-s
         check(!this::window.isInitialized) { "EditorApplication had already been initialized" }
 
+        Thread.currentThread().name = "Main"
         this.window = window
         val windowId = window.context.window.id
         window.setTitle("Bumbo Editoni")
@@ -85,6 +86,7 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
         try
         {
             setUpProjection()
+            tickCoroutineContext()
             tickGeneral()
             tickBaking()
             tickDisplay()
@@ -123,9 +125,17 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
         combinedMatrix.translate(Vector3f(-Editor.currentTab.camera.x.toFloat(), -Editor.currentTab.camera.y.toFloat(), -Editor.currentTab.camera.z.toFloat()))
     }
 
+    private fun tickCoroutineContext()
+    {
+        while (true)
+        {
+            val task = mainThreadTasks.poll() ?: break
+            task.run()
+        }
+    }
+
     private fun tickGeneral()
     {
-        mainThreadExecutor.fireTasks()
         ChunkManager.loadChunksInLoadingDistance(Editor.currentWorld, Editor.currentTab.camera.mutableLocation.toChunkLocation())
     }
 
@@ -156,5 +166,13 @@ object EditorApplication : LWJGUIApplicationPatched(), lwjgui.gl.Renderer
         EditorUserInputHandler.controls()
         EditorUserInputHandler.selections()
         RawInputHandler.update()
+    }
+
+    object MainThreadContext : CoroutineDispatcher()
+    {
+        override fun dispatch(context: CoroutineContext, block: Runnable)
+        {
+            mainThreadTasks.add(block)
+        }
     }
 }

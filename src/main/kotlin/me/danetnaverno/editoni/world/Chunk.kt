@@ -16,7 +16,7 @@ class Chunk(val world: World, val chunkLocation: ChunkLocation, val extras: MCAE
     /*private*/ lateinit var blockStates: MutableMap<Int, BlockState>
     /*private*/ lateinit var tileEntities: MutableMap<Int, TileEntity>
 
-    val vertexData = ChunkRenderer(this)
+    val renderer = ChunkRenderer(this)
 
     val region
         get() = world.getRegion(chunkLocation.toRegionLocation())!!

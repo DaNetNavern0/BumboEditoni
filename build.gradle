@@ -38,7 +38,6 @@ dependencies {
 	compile "com.github.Querz:NBT:5.5"
 
     compile "com.alibaba:fastjson:1.2.73"
-    compile "com.github.Querz:NBT:5.2"
 
     compile "org.lwjgl:lwjgl:$lwjgl_version"
     compile "org.lwjgl:lwjgl-glfw:$lwjgl_version"
@@ -58,6 +57,7 @@ dependencies {
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0-M1"
 }
 
 for (def task in tasks.withType(JavaCompile))

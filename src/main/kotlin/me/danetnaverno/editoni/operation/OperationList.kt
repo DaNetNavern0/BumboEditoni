@@ -123,7 +123,7 @@ class OperationList constructor(val editorTab: EditorTab)
     {
         ChunkArea(chunkArea.world, chunkArea.min.add(-1, -1), chunkArea.max.add(1, 1)).iterator().asSequence()
                 .mapNotNull { chunkLoc -> editorTab.world.getChunk(chunkLoc) }
-                .forEach { chunkArea.world.worldRenderer.bakeChunk(it) }
+                .forEach { chunkArea.world.worldRenderer.markChunkToBake(it) }
     }
 
     fun getAllAlteredChunks() : List<ChunkLocation>

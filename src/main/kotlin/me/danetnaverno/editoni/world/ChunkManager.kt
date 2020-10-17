@@ -1,26 +1,29 @@
 package me.danetnaverno.editoni.world
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.danetnaverno.editoni.editor.Editor
-import me.danetnaverno.editoni.editor.EditorApplication
 import me.danetnaverno.editoni.editor.Settings
 import me.danetnaverno.editoni.location.ChunkLocationMutable
 import me.danetnaverno.editoni.location.IChunkLocation
+import me.danetnaverno.editoni.util.MainThreadScope
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.function.Predicate
 
 object ChunkManager
 {
-    val chunkLoadingExecutor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
     private val tickets: MutableMap<Chunk, MutableSet<ChunkTicket>> = ConcurrentHashMap()
 
     init
     {
-        chunkLoadingExecutor.scheduleAtFixedRate({
-            EditorApplication.mainThreadExecutor.addTask { unloadExcessChunks() }
-        }, 0, Settings.chunkCleanupPeriod, TimeUnit.SECONDS)
+        MainThreadScope.launch {
+            while (true)
+            {
+                unloadExcessChunks()
+                delay(TimeUnit.SECONDS.toMillis(Settings.chunkCleanupPeriod))
+            }
+        }
     }
 
     fun loadChunksInLoadingDistance(world: World, cameraChunkLocation: IChunkLocation)
@@ -84,7 +87,7 @@ object ChunkManager
         world.unloadChunks(getExcessChunks(world))
     }
 
-    fun getExcessChunks(world: World) : List<Chunk>
+    fun getExcessChunks(world: World): List<Chunk>
     {
         val cameraLocation = Editor.getTab(world).camera.mutableLocation.toChunkLocation()
         return world.getLoadedChunks().filter {

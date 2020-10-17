@@ -1,9 +1,11 @@
 package me.danetnaverno.editoni.world
 
-import me.danetnaverno.editoni.editor.EditorApplication
+import kotlinx.coroutines.launch
 import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
+import me.danetnaverno.editoni.util.ChunkReadingScope
+import me.danetnaverno.editoni.util.MainThreadScope
 import java.nio.file.Path
 
 class Region(val path: Path, val world: World, val regionLocation: RegionLocation)
@@ -24,39 +26,17 @@ class Region(val path: Path, val world: World, val regionLocation: RegionLocatio
         if (chunks[localX][localZ] == null)
         {
             chunks[localX][localZ] = Chunk.Placeholder
-            ChunkManager.chunkLoadingExecutor.execute {
-                val chunk = world.worldIO.readChunk(this, x, z)
-                if (chunk != null)
-                {
-                    // todo I'm really not sure about this thing. It opens endless possibilities for multiple types of pasta
-                    EditorApplication.mainThreadExecutor.addTask {
-                        chunks[localX][localZ] = chunk
-                        ChunkManager.addTicket(chunk, ticket)
-                        world.loadedChunksCache.add(chunk)
-                        world.worldRenderer.bakeChunk(chunk)
-                    }
+            ChunkReadingScope.launch {
+                val chunk = world.worldIO.readChunk(this@Region, x, z) ?: return@launch
+                MainThreadScope.launch {
+                    chunks[localX][localZ] = chunk
+                    ChunkManager.addTicket(chunk, ticket)
+                    world.loadedChunksCache.add(chunk)
+                    world.worldRenderer.markChunkToBake(chunk)
                 }
             }
-        }
-    }
 
-    fun loadChunkSync(chunkLocation: IChunkLocation, ticket: ChunkTicket): Chunk?
-    {
-        require(this.regionLocation.isChunkLocationBelongs(chunkLocation)) {
-            "ChunkLocation is out of region  boundaries: regionLocation=${this.regionLocation} chunkLocation=${chunkLocation}"
         }
-        val localX = chunkLocation.x - chunkOffset.x
-        val localZ = chunkLocation.z - chunkOffset.z
-        if (chunks[localX][localZ] == null)
-        {
-            val chunk = world.worldIO.readChunk(this, chunkLocation) ?: return null
-            chunks[localX][localZ] = chunk
-            ChunkManager.addTicket(chunk, ticket)
-            world.loadedChunksCache.add(chunk)
-            world.worldRenderer.bakeChunk(chunk)
-            return chunk
-        }
-        return null
     }
 
     fun unloadChunk(chunk: Chunk)
@@ -66,7 +46,7 @@ class Region(val path: Path, val world: World, val regionLocation: RegionLocatio
         }
         val dx = chunk.chunkLocation.x - chunkOffset.x
         val dz = chunk.chunkLocation.z - chunkOffset.z
-        chunk.vertexData.invalidate()
+        chunk.renderer.invalidate()
         chunks[dx][dz] = null
         ChunkManager.clearTickets(chunk)
         world.loadedChunksCache.remove(chunk)

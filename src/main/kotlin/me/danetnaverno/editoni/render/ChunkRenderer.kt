@@ -1,6 +1,8 @@
 package me.danetnaverno.editoni.render
 
+import kotlinx.coroutines.launch
 import me.danetnaverno.editoni.location.BlockLocationMutable
+import me.danetnaverno.editoni.util.MainThreadScope
 import me.danetnaverno.editoni.world.Chunk
 import org.lwjgl.opengl.GL33.*
 import org.lwjgl.system.MemoryUtil
@@ -25,8 +27,8 @@ class ChunkRenderer(private val chunk: Chunk)
 
     fun updateVertices()
     {
-        vertexBuffer.position(0)
-        vertexBuffer.limit(32768)
+        var vertexBuffer = MemoryUtil.memAllocFloat(1048576)
+
         val mutableLocation = BlockLocationMutable(0, 0, 0)
 
         //todo I think this entire section isn't nice. Once my Chunk will store data in a palette way, I'll redo this.
@@ -43,8 +45,6 @@ class ChunkRenderer(private val chunk: Chunk)
                     val targetBufferSize = vertexBuffer.position() + renderer.getMaxVertexCount() * 6
                     if (targetBufferSize >= vertexBuffer.capacity())
                         vertexBuffer = growBuffer(vertexBuffer)
-                    if (targetBufferSize >= vertexBuffer.limit())
-                        vertexBuffer.limit(vertexBuffer.limit() + 32768)
                     renderer.bake(chunk.world, mutableLocation, vertexBuffer)
                 }
             }
@@ -57,16 +57,19 @@ class ChunkRenderer(private val chunk: Chunk)
 
         vertexBuffer.flip()
 
-        vao = glGenVertexArrays()
-        glBindVertexArray(vao)
+        MainThreadScope.launch {
+            vao = glGenVertexArrays()
+            glBindVertexArray(vao)
 
-        vbo = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER, vbo)
-        glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW)
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 4 * 6, 0)
-        glEnableVertexAttribArray(0)
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 4 * 6, 4 * 3)
-        glEnableVertexAttribArray(1)
+            vbo = glGenBuffers()
+            glBindBuffer(GL_ARRAY_BUFFER, vbo)
+            glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW)
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, 4 * 6, 0)
+            glEnableVertexAttribArray(0)
+            glVertexAttribPointer(1, 3, GL_FLOAT, false, 4 * 6, 4 * 3)
+            glEnableVertexAttribArray(1)
+            MemoryUtil.memFree(vertexBuffer)
+        }
     }
 
     fun draw()
@@ -96,10 +99,5 @@ class ChunkRenderer(private val chunk: Chunk)
         {
             MemoryUtil.memFree(vertexBuffer)
         }
-    }
-
-    companion object
-    {
-        var vertexBuffer: FloatBuffer = MemoryUtil.memAllocFloat(1048576)
     }
 }

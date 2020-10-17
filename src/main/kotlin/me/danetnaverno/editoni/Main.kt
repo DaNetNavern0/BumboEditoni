@@ -8,6 +8,7 @@ object Main
     @JvmStatic
     fun main(args: Array<String>)
     {
+        Thread.currentThread().name = "Internal Main"
         EditorApplication.launch(args)
     }
 

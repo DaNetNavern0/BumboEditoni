@@ -4,7 +4,7 @@ import me.danetnaverno.editoni.render.WorldRenderer
 
 object Settings
 {
-    val chunkCleanupPeriod = 10L
+    val chunkCleanupPeriod = 5L
     var renderDistance = 10
         set(value)
         {
