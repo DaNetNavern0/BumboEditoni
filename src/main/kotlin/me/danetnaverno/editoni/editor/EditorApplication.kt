@@ -21,8 +21,6 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.tan
 
-typealias MainThreadContext = EditorApplication.MainThreadContext
-
 /**
  * This class represents the backbones of the Editor - starting an app, rendering loop etc.
  * For editor-related operations look at [Editor]

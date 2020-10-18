@@ -12,7 +12,7 @@ import java.util.regex.Pattern
 /**
  * todo A huge disclaimer - this class in in heavy development - saving doesn't work, the idea of how it's going to work isn't solidified etc
  */
-class Minecraft114WorldIO(private val qChunkReader: QChunkReader114) : IMinecraftWorldIO
+class Minecraft114WorldIO(private val qChunkReader: QChunkReader) : IMinecraftWorldIO
 {
     override fun isAppropriateToRead(path: Path): Boolean
     {

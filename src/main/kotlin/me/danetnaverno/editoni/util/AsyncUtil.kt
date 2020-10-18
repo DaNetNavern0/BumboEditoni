@@ -2,12 +2,7 @@ package me.danetnaverno.editoni.util
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import me.danetnaverno.editoni.editor.MainThreadContext
-import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 object MainThreadScope : CoroutineScope
 {
@@ -21,20 +16,15 @@ object ChunkBakingScope : CoroutineScope
         get() = Dispatchers.Default
 }
 
-object ChunkReadingScope : CoroutineScope
+object ChunkDataProcessingScope : CoroutineScope
 {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default
 }
 
-suspend inline fun <T> CompletableFuture<T>.await(): T
+//todo maybe all 3 coroutine scopes would like to have less threads, and the io scope would like to have its own thread pool
+object FileReadingScope : CoroutineScope
 {
-    return suspendCoroutine { continuation ->
-        this.handle { result, exception ->
-            if (result != null)
-                continuation.resume(result)
-            else
-                continuation.resumeWithException(exception!!)
-        }
-    }
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 }

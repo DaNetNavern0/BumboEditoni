@@ -25,30 +25,31 @@ class WorldRenderer(private val world: World)
     private val unbakedChunks = LinkedList<Chunk>()
 
     /**
-     * Blocks the Main Thread and concurrently bakes all chunks within [Settings.renderDistance], which aren't built yet.
+     * Concurrently bakes all chunks within [Settings.renderDistance], which aren't built yet and blocks the Main Thread until they're done.
      *
      * Because the Main Thread will be blocked, and only the Main Thread can change the world,
      *   we're safe to read the world (while baking chunks) in an unsync manner
      */
     internal fun tickBaking(cameraChunkLocation: IChunkLocation)
     {
-        runBlocking(ChunkBakingScope.coroutineContext) {
-            val tasks = arrayListOf<Job>()
-            val iterator = unbakedChunks.iterator()
-            val renderDistance = Settings.renderDistance
-            while(iterator.hasNext())
+        val tasks = arrayListOf<Job>()
+        val iterator = unbakedChunks.iterator()
+        val renderDistance = Settings.renderDistance
+        while (iterator.hasNext())
+        {
+            val chunk = iterator.next()
+            if (cameraChunkLocation.withinCubicDistance(chunk.chunkLocation, renderDistance) && !chunk.renderer.isBuilt)
             {
-                val chunk = iterator.next()
-                if (cameraChunkLocation.withinCubicDistance(chunk.chunkLocation, renderDistance) && !chunk.renderer.isBuilt)
-                {
-                    tasks.add(ChunkBakingScope.launch {
-                        chunk.renderer.updateVertices()
-                    })
-                    iterator.remove()
-                }
+                tasks.add(ChunkBakingScope.launch {
+                    chunk.renderer.updateVertices()
+                })
+                iterator.remove()
             }
-            tasks.joinAll()
         }
+        if (tasks.isNotEmpty())
+            runBlocking(ChunkBakingScope.coroutineContext) {
+                tasks.joinAll()
+            }
     }
 
     internal fun render()

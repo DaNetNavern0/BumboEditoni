@@ -4,20 +4,20 @@ import kotlinx.coroutines.launch
 import me.danetnaverno.editoni.location.ChunkLocation
 import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.location.RegionLocation
-import me.danetnaverno.editoni.util.ChunkReadingScope
+import me.danetnaverno.editoni.util.ChunkDataProcessingScope
 import me.danetnaverno.editoni.util.MainThreadScope
 import java.nio.file.Path
 
 class Region(val path: Path, val world: World, val regionLocation: RegionLocation)
 {
-    private val chunks = Array<Array<Any?>>(32) { arrayOfNulls(32) }
+    private val chunks = Array(32) { arrayOfNulls<Any?>(32) }
 
     val chunkOffset = ChunkLocation(regionLocation.x shl 5, regionLocation.z shl 5)
 
     fun loadChunkAsync(chunkLocation: IChunkLocation, ticket: ChunkTicket)
     {
         require(this.regionLocation.isChunkLocationBelongs(chunkLocation)) {
-            "ChunkLocation is out of region  boundaries: regionLocation=${this.regionLocation} chunkLocation=${chunkLocation}"
+            "ChunkLocation is out of region boundaries: regionLocation=${this.regionLocation} chunkLocation=${chunkLocation}"
         }
         val x = chunkLocation.x
         val z = chunkLocation.z
@@ -26,7 +26,7 @@ class Region(val path: Path, val world: World, val regionLocation: RegionLocatio
         if (chunks[localX][localZ] == null)
         {
             chunks[localX][localZ] = Chunk.Placeholder
-            ChunkReadingScope.launch {
+            ChunkDataProcessingScope.launch {
                 val chunk = world.worldIO.readChunk(this@Region, x, z) ?: return@launch
                 MainThreadScope.launch {
                     chunks[localX][localZ] = chunk
