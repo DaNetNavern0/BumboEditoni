@@ -26,4 +26,6 @@ object Settings
             renderDistance = value - 3
         }
     var hideObservingOperations = false
+
+    //var keepChangesAlwaysRendered = false //todo - just a reminder for myself
 }

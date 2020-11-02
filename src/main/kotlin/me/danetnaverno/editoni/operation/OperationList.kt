@@ -44,7 +44,8 @@ class OperationList constructor(val editorTab: EditorTab)
             val dialogButton = JOptionPane.showConfirmDialog(null,
                     translate("operation.confirm_forced_operation", operationList.size - currentPosition),
                     "", JOptionPane.YES_NO_OPTION)
-            if (dialogButton == JOptionPane.YES_OPTION) applyForced(operation)
+            if (dialogButton == JOptionPane.YES_OPTION)
+                applyForced(operation)
         }
         EditorGUI.refreshOperationHistory()
     }

@@ -9,7 +9,6 @@ import me.danetnaverno.editoni.location.IChunkLocation
 import me.danetnaverno.editoni.util.ChunkBakingScope
 import me.danetnaverno.editoni.world.Chunk
 import me.danetnaverno.editoni.world.World
-import org.lwjgl.opengl.GL33.glBindVertexArray
 import java.util.*
 
 class WorldRenderer(private val world: World)
@@ -25,10 +24,12 @@ class WorldRenderer(private val world: World)
     private val unbakedChunks = LinkedList<Chunk>()
 
     /**
-     * Concurrently bakes all chunks within [Settings.renderDistance], which aren't built yet and blocks the Main Thread until they're done.
+     * Concurrently bakes all chunks within [Settings.renderDistance], which aren't built yet.
      *
-     * Because the Main Thread will be blocked, and only the Main Thread can change the world,
-     *   we're safe to read the world (while baking chunks) in an unsync manner
+     * Because it blocks the Main Thread until the job is done, and only the Main Thread can change the world,
+     *   we're safe to read the world while baking chunks in an unsync manner.
+     *
+     * Note: the process of binding bakes buffers is done in the Main Thread once they're all done.
      */
     internal fun tickBaking(cameraChunkLocation: IChunkLocation)
     {
@@ -38,7 +39,7 @@ class WorldRenderer(private val world: World)
         while (iterator.hasNext())
         {
             val chunk = iterator.next()
-            if (cameraChunkLocation.withinCubicDistance(chunk.chunkLocation, renderDistance) && !chunk.renderer.isBuilt)
+            if (cameraChunkLocation.withinCubicDistance(chunk.chunkLocation, renderDistance) && chunk.renderer.buildState === ChunkRenderer.State.Unbuilt)
             {
                 tasks.add(ChunkBakingScope.launch {
                     chunk.renderer.updateVertices()
@@ -52,11 +53,10 @@ class WorldRenderer(private val world: World)
             }
     }
 
-    internal fun render()
+    internal fun draw()
     {
         for (chunk in world.getLoadedChunks())
             chunk.renderer.draw()
-        glBindVertexArray(0)
     }
 
     internal fun markChunkToBake(chunk: Chunk)

@@ -28,7 +28,7 @@ class World constructor(val version: String, val worldIO: IMinecraftWorldIO, val
      */
     private val regions = HashMap<IRegionLocation, Region>()
 
-    //todo It's not great having this field being public
+    //todo This solution is pretty dumb and it's not gonna stay
     internal val loadedChunksCache = ArrayList<Chunk>()
 
     //======================

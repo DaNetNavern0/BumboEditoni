@@ -84,9 +84,9 @@ object EditorApplication : LWJGUIApplicationPatched(), Renderer
         try
         {
             setUpProjection()
-            tickCoroutineContext()
             tickGeneral()
             tickBaking()
+            tickCoroutineContext()
             tickDisplay()
 
             val deltaTime = System.currentTimeMillis() - frameStamp
@@ -159,7 +159,7 @@ object EditorApplication : LWJGUIApplicationPatched(), Renderer
 
         Shader.use()
         TextureAtlas.mainAtlas.bind()
-        Editor.currentWorld.worldRenderer.render()
+        Editor.currentWorld.worldRenderer.draw()
 
         EditorUserInputHandler.controls()
         EditorUserInputHandler.selections()
